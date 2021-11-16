@@ -16,7 +16,7 @@
     <AndroidApplication>True</AndroidApplication>
     <AndroidResgenFile>Resources\Resource.designer.cs</AndroidResgenFile>
     <AndroidResgenClass>Resource</AndroidResgenClass>
-    <AndroidManifest></AndroidManifest>
+    <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
     <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
     <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
   </PropertyGroup>
@@ -29,7 +29,6 @@
     <AndroidLinkMode>None</AndroidLinkMode>
     <JavaMaximumHeapSize></JavaMaximumHeapSize>
     <AndroidUseAapt2>true</AndroidUseAapt2>
-    <AndroidManifest></AndroidManifest>
     <AndroidDexTool>d8</AndroidDexTool>
     <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
   </PropertyGroup>
@@ -44,7 +43,6 @@
     <PlatformTarget></PlatformTarget>
     <JavaMaximumHeapSize></JavaMaximumHeapSize>
     <AndroidUseAapt2>false</AndroidUseAapt2>
-    <AndroidManifest></AndroidManifest>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FormsViewGroup, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null">
@@ -333,7 +331,6 @@
       <Generator></Generator>
     </AndroidResource>
     <Compile Include="Properties\AssemblyInfo.fs" />
-    <None Include="Properties\AndroidManifest.xml" />
     <AndroidAsset Include="Assets\AboutAssets.txt" />
     <Compile Include="MainActivity.fs" />
     <None Include="packages.config" />
