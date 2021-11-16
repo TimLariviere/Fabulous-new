@@ -340,6 +340,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TicTacToe\TicTacToe.fsproj">
+      <Project>{0566BF5E-20B4-4391-B493-44290CF3FEE6}</Project>
       <Name>TicTacToe</Name>
     </ProjectReference>
   </ItemGroup>

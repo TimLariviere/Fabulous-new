@@ -340,13 +340,8 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FabulousWeather\FabulousWeather.fsproj">
+      <Project>{A419D3DC-7D99-4DFC-BCCC-1D951A4C867A}</Project>
       <Name>FabulousWeather</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\src\Fabulous.XamarinForms\Fabulous.XamarinForms.fsproj">
-      <Name>Fabulous.XamarinForms</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\src\Fabulous\Fabulous.fsproj">
-      <Name>Fabulous</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.FSharp.targets" />
