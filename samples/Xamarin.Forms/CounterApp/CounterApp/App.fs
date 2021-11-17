@@ -93,3 +93,5 @@ module App =
         )
 
     let program = Program.statefulApplicationWithCmdMsg init update view mapCmdMsgToCmd
+
+    let application : Xamarin.Forms.Application = unbox (Program.create program ())
