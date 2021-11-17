@@ -120,3 +120,5 @@ module App =
             //])
 
     let program = Program.statefulApplicationWithCmd init update view
+
+    let application : Xamarin.Forms.Application = unbox (Program.create program ())

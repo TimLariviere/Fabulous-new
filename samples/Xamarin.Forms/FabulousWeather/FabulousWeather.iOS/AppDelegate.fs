@@ -16,8 +16,7 @@ type AppDelegate () =
     override this.FinishedLaunching (app, options) =
         UIApplication.SharedApplication.SetStatusBarStyle(UIStatusBarStyle.LightContent, true)
         Forms.Init()
-        let application : Xamarin.Forms.Application = unbox (Program.create App.program ())
-        this.LoadApplication(application)
+        this.LoadApplication(App.application)
         base.FinishedLaunching(app, options)
 
 module Main =

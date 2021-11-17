@@ -15,7 +15,7 @@ type MainActivity () =
         base.OnCreate(bundle)
         Platform.Init(this, bundle)
         Forms.Init(this, bundle)
-        this.LoadApplication(App())
+        this.LoadApplication(App.application)
             
     override this.OnRequestPermissionsResult(requestCode: int, permissions: string[], [<GeneratedEnum>] grantResults: Android.Content.PM.Permission[]) =
         Platform.OnRequestPermissionsResult(requestCode, permissions, grantResults)

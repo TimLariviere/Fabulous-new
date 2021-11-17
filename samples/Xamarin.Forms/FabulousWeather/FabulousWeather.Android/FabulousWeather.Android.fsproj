@@ -278,6 +278,12 @@
       <HintPath>..\..\..\..\packages\Xamarin.Forms.5.0.0.2196\lib\MonoAndroid10.0\Xamarin.Forms.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Xamarin.Forms.PancakeView">
+      <HintPath>..\..\..\..\packages\Xamarin.Forms.PancakeView.2.3.0.759\lib\monoandroid10.0\Xamarin.Forms.PancakeView.dll</HintPath>
+    </Reference>
+    <Reference Include="FSharp.Data">
+      <HintPath>..\..\..\..\packages\FSharp.Data.4.2.5\lib\netstandard2.0\FSharp.Data.dll</HintPath>
+    </Reference>
     <Reference Include="Xamarin.Forms.Platform, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\..\..\..\packages\Xamarin.Forms.5.0.0.2196\lib\MonoAndroid10.0\Xamarin.Forms.Platform.dll</HintPath>
       <Private>True</Private>
@@ -301,37 +307,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />
-    <AndroidResource Include="Resources\layout\Main.axml">
-      <SubType></SubType>
-      <Generator></Generator>
-    </AndroidResource>
-    <AndroidResource Include="Resources\values\strings.xml">
-      <SubType></SubType>
-      <Generator></Generator>
-    </AndroidResource>
-    <AndroidResource Include="Resources\mipmap-hdpi\Icon.png">
-      <SubType></SubType>
-      <Generator></Generator>
-    </AndroidResource>
-    <AndroidResource Include="Resources\mipmap-mdpi\Icon.png">
-      <SubType></SubType>
-      <Generator></Generator>
-    </AndroidResource>
-    <AndroidResource Include="Resources\mipmap-xhdpi\Icon.png">
-      <SubType></SubType>
-      <Generator></Generator>
-    </AndroidResource>
-    <AndroidResource Include="Resources\mipmap-xxhdpi\Icon.png">
-      <SubType></SubType>
-      <Generator></Generator>
-    </AndroidResource>
-    <AndroidResource Include="Resources\mipmap-xxxhdpi\Icon.png">
-      <SubType></SubType>
-      <Generator></Generator>
-    </AndroidResource>
+    <AndroidResource Include="Resources\values\strings.xml" />
+    <AndroidResource Include="Resources\mipmap-hdpi\Icon.png" />
+    <AndroidResource Include="Resources\mipmap-mdpi\Icon.png" />
+    <AndroidResource Include="Resources\mipmap-xhdpi\Icon.png" />
+    <AndroidResource Include="Resources\mipmap-xxhdpi\Icon.png" />
+    <AndroidResource Include="Resources\mipmap-xxxhdpi\Icon.png" />
     <Compile Include="Properties\AssemblyInfo.fs" />
     <AndroidManifest Include="Properties\AndroidManifest.xml" />
-    <AndroidAsset Include="Assets\AboutAssets.txt" />
+    <None Include="Assets\AboutAssets.txt" />
     <Compile Include="MainActivity.fs" />
     <None Include="packages.config" />
   </ItemGroup>
