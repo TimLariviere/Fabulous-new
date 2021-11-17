@@ -136,7 +136,7 @@ module App =
             // Return the new model.
             newModel2
         | Restart ->
-            { model with NextUp = X; Board = initialBoard; GameScore = 0 }
+            { model with NextUp = X; Board = initialBoard; GameScore = (0, 0) }
         | VisualBoardSizeChanged args ->
             match model.VisualBoardSize with
             | Some _ -> model
@@ -168,67 +168,55 @@ module App =
     /// The dynamic 'view' function giving the updated content for the view
     let view model =
         Application(
-            NavigationPage([
-                let contentPage =
-                    ContentPage(
+            ContentPage(
+                Grid(
+                    coldefs = [ Star ],
+                    rowdefs = [ Star; Auto; Auto ],
+                    children = [
                         Grid(
-                            coldefs = [ Star ],
-                            rowdefs = [ Star; Auto; Auto ],
+                            coldefs = [ Star; Absolute 5.0; Star; Absolute 5.0; Star ],
+                            rowdefs = [ Star; Absolute 5.0; Star; Absolute 5.0; Star ],
                             children = [
-                                Grid(
-                                    coldefs = [ Star; Absolute 5.0; Star; Absolute 5.0; Star ],
-                                    rowdefs = [ Star; Absolute 5.0; Star; Absolute 5.0; Star ],
-                                    children = [
-                                        BoxView(Color.Black).gridRow(1).gridColumnSpan(5)
-                                        BoxView(Color.Black).gridRow(3).gridColumnSpan(5)
-                                        BoxView(Color.Black).gridColumn(1).gridRowSpan(5)
-                                        BoxView(Color.Black).gridColumn(3).gridRowSpan(5)
+                                BoxView(Color.Black).gridRow(1).gridColumnSpan(5)
+                                BoxView(Color.Black).gridRow(3).gridColumnSpan(5)
+                                BoxView(Color.Black).gridColumn(1).gridRowSpan(5)
+                                BoxView(Color.Black).gridColumn(3).gridRowSpan(5)
 
-                                        for ((row,col) as pos) in positions do
-                                            if canPlay model model.Board.[pos] then
-                                                Button("", Play pos)
-                                                    .backgroundColor(Color.LightBlue)
-                                                    .gridRow(row * 2)
-                                                    .gridColumn(col * 2)
-                                            else
-                                                FileImage(imageForPos model.Board.[pos], Aspect.AspectFit)
-                                                    .center()
-                                                    .margin(10.)
-                                                    .gridRow(row * 2)
-                                                    .gridColumn(col * 2)
-                                    ]
-                                )
-                                    .rowSpacing(0.)
-                                    .columnSpacing(0.)
-                                    .center()
-                                    .size(?width = model.VisualBoardSize, ?height = model.VisualBoardSize)
-                                    .gridRow(0)
-
-                                Label(getMessage model)
-                                    .textColor(Color.Black)
-                                    .font(NamedSize.Large)
-                                    .center()
-                                    .margin(10.)
-                                    .gridRow(1)
-
-                                Button("Restart game", Restart)
-                                    .textColor(Color.Black)
-                                    .backgroundColor(Color.LightBlue)
-                                    .font(NamedSize.Large)
-                                    .gridRow(2)
+                                for ((row,col) as pos) in positions do
+                                    if canPlay model model.Board.[pos] then
+                                        Button("", Play pos)
+                                            .backgroundColor(Color.LightBlue)
+                                            .gridRow(row * 2)
+                                            .gridColumn(col * 2)
+                                    else
+                                        FileImage(imageForPos model.Board.[pos], Aspect.AspectFit)
+                                            .center()
+                                            .margin(10.)
+                                            .gridRow(row * 2)
+                                            .gridColumn(col * 2)
                             ]
                         )
-                    )
+                            .rowSpacing(0.)
+                            .columnSpacing(0.)
+                            .center()
+                            .size(?width = model.VisualBoardSize, ?height = model.VisualBoardSize)
+                            .gridRow(0)
 
-                match model.VisualBoardSize with
-                | None ->
-                    contentPage
-                        .onSizeAllocated(VisualBoardSizeChanged)
-                | Some _ ->
-                    contentPage
-            ])
-                .barBackgroundColor(Color.LightBlue)
-                .barTextColor(Color.Black)
+                        Label(getMessage model)
+                            .textColor(Color.Black)
+                            .font(NamedSize.Large)
+                            .center()
+                            .margin(10.)
+                            .gridRow(1)
+
+                        Button("Restart game", Restart)
+                            .textColor(Color.Black)
+                            .backgroundColor(Color.LightBlue)
+                            .font(NamedSize.Large)
+                            .gridRow(2)
+                    ]
+                )
+            )
         )
 
     // Display a modal message giving the game result. This is doing a UI
@@ -237,5 +225,7 @@ module App =
 
     let gameOver msg =
         Application.Current.MainPage.DisplayAlert("Game over", msg, "OK") |> ignore
-
+        
     let program = Program.statefulApplication init (update gameOver) view
+    
+    let application : Xamarin.Forms.Application = unbox (Program.create program ())
