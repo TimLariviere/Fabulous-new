@@ -24,10 +24,14 @@ This comes with its own set of challenges though. We have to be careful to not c
 
 This limitation on the size of a struct enables .NET to store those structs inside the L1 / L2 caches of the CPU, which yield faster reading speed than RAM.
 
+TODO: Maybe talk about inlining?
+
 ## Types
 
 ### Widget and attributes
 The way Fabulous represents the UI tree is with `Widget` and `Attributes`.
+
+TODO: Put an image showing UI tree with Widgets and attributes
 
 A `Widget` represents a UI element such as a label, a button, an text field, a list, etc.
 
