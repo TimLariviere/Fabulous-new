@@ -1,6 +1,6 @@
 # Core types
 
-To get the best performance possible, Fabulous needs to use specialized and optimized data structures to minimize the impact on computation speed and memory usage.
+To get the best performance possible, Fabulous uses specialized and optimized data structures to minimize the impact on computation speed and memory usage.
 
 Those specialized data structures are known as the core types and we will explain them here.
 
@@ -20,18 +20,18 @@ This means we need to optimize the most common hot paths in the code for speed.
 
 Structs are stored on the stack locally to the function we're currently executing, and not on the heap that is handled by the garbage collector. Once the function is done, the structs are automatically destroyed without having to pause the app.
 
-This comes with its own set of challenges though. We have to be careful to not copy structs all the time from function to function, and also make sure the size of each struct stays below a maximum size (we can't store too many data in a struct).
+This comes with its own set of challenges though.
 
-This limitation on the size of a struct enables .NET to store those structs inside the L1 / L2 caches of the CPU, which yield faster reading speed than RAM.
+We have to be careful to not copy structs all the time from function to function. For this, marking a function as inlined should cover most cases.
 
-TODO: Maybe talk about inlining?
+Also make sure the size of each struct stays below a maximum size (we can't store too many data in a struct). This limitation on the size of a struct enables .NET to store those structs inside the L1 / L2 caches of the CPU, which yield faster reading speed than RAM.
 
 ## Types
 
 ### Widget and attributes
-The way Fabulous represents the UI tree is with `Widget` and `Attributes`.
+Fabulous represents the UI tree through a virtual tree using `Widgets` and `Attributes`.
 
-TODO: Put an image showing UI tree with Widgets and attributes
+![Fabulous virtual tree](fabulous-virtual-tree.svg)
 
 A `Widget` represents a UI element such as a label, a button, an text field, a list, etc.
 
