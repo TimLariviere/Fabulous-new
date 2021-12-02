@@ -49,30 +49,48 @@ type BorderedEntry() =
 
 Along with this control, we create the wrapper (like defined in the [View Extensions documentation](Fabulous.XamarinForms/views-extending.html)) so we can use it in our Fabulous application:
 ```fs
-[<AutoOpen>]
-module FabulousBorderedEntry =
-    let BorderedEntryBorderColorAttributeKey = AttributeKey<_> "BorderedEntry_BorderColor"
-
-    type Fabulous.XamarinForms.View with
-        static member inline BorderedEntry(?borderColor: Color, ?placeholder, ?text, ?textChanged, ?keyboard) =
-            let attribCount = match borderColor with None -> 0 | Some _ -> 1
-            let attribs =
-                ViewBuilders.BuildEntry(attribCount,
-                                        ?placeholder = placeholder,
-                                        ?text = text,
-                                        ?textChanged = textChanged,
-                                        ?keyboard = keyboard)
-
-            match borderColor with None -> () | Some v -> attribs.Add(BorderedEntryBorderColorAttributeKey, v)
-
-            let update (prevOpt: ViewElement voption) (source: ViewElement) (target: BorderedEntry) =
-                ViewBuilders.UpdateEntry(prevOpt, source, target)
-                source.UpdatePrimitive(prevOpt, target, BorderedEntryBorderColorAttributeKey, (fun target v -> target.BorderColor <- v))
-
-            let updateAttachedProperties propertyKey prevOpt source target =
-                ViewBuilders.UpdateEntryAttachedProperties(propertyKey, prevOpt, source, target)
-
-            ViewElement.Create(BorderedEntry, update, updateAttachedProperties, attribs)
+    type BorderedEntry() =
+        inherit Entry()
+    
+        static member BorderColorProperty =
+            BindableProperty.Create("BorderColor", typeof<Color>, typeof<BorderedEntry>, Color.Default)
+    
+        member this.BorderColor
+            with get () =
+                this.GetValue(BorderedEntry.BorderColorProperty) :?> Color
+            and set (value: Color) =
+                this.SetValue(BorderedEntry.BorderColorProperty, value)
+    
+    [<AutoOpen>]
+    module FabulousBorderedEntry =
+        let BorderColor = Attributes.defineBindable<Color> BorderedEntry.BorderColorProperty
+    
+        type [<Struct>] BorderedEntry<'msg> (attrs: Attributes.AttributesBuilder) =
+            static let key = Widgets.register<BorderedEntry>()
+            member _.Builder = attrs
+    
+            static member Create(text: string, onTextChanged: string -> 'msg) =
+                BorderedEntry<'msg>(
+                    Attributes.AttributesBuilder(
+                        [| Entry.Text.WithValue(text)
+                           Entry.TextChanged.WithValue(fun args -> onTextChanged args.NewTextValue |> box) |],
+                        [||],
+                        [||]
+                    )
+                )
+    
+            interface IEntryWidgetBuilder<'msg> with
+                member x.Compile() = attrs.Build(key)
+    
+        type Fabulous.XamarinForms.View with
+            static member inline BorderedEntry<'msg>(text, onTextChanged) = BorderedEntry<'msg>.Create(text, onTextChanged)
+    
+    
+        [<Extension>]
+        type BorderedEntryExtensions =
+            [<Extension>]
+            static member inline borderColor(this: BorderedEntry<_>, value: Color) =
+                this.AddScalarAttribute(BorderColor.WithValue(value))
 ```
 
 Once this is done, we'll need a custom renderer _per platform_ for that control to handle the new BorderColor property.
