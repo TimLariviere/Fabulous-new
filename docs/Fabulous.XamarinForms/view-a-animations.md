@@ -23,8 +23,8 @@ with a particular element:
 ```fsharp
 let animatedLabelRef = ViewRef<Label>()
 
-let view dispatch model = 
-    View.Label(text="Rotate", ref=animatedLabelRef) 
+let view model = 
+    Label("Rotate", ref=animatedLabelRef)
 ```
 
 The underlying control can also be accessed by using the `created` handler:
@@ -32,7 +32,7 @@ The underlying control can also be accessed by using the `created` handler:
 ```fsharp
 let mutable label = None
 
-View.Label(text="hello", created=(fun l ->  label <- Some l))
+Label(text="hello", created=(fun l ->  label <- Some l))
 ```
 
 > NOTE: A `ViewRef` only holds a weak handle to the underlying control.  
@@ -54,11 +54,11 @@ let update msg model =
         | None -> () 
         | Some c -> c.RotateTo (360.0, 2000u) |> ignore
 
-let view dispatch model = 
-    View.StackLayout [
-        View.Label(text="Rotate", ref=animatedLabelRef) 
-        View.Button(text="Rotate", command=(fun () -> dispatch Poked)) 
-    ]
+let view model = 
+    VerticalStackLayout([
+        Label(text="Rotate", ref=animatedLabelRef) 
+        Button("Rotate", Poked) 
+    ])
 ```
 
 Animations in Xamarin.Forms specify tasks.  These are ignorable if the animation is simple.
