@@ -14,10 +14,9 @@ Gesture recognizers can be added to any visual element.
 The tap gesture is used for tap detection.  For example, here is a `TapGestureRecognizer`:
 
 ```fsharp
-View.Frame(
-    hasShadow = true,
-    gestureRecognizers = [ View.TapGestureRecognizer(command=(fun () -> dispatch FrameTapped)) ]
-)
+Frame()
+   .hasShadow(true)
+   .gestureRecognizers([TapGestureRecognizer()]),
 ```
 
 See also:
@@ -32,14 +31,11 @@ The pan gesture is used for detecting dragging. A common scenario for the pan ge
 Here is an example of a `PanGestureRecognizer` used to recognize panning touch movements:
 
 ```fsharp
-View.Frame(
-    hasShadow = true,
-    gestureRecognizers = [
-        View.PanGestureRecognizer(touchPoints=1, panUpdated=(fun panArgs ->
-                if panArgs.StatusType = GestureStatus.Running then
-                    dispatch (PanGesture panArgs)))
-    ]
-)
+Frame()
+   .hasShadow(true)
+   .gestureRecognizers([
+        PanGestureRecognizer(touchPoints=1, panUpdated=(
+            fun panArgs -> if panArgs.StatusType = GestureStatus.Running then (PanGesture panArgs)))]),
 ```
 
 See also:
@@ -54,11 +50,10 @@ The pinch gesture is used for performing interactive zoom. A common scenario for
 Here is an example of a `PinchGestureRecognizer` used to recognize pinch-or-expand touch movements:
 
 ```fsharp
-View.Frame(
-    hasShadow=true,
-    gestureRecognizers= [
-        View.PinchGestureRecognizer(pinchUpdated=(fun pinchArgs ->
-            dispatch (UpdateSize (pinchArgs.Scale, pinchArgs.Status))))
+Frame()
+   .hasShadow(true)
+   .gestureRecognizers([
+        PinchGestureRecognizer(UpdateSize (pinchArgs.Scale, pinchArgs.Status))))
     ]
 )
 ```

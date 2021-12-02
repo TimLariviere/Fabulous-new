@@ -20,26 +20,25 @@ objects on each invocation of the `view` function.
 This must be done explicitly. One way of doing this is to use `dependsOn`.
 Here is an example for a 6x6 Grid that depends on nothing, i.e. never changes:
 ```fsharp
-let view model dispatch =
+let view model =
     ...
-    dependsOn () (fun model () -> 
-        View.StackLayout(
-          children=
-            [ View.Label(text=sprintf "Grid (6x6, auto):")
-              View.Grid(rowdefs= [for i in 1 .. 6 -> box "auto"],
-                coldefs=[for i in 1 .. 6 -> box "auto"], 
-                children = [ for i in 1 .. 6 do for j in 1 .. 6 -> 
-                                View.BoxView(Color((1.0/float i), (1.0/float j), (1.0/float (i+j)), 1.0) )
-                                        .GridRow(i-1).GridColumn(j-1) ] )
+   dependsOn () (fun model () -> 
+      VerticalStackLayout([
+         Label(text=sprintf "Grid (6x6, auto):")
+         Grid(rowdefs= [for i in 1 .. 6 -> box "auto"],
+              coldefs=[for i in 1 .. 6 -> box "auto"], 
+              children = [ for i in 1 .. 6 do for j in 1 .. 6 -> 
+                                BoxView(Color((1.0/float i), (1.0/float j), (1.0/float (i+j)), 1.0) )
+                                        .gridRow(i-1)
+                                        .gridColumn(j-1) ] )
             ])
 ```
-Inside the function - the one passed to `dependsOn` - the `model` is rebound to be inaccessbile with a `DoNotUseMe` type so you can't use it. Here is an example where some of the model is extracted:
+Inside the function - the one passed to `dependsOn` - the `model` is rebound to be inaccessible with a `DoNotUseMe` type so you can't use it. Here is an example where some of the model is extracted:
 ```fsharp
-let view model dispatch =
+let view model =
     ...
     dependsOn (model.CountForSlider, model.StepForSlider) (fun model (count, step) -> 
-        View.Slider(minimum=0.0, maximum=10.0, value= double step, 
-                    valueChanged=(fun args -> dispatch (SliderValueChanged (int (args.NewValue + 0.5)))))) 
+        Slider(min=0.0, max=10.0, value= double step, SliderValueChanged (int (args.NewValue + 0.5))))
     ...
 ```
 In the example, we extract properties `CountForSlider` and `StepForSlider` from the model, and bind them to `count` and `step`.  If either of these change, the section of the view will be recomputed and no adjustments will be made to the UI.
@@ -62,12 +61,12 @@ This is because Fabulous doesn't know about the intent of your code, and will tr
 Say we have the following code:
 
 ```fsharp
-View.StackLayout([
+VerticalStackLayout([
     if model.ShowFirstVideo then
-        yield View.MediaElement(source = MediaPath "path/to/video.mp4")
+        yield MediaElement(source = MediaPath "path/to/video.mp4")
 
-    yield View.MediaElement(source = MediaPath "path/to/other-video.mp4")
-    yield View.Button(text = "Toggle first video", command = (fun () -> dispatch ToggleFirstVideo))
+    yield MediaElement(source = MediaPath "path/to/other-video.mp4")
+    yield Button("Toggle first video", ToggleFirstVideo)
 ])
 ```
 
@@ -83,12 +82,11 @@ If you really must change ordering, you can help Fabulous by providing a `key` v
 In our example, this would be:
 
 ```fsharp
-View.StackLayout([
+VerticalStackLayout([
     if model.ShowFirstVideo then
-        yield View.MediaElement(source = MediaPath "path/to/video.mp4")
-
-    yield View.MediaElement(key = "second-player", source = MediaPath "path/to/other-video.mp4")
-    yield View.Button(text = "Toggle first video", command = (fun () -> dispatch ToggleFirstVideo))
+        yield MediaElement(source = MediaPath "path/to/video.mp4")
+    yield MediaElement(key = "second-player", source = MediaPath "path/to/other-video.mp4")
+    yield Button("Toggle first video", ToggleFirstVideo)
 ])
 ```
 
@@ -114,8 +112,8 @@ instance on each invocation. The incremental update of dynamic views maintains a
 Fabulous prioritizes reuse in the following order:
 1. Same ViewElement instance (when using dependsOn)
 ```fsharp
-View.Grid([
-    dependsOn () (fun _ _ -> View.Label(text = "Hello, World!"))
+Grid([
+    dependsOn () (fun _ _ -> Label("Hello, World!"))
 ])
 ```
 
@@ -123,15 +121,15 @@ View.Grid([
 
 ```fsharp
 // Previous View
-View.Grid([
-    View.Label(key = "header", text = "Previous Header")
-    View.Label(key = "body", text = "Previous body")
+Grid([
+    Label(key = "header", text = "Previous Header")
+    Label(key = "body", text = "Previous body")
 ])
 
 // New View
-View.Grid([
-    View.Label(key = "header", text = "New Header") // Will reuse previous header
-    View.Button(key = "body", text = "New body") // Won't be able to reuse previous body since Label != Button
+Grid([
+    Label(key = "header", text = "New Header") // Will reuse previous header
+    Button(key = "body", text = "New body") // Won't be able to reuse previous body since Label != Button
 ])
 ```
 
@@ -152,5 +150,3 @@ NOTE: The list diffing will limit mutations to only Move, Remove, and Insert, ev
 This is to support the limitations imposed by how Xamarin.Forms reacts to changes in `System.Collections.ObjectModel.ObservableCollection<'T>`.
 
 The above is sufficient for many purposes, but care must always be taken with large lists and data sources, see `ListView` above for example.  Care must also be taken whenever data updates very rapidly.
-
-
