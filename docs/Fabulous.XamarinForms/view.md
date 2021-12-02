@@ -9,10 +9,9 @@ Views
 The `view` function is a function returning your view elements based on the current model. For example:
 
 ```fsharp
-let view model dispatch =
-    View.ContentPage(
-        title="Pocket Piggy Bank",
-        content=View.Label(text = sprintf "Hello world!")
+let view model =
+    ContentPage("Pocket Piggy Bank",
+        Label(text = sprintf "Hello world!")
     )
 ```
 
@@ -34,7 +33,6 @@ type Msg =
     | Add of decimal
     | Login of string option
 
-
 let init() = 
     { Balance = 2m
         CurrencySymbol = "$"
@@ -47,22 +45,18 @@ let update msg model =
     | Add x -> { model with Balance = model.Balance + x }, Cmd.none
     | Login user -> { model with User = user }, Cmd.none
 
-let view model dispatch =
-    View.ContentPage(
-        title="Pocket Piggy Bank",
-        content=View.StackLayout(padding= Thickness 20.0,
-            horizontalOptions=LayoutOptions.Center,
-            verticalOptions=LayoutOptions.CenterAndExpand,
-            children = [
-                match model.User with
-                | Some user ->
-                    yield View.Label(text=sprintf "Logged in as : %s" user)
-                    yield View.Label(text=sprintf "Balance: %s%.2f" model.CurrencySymbol model.Balance)
-                    yield View.Button(text="Withdraw", command=(fun () -> dispatch (Spend 10.0m)), commandCanExecute=(model.Balance > 0.0m))
-                    yield View.Button(text="Deposit", command=(fun () -> dispatch (Add 10.0m)))
-                    yield View.Button(text="Logout", command=(fun () -> dispatch (Login None)))
-                | None ->
-                    yield View.Button(text="Login", command=(fun () -> dispatch (Login (Some "user"))))
+let view model =
+    ContentPage("Pocket Piggy Bank",
+        VerticalStackLayout([
+            match model.User with
+            | Some user ->
+                yield Label(sprintf "Logged in as : %s" user)
+                yield Label(sprintf "Balance: %s%.2f" model.CurrencySymbol model.Balance)
+                yield Button("Withdraw", (Spend 10.0m)).isEnabled(model.Balance > 10m)
+                yield Button("Deposit", (Add 10.0m))
+                yield Button("Logout", (Login None))
+            | None ->
+                Button("Login", Login (Some "user"))
             ]))
 ```
 The four main control groups used to create the user interface of a Xamarin.Forms application are: 
