@@ -16,13 +16,12 @@ displays a scrollable list of selectable data
 
 ### Basic example ListView
 
-
 ```fsharp 
-View.ListView(items = [
-    View.TextCell "First ListView"; 
-    View.TextCell "Second ListView"; 
-    View.TextCell "Third ListView"
-], itemSelected = (fun idx -> dispatch (ListViewSelectedItemChanged idx)) )    
+ListView([
+    TextCell("First ListView")
+    TextCell("Second ListView")
+    TextCell("Third ListView")
+]).itemSelected(ListViewSelectedItemChanged idx)  
 ```
 
 <img src="images/view/ListView-adr-basic.png" width="300">
@@ -92,15 +91,12 @@ let update msg model =
     | ...
     | GetMoreItems n -> { model with LatestItemAvailable = n }
 
-let view model dispatch =
+let view model =
     ...
-    View.ListView(
-        items = [
-            for i in 1 .. model.LatestItemAvailable do
-                yield View.TextCell("Item " + string i)
-        ],
-        itemAppearing = (fun idx -> if idx >= max - 2 then dispatch (GetMoreItems (idx + 10) ) )
-    )
+    ListView([
+        for i in 1 .. model.LatestItemAvailable do
+            yield View.TextCell("Item " + string i)
+    ]).itemAppearing(fun idx -> if idx >= max - 2 then (GetMoreItems (idx + 10) ) )
 ...
 ```
 
