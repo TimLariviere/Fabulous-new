@@ -25,7 +25,7 @@ let init() = { ... }
 let update (msg:Msg) (model:Model) = ...
 
 /// The VIEW function giving updated content for the page
-let view (model: Model) dispatch = ...
+let view (model: Model) = ...
 
 type App () as app = 
     inherit Application ()
@@ -40,7 +40,7 @@ type App () as app =
 
 The model is the core data from which the whole state of the app can be resurrected.  When designing your model,
 ask yourself  "what is the information I would need on restart to get the app back to the same essential state". The model is generally immutable but may also contain elements such as service connections.
-It is common for the desgin of the model to grow "organically" as you prototype your app.
+It is common for the design of the model to grow "organically" as you prototype your app.
 
 Some advantages of using an immutable model are:
 
