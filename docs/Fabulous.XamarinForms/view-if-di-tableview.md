@@ -18,9 +18,9 @@ displays a list of rows of type Cell with optional headers and subheaders
 
 
 ```fsharp 
-View.TableView( root = 
-    View.TableRoot( items = [
-        View.TableSection
+TableView( root = 
+    TableRoot( items = [
+        TableSection
             (
                 title = "TextCell",
                 items = [

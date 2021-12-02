@@ -16,10 +16,7 @@ ImageButton
 
 
 ```fsharp 
-View.ImageButton
-    (
-        source = Image.ImagePath "icon.png"
-    )
+ImageButton("addphoto.png", updatePicture, Aspect.AspectFit)
 ```
 
 <img src="images/view/ImageButton-adr-basic.png" width="300">
@@ -29,17 +26,12 @@ View.ImageButton
 ### Basic example with styling
 
 ```fsharp 
-View.ImageButton
-    (
-        horizontalOptions = style.Position,
-        verticalOptions = style.Position,
-        backgroundColor = style.ButtonColor,
-        padding = style.Padding,
-        source = Image.ImagePath "icon.png"
-
-    )
+ImageButton("addphoto.png", updatePicture, Aspect.AspectFit)
+    .horizontalOptions(style.Position)
+    .verticalOptions(style.Position)
+    .backgroundColor(style.ButtonColor)
+    .padding(style.Padding)
 ```
-
 
 <img src="images/view/ImageButton-adr-styled.png" width="300">
 
@@ -59,7 +51,5 @@ The ImageButton displays an image and responds to a tap or click that directs an
 ```fsharp 
 let monkey =  "http://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Papio_anubis_%28Serengeti%2C_2009%29.jpg/200px-Papio_anubis_%28Serengeti%2C_2009%29.jpg"
 
-View.ImageButton(
-    source = Image.ImagePath monkey
-)
+ImageButton(monkey, updatePicture, Aspect.AspectFit)
 ```

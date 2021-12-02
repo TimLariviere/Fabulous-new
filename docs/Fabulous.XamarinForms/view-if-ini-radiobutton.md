@@ -14,7 +14,10 @@ RadioButton
 
 
 ```fsharp 
-View.StackLayout(children = [ View.RadioButton(content = Content.String "RadioButton 1"); View.RadioButton(content = Content.String "RadioButton 2") ] )
+VerticalStackLayout([
+    View.RadioButton("RadioButton 1")
+     View.RadioButton("RadioButton 2")
+ ])
 ```
 
 <img src="images/view/RadioButton-adr-basic.png" width="300">
@@ -51,7 +54,6 @@ View.StackLayout
         ]
     )
 ```
-
 
 <img src="images/view/RadioButton-adr-styled.png" width="300">
 

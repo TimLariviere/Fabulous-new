@@ -18,7 +18,7 @@ The Progress Bar represents progress as a horizontal bar, that is filled to a pe
 
 
 ```fsharp 
-View.ProgressBar(progress = 0.5)
+ProgressBar(0.5)
 ```
 
 <img src="images/view/ProgressBar-adr-basic.png" width="300">
@@ -28,13 +28,10 @@ View.ProgressBar(progress = 0.5)
 ### Basic example with styling
 
 ```fsharp 
-View.ProgressBar
-(
-    horizontalOptions = style.Position,
-    verticalOptions = style.Position,
-    backgroundColor = style.LayoutColor,
-    progress = 0.5
-)
+View.ProgressBar(0.5)
+    .horizontalOptions(style.Position)
+    .verticalOptions(style.Position)
+    .backgroundColor(style.LayoutColor)
 ```
 
 

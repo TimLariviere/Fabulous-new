@@ -29,8 +29,8 @@ let pickerItems =
         ("White", Color.White); ("Yellow", Color.Yellow ) ]
 
 let pickedColorIndex = 2 // placeholder for testing purposes 
-View.ContentPage(title ="Picker", content =                     
-    View.Picker
+ContentPage(title ="Picker", content =                     
+    Picker
         (
             title = "Choose Color:",
             textColor = snd pickerItems.[pickedColorIndex],

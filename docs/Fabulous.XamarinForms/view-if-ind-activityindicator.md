@@ -15,8 +15,7 @@ ActivityIndicator
 
 
 ```fsharp 
-View.ActivityIndicator
-(isRunning = true)
+ActivityIndicator(true)
 ```
 
 <img src="images/view/ActivityIndicator-adr-basic.png" width="300">
@@ -26,15 +25,11 @@ View.ActivityIndicator
 ### Basic example with styling
 
 ```fsharp 
-View.ActivityIndicator
-(
-    horizontalOptions = style.Position,
-    verticalOptions = style.Position,
-    backgroundColor = style.LayoutColor,
-    isRunning = true
-)
+ActivityIndicator(true)
+    .horizontalOptions(style.Position)
+    .verticalOptions(style.Position)
+    .backgroundColor(style.LayoutColor)
 ```
-
 
 <img src="images/view/ActivityIndicator-adr-styled.png" width="300">
 
@@ -52,7 +47,7 @@ See also:
 A simple `ActivityIndicator` is as follows:
 
 ```fsharp
-View.ActivityIndicator(isRunning = (count > 0))
+ActivityIndicator((count > 0))
 ```
 
 <img src="https://user-images.githubusercontent.com/52166903/60177355-9c424c00-9810-11e9-8275-bd8c2ebcf3c8.png" width="400">

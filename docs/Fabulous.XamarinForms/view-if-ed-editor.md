@@ -14,8 +14,7 @@ Editor
 
 
 ```fsharp 
-View.Editor
-    ("Editor")
+Editor("Editor")
 ```
 
 <img src="images/view/Editor-adr-basic.png" width="300">
@@ -25,13 +24,10 @@ View.Editor
 ### Basic example with styling
 
 ```fsharp 
-View.Editor
-    (
-        horizontalOptions = style.Position,
-        verticalOptions = style.Position,
-        backgroundColor = style.LayoutColor,
-        text = "Editor"
-    )
+Editor("Editor")
+    .horizontalOptions(style.Position)
+    .verticalOptions(style.Position)
+    .backgroundColor(style.LayoutColor)
 ```
 
 
@@ -51,9 +47,7 @@ See also:
 An example `Editor` is as follows:
 
 ```fsharp
-View.Editor(text = editorText,
-    textChanged = (fun args -> dispatch (TextChanged(args.OldTextValue, args.NewTextValue))),
-    completed = (fun text -> dispatch (EditorEditCompleted text)))
+Editor(editorText, TextChanged(args.OldTextValue, args.NewTextValue), EditorEditCompleted(text))
 ```
 
 <img src="https://user-images.githubusercontent.com/52166903/60175558-d2c99800-980b-11e9-9755-860cc9a60dcf.png" width="400">
