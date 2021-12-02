@@ -34,11 +34,8 @@ FFImageLoading.Forms.Platform.CachedImageRenderer.Init()
 3. Use CachedImage in your view function. Here is a simple example of using CachedImage to display a scenic image:
 
 ```fsharp
-View.CachedImage(
-  source = ImagePath "http://loremflickr.com/600/600/nature?filename=simple.jpg",
-  height = 600.,
-  width = 600.
-)
+CachedImage(http://loremflickr.com/600/600/nature?filename=simple.jpg")
+    .size(height = 600., width = 600.)
 ```
 
 Performance considerations
