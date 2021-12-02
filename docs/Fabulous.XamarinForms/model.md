@@ -8,7 +8,7 @@ Models
 <br /> 
 
 The model is the core data from which the whole state of the app can be resurrected.  The model is generally immutable but may also contain elements such as service connections.
-It is common for the desgin of the model to grow "organically" as you prototype your app.
+It is common for the design of the model to grow "organically" as you prototype your app.
 
 The init function returns your initial model.  The update function updates the model as messages are received.
 
@@ -36,20 +36,17 @@ let update msg model =
     match msg with
     | UpdateAnimal animalName -> { model with AnimalName = validateAnimal animalName }
 
-let view (model: Model) dispatch : ViewElement =
+let view (model: Model) : ViewElement =
     let makeEntryCell text =
-        View.Entry(
-            text = text,
-            textChanged = fun textArgs -> UpdateAnimal textArgs.NewTextValue |> dispatch
-        )
+        Entry(text, UpdateAnimal)
     
-    View.ContentPage(
-        View.StackLayout(
+    ContentPage(
+        VerticalStackLayout(
             match model.AnimalName with
             | ValidAnimal validName -> [ makeEntryCell validName ]
             | InvalidAnimal invalidName ->
                 [ makeEntryCell invalidName
-                    View.Label(sprintf "%s is not a valid animal name. Try %A" invalidName validAnimalNames) ]
+                    Label(sprintf "%s is not a valid animal name. Try %A" invalidName validAnimalNames) ]
         )
     )
 
@@ -83,24 +80,21 @@ let update msg model =
     match msg with
     | UpdateAnimal animalName -> { model with AnimalName = validateAnimal animalName }
 
-let view (model: Model) dispatch : ViewElement =
+let view (model: Model) : ViewElement =
     let makeEntryCell text =
-        View.Entry(
-            text = text,
-            textChanged = fun textArgs -> UpdateAnimal textArgs.NewTextValue |> dispatch
-        )
+        Entry(text, UpdateAnimal)
 
     let makeErrorMsg err =
         match err with
         | InvalidName invalidName ->
             [ makeEntryCell invalidName
-                View.Label(text = sprintf "%s is not a valid animal name. Try %A" invalidName validAnimalNames) ]
+                Label(sprintf "%s is not a valid animal name. Try %A" invalidName validAnimalNames) ]
         | BlankName ->
             [ makeEntryCell ""
-                View.Label(text = sprintf "You must input a name") ]
+                Label("You must input a name") ]
 
-    View.ContentPage(
-        View.StackLayout(
+    ContentPage(
+        VerticalStackLayout(
             match model.AnimalName with
             | Ok (Animal validName) -> [ makeEntryCell validName ]
             | Error errorMsg -> makeErrorMsg errorMsg
@@ -148,4 +142,3 @@ type Application() =
         Debug.WriteLine "OnStart: using same logic as OnResume()"
         this.OnResume()
 ```
-
