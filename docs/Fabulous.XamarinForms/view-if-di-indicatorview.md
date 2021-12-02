@@ -18,12 +18,15 @@ displays indicators that represent the number of items in a CarouselView
 
 
 ```fsharp 
-View.StackLayout( children = [
-    View.IndicatorView(ref = indicatorRef, indicatorColor = Color.Red, selectedIndicatorColor = Color.Blue, indicatorsShape = IndicatorShape.Square)                    
-    View.CarouselView(indicatorView = indicatorRef, items = [ 
-        View.Label("First CarouselView with IndicatorView")
-        View.Label("Second CarouselView with IndicatorView")
-        View.Label("Third CarouselView with IndicatorView")
+VerticalStackLayout([
+    IndicatorView(ref = indicatorRef)
+        .indicatorColor(Color.Red)
+        .selectedIndicatorColor(Color.Blue)
+        .indicatorsShape(IndicatorShape.Square)                
+    CarouselView(items = [ 
+        Label("First CarouselView with IndicatorView")
+        Label("Second CarouselView with IndicatorView")
+        Label("Third CarouselView with IndicatorView")
     ] )
 ] )
 ```
@@ -35,54 +38,40 @@ View.StackLayout( children = [
 ### Basic example with styling
 
 ```fsharp 
-View.StackLayout
-    ( 
-        children = [
-            View.IndicatorView
-                (   
-                    horizontalOptions = style.Position,
-                    verticalOptions = style.Position,
-                    backgroundColor = style.LayoutColor,
-                    padding = style.Padding,  
-                    ref = indicatorRef, 
-                    indicatorColor = Color.Red, 
-                    selectedIndicatorColor = Color.Blue, 
-                    indicatorsShape = IndicatorShape.Square
-                )                    
-            View.CarouselView
-                (
-                    indicatorView = indicatorRef, 
-                    items = [
-                        View.Label
-                            (
-                                horizontalOptions = style.Position,
-                                verticalOptions = style.Position,
-                                backgroundColor = style.ViewColor,
-                                padding = style.Padding,  
-                                text = ("First CarouselView with IndicatorView")
-                            )
-                        View.Label
-                            (
-                                horizontalOptions = style.Position,
-                                verticalOptions = style.Position,
-                                backgroundColor = style.ViewColor2,
-                                padding = style.Padding,  
-                                text = ("Second CarouselView with IndicatorView")
-                            )
-                        View.Label
-                            (
-                                horizontalOptions = style.Position,
-                                verticalOptions = style.Position,
-                                backgroundColor = style.ViewColor3,
-                                padding = style.Padding,  
-                                text = ("Third CarouselView with IndicatorView")
-                            )
-
-                    ]    
-                )
-        ] )
+VerticalStackLayout([
+    IndicatorView(ref = indicatorRef)
+        .horizontalOptions(style.Position,)
+        .verticalOptions(style.Position,)
+        .backgroundColor(style.LayoutColor,)
+        .padding(style.Padding,)
+        .indicatorColor(Color.Red) 
+        .selectedIndicatorColor(Color.Blue,) 
+        .indicatorsShape(IndicatorShape.Square)
+                     
+    CarouselView(
+        indicatorView = indicatorRef,
+        [
+            Label("First CarouselView with IndicatorView")
+                .horizontalOptions(style.Position),
+                .verticalOptions(style.Position),
+                .backgroundColor(style.ViewColor),
+                .padding(style.Padding)
+    
+            Label("Second CarouselView with IndicatorView")
+                .horizontalOptions(style.Position),
+                .verticalOptions(style.Position),
+                .backgroundColor(style.ViewColor3),
+                .padding(style.Padding)
+    
+            Label("Third CarouselView with IndicatorView")
+                .horizontalOptions(style.Position),
+                .verticalOptions(style.Position),
+                .backgroundColor(style.ViewColor3),
+                .padding(style.Padding)
+        ]    
+    )
+] )
 ```
-
 
 <img src="images/view/IndicatorView-adr-styled.png" width="300">
 
