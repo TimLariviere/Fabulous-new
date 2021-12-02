@@ -104,27 +104,18 @@ module App =
         | Pressed -> { model with Pressed = true }
  
     /// The view function giving updated content for the page
-    let view (model: Model) dispatch =
-        View.ContentPage(
-            View.StackLayout([
-                if model.Pressed then
-                    View.Label("I was pressed!")
-                else
-                    View.Button(
-                        text = "Press Me!",
-                        command = fun () -> dispatch Pressed
-                    )
-            ])
-        )
-    
- type App () as app =
-     inherit Application ()
- 
-     let runner =        
-         Program.mkSimple App.init App.update App.view // use Program.mkProgram if your app contains commands (see 'update')
-         |> Program.withConsoleTrace
-         |> XamarinFormsProgram.run app
-```
+    let view (model: Model) =
+        Application(
+            ContentPage(
+                VerticalStackLayout([
+                    if model.Pressed then
+                        Label("I was pressed!")
+                    else
+                        Button("Press Me!", Pressed)
+                ])
+            ))
+            
+    let program = Program.statefulApplicationWithCmdMsg init update view
 
 The init function returns your initial state, and each model gets an update function for message processing. The `view` function computes an immutable Xaml-like description. In the above example, the choice between a label and button depends on the `model.Pressed` value.
 
@@ -199,4 +190,3 @@ Contributing
 Please contribute to this library through issue reports, pull requests, code reviews and discussion.
 
 * [Submit a fix to this guide](https://github.com/fsprojects/Fabulous/tree/v1.0/docs)
-

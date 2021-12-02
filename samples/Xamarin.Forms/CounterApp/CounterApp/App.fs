@@ -93,4 +93,4 @@ module App =
             )
         )
 
-    let program = Program.statefulApplicationWithCmdMsg init update view mapCmdMsgToCmd
+    let program = Program.statefulApplicationWithCmdMsg init update view
