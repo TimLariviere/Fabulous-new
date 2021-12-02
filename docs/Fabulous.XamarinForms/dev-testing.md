@@ -94,7 +94,6 @@ See [Replacing commands with command messages for better testability](update.htm
 Views in Fabulous are testable as well, which makes it a clear advantage over more classic OOP frameworks (like C#/MVVM).  
 The `view` function returns a `ViewElement` value (which is a dictionary of attribute-value pairs). So we can check against that dictionary if we find the property we want, with the value we want.
 
-Unfortunately when creating a control through `View.XXX`, we lose the control's type and access to its properties. Fabulous creates a `ViewElement` which encapsulates all those data.  
 
 In order to test in a safe way, Fabulous provides type-safe helpers for every controls from `Xamarin.Forms.Core`.  
 You can find them in the `Fabulous.XamarinForms` namespace. They are each named after the control they represent.
@@ -106,29 +105,24 @@ The Viewer only takes a `ViewElement` as a parameter.
 
 Let's take this code for example:
 ```fsharp
-let view (model: Model) dispatch =  
-    View.ContentPage(
-        content=View.StackLayout(
-            automationId="stackLayoutId"
-            children=[ 
-                View.Label(automationId="CountLabel", text=sprintf "%d" model.Count)
-                View.Button(text="Increment", command=(fun () -> dispatch Increment))
-                View.Button(text="Decrement", command=(fun () -> dispatch Decrement)) 
-                View.StackLayout(
-                    orientation=StackOrientation.Horizontal, 
-                    children=[
-                        View.Label(text="Timer")
-                        View.Switch(isToggled=model.TimerOn, toggled=(fun on -> dispatch (TimerToggled on.Value)))
-                    ])
-                View.Slider(minimumMaximum=(0.0, 10.0), value=double model.Step, valueChanged=(fun args -> dispatch (SetStep (int args.NewValue))))
-                View.Label(text=sprintf "Step size: %d" model.Step)
-            ]))   
+let view (model: Model) =  
+    ContentPage(
+        VerticalStackLayout([ 
+            Label(sprintf "%d" model.Count)automationId("CountLabel"), 
+            Button("Increment", Increment)
+            Button("Decrement", Decrement) 
+            HorizontalStackLayout([
+                Label("Timer")
+                Switch(model.TimerOn, TimerToggled)
+            ])
+            Slider(min = 0., max = 10., value = float model.Step, onValueChanged = SetStep)
+            Label(sprintf "Step size: %d" model.Step)
+        ])).automationId("stackLayoutId") 
 ```
 
 We want to make sure that if the state changes, the view will update accordingly.
 
 The first step is to call `view` with a given state and retrieve the generated `ViewElement`.  
-`view` is expecting a `dispatch` function as well. In our case, we don't need to test the dispatching of messages, so we pass the function `ignore` instead.
 
 From there, we create the Viewers to help us read the properties of the controls we want to check.
 
@@ -141,7 +135,7 @@ The following approach uses the Viewer API. This is a way but with this you have
 [<Test>]
 let ``View should generate a label showing the count number of the model``() =
     let model = { Count = 5; Step = 4; TimerOn = true }
-    let actualView = App.view model ignore
+    let actualView = App.view model
     
     let contentPage = ContentPageViewer(actualView)
     let stackLayout = StackLayoutViewer(contentPage.Content)
