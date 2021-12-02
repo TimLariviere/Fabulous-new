@@ -35,13 +35,13 @@ let plotModelHeatMap =
 
 let plotModels = [ plotModelCos; plotModelHeatMap ]
 
-let view (model: Model) dispatch =
-    View.CarouselPage(children=
-        [ for m in plotModels ->
-                View.ContentPage(content =
-                View.PlotView(model=m,
-                                horizontalOptions=LayoutOptions.FillAndExpand,
-                                verticalOptions=LayoutOptions.FillAndExpand)) ])
+let view (model: Model) =
+    CarouselPage([ 
+        for m in plotModels ->
+            ContentPage(PlotView(m))
+                .fillHorizontal()
+                .fillVertical(true)
+    ])
 ```
 
 See also:
