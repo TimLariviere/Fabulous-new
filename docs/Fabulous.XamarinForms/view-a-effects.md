@@ -83,8 +83,8 @@ module ShadowEffectViewExtension =
 This then enables us to use it like this:
 
 ```fsharp
-View.Label(effects = [
-    View.ShadowEffect(color = Color.Black, radius = 5.)
+Label(effects = [
+    ShadowEffect(color = Color.Black, radius = 5.)
 ])
 ```
 
@@ -105,4 +105,3 @@ See also:
 * [Xamarin.Forms - Effects](https://docs.microsoft.com/en-us/xamarin/xamarin-forms/app-fundamentals/effects/)
 * [Xamarin.Forms - Creating an Effect](https://docs.microsoft.com/en-us/xamarin/xamarin-forms/app-fundamentals/effects/creating)
 * [Xamarin.Forms - Introduction to Effects](https://docs.microsoft.com/en-us/xamarin/xamarin-forms/app-fundamentals/effects/introduction)
-

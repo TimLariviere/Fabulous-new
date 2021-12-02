@@ -43,66 +43,36 @@ module MyViewExtensions =
     open Fabulous
     open Fabulous.XamarinForms
 
-    // Define keys for the possible attributes
-    let Prop1AttribKey = AttributeKey<seq<ViewElement>> "ABC_Prop1"
-    let Prop2AttribKey = AttributeKey<bool> "ABC_Prop2"
+    let BorderColor = Attributes.defineBindable<Color> BorderedEntry.BorderColorProperty
 
     // Fully-qualified name to avoid extending by mistake
     // another View class (like Xamarin.Forms.View)
+    type [<Struct>] ABC<'msg> (attrs: Attributes.AttributesBuilder) =
+        static let key = Widgets.register<BorderedEntry>()
+        member _.Builder = attrs
+
+        static member Create(text: string, onTextChanged: string -> 'msg) =
+            BorderedEntry<'msg>(
+                Attributes.AttributesBuilder(
+                    [| Entry.Text.WithValue(text)
+                       Entry.TextChanged.WithValue(fun args -> onTextChanged args.NewTextValue |> box) |],
+                    [||],
+                    [||]
+                )
+            )
+
+        interface IEntryWidgetBuilder<'msg> with
+            member x.Compile() = attrs.Build(key)
+
     type Fabulous.XamarinForms.View with
-        /// Describes a ABC in the view
-        /// The inline keyword is important for performance
-        static member inline ABC(?prop1: seq<ViewElement>, ?prop2: bool, ... inherited attributes ... ) =
-
-            // Count the number of additional attributes
-            let attribCount = 0
-            let attribCount = match prop1 with Some _ -> attribCount + 1 | None -> attribCount
-            let attribCount = match prop2 with Some _ -> attribCount + 1 | None -> attribCount
-            
-            // Unbox the ViewRef
-            let viewRef = match ref with None -> None | Some (ref: ViewRef<ABC>) -> Some ref.Unbox
-
-            // Populate the attributes of the base element
-            let attribs = ViewBuilders.BuildBASE(attribCount, ... inherited attributes (with ?ref=viewRef) ... )
-
-            // Add our own attributes.
-            match prop1 with None -> () | Some v -> attribs.Add (Prop1AttribKey, v)
-            match prop2 with None -> () | Some v -> attribs.Add (Prop2AttribKey, v)
-            ...
-
-            // The creation method
-            let create () = new ABC()
-
-            // The incremental update method
-            let update (prev: ViewElement voption) (source: ViewElement) (target: ABC) =
-                ViewBuilders.UpdateBASE (prev, source, target)
-                source.UpdateElementCollection (prev, rop1AttribKey, target.Prop1)
-                source.UpdatePrimitive (prev, target, Prop2AttribKey, (fun target -> target.Prop2), (fun target v -> target.Prop2 <- v))
-                ...
-
-            ViewElement.Create<ABC>(create, update, attribs)
+        static member inline ABC<'msg>(text, onTextChanged) = BorderedEntry<'msg>.Create(text, onTextChanged)
 ```
 
 The control is then used as follows:
 
 ```fsharp
-    View.ABC(Prop1 = [ View.Label("hello") ], prop2 = true, property3 = "Yo!")
+    ABC("I'm a Text", TextChanged)
 ```
-
-The `update` method of the extension is specified using:
-
-* `source.UpdatePrimitive(prev, target, attribKey, setter, ?defaultValue)` - incrementally update a primitive
-* `source.UpdateElement(prev, target, attribKey, getter, setter)` - incrementally update a nested element
-* `source.UpdateElementCollection(prev, attribKey, targetCollection)` - incrementally update a collection of nested elements
-* `source.UpdateEvent(prev, target, attribKey, setter, ?defaultValue)` - incrementally update a primitive event
-
-Sometimes it makes sense to "massage" the input values before storing them in attibutes, e.g. to apply a conversion from an F#-friendly value
-to a stored attribte value here:
-
-```fsharp
-match prop1 with None -> () | Some v -> attribs.Add(Prop1AttribKey, box (CONV v))
-```
-
 It is common to mark view extensions as `inline`. This allows the F# compiler to create more optimized
 element-creation code for each particular instantiation based on the small set of properties specified at a particular usage point.
 In particular the compiler can statically determine the count of attributes and remove all allocations related to
@@ -219,7 +189,7 @@ In the above example, inherited properties from `View` (such as `margin` or `hor
 need not be added, you can set them on elements using the helper `With`, usable for all `View` properties:
 
 ```fsharp
-View.Map(hasZoomEnabled = true, hasScrollEnabled = true).With(horizontalOptions = LayoutOptions.FillAndExpand)
+Map(hasZoomEnabled = true, hasScrollEnabled = true).With(horizontalOptions = LayoutOptions.FillAndExpand)
 ```
 
 ### Example: MasterDetailPage without a toolbar on UWP with custom ViewBuilders
@@ -234,7 +204,7 @@ type MasterDetailPageWithoutToolbar() =
 Fabulous.XamarinForms.ViewBuilders.CreateFuncMasterDetailPage <- fun () ->
     upcast(new MasterDetailPageWithoutToolbar())
 
-View.MasterDetailPage() // this now uses MasterDetailPageWithoutToolbar
+MasterDetailPage() // this now uses MasterDetailPageWithoutToolbar
 ```
 
 See also:
