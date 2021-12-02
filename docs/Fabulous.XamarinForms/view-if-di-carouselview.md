@@ -19,10 +19,10 @@ displays a scrollable list of data
 
 
 ```fsharp 
-View.CarouselView(items = [
-    View.Label("First CarouselView")
-    View.Label("Second CarouselView")
-    View.Label("Third CarouselView")
+CarouselView([
+    Label("First CarouselView")
+    Label("Second CarouselView")
+    Label("Third CarouselView")
 ] )
 ```
 
@@ -33,38 +33,29 @@ View.CarouselView(items = [
 ### Basic example with styling
 
 ```fsharp 
-View.CarouselView
-    (
-        horizontalOptions = style.Position,
-        verticalOptions = style.Position,
-        backgroundColor = style.LayoutColor,
-        items = [
-            View.Label
-                (
-                    horizontalOptions = style.Position,
-                    verticalOptions = style.Position,
-                    backgroundColor = style.ViewColor,
-                    padding = style.Padding,  
-                    text = ("First CarouselView")
-                )
-            View.Label
-                (
-                    horizontalOptions = style.Position,
-                    verticalOptions = style.Position,
-                    backgroundColor = style.ViewColor2,
-                    padding = style.Padding,  
-                    text = ("Second CarouselView")
-                )
-            View.Label
-                (
-                    horizontalOptions = style.Position,
-                    verticalOptions = style.Position,
-                    backgroundColor = style.ViewColor3,
-                    padding = style.Padding,  
-                    text = ("Third CarouselView")
-                )
+CarouselView([
+    Label("First CarouselView")
+        .horizontalOptions(style.Position)
+        .verticalOptions(style.Position)
+        .backgroundColor(style.ViewColor)
+        .padding(style.Padding) 
+    
+    Label("Second CarouselView")
+        .horizontalOptions(style.Position)
+        .verticalOptions(style.Position)
+        .backgroundColor(style.ViewColor2)
+        .padding(style.Padding)  
+        
+    Label("Third CarouselView")
+        .horizontalOptions(style.Position)
+        .verticalOptions(style.Position)
+        .backgroundColor(style.ViewColor3)
+        .padding(style.Padding) 
         ] 
     )
+        .horizontalOptions(style.Position),
+        .verticalOptions(style.Position),
+        .backgroundColor(style.LayoutColor),
 ```
 
 

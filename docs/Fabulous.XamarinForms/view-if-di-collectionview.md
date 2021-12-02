@@ -20,10 +20,10 @@ Please read the Xamarin.Forms documentation to check whether this control is ava
 
 
 ```fsharp 
-View.CollectionView(items = [
-    View.Label("First CollectionView")
-    View.Label("Second CollectionView")
-    View.Label("Third CollectionView")
+CollectionView([
+    Label("First CollectionView")
+    Label("Second CollectionView")
+    Label("Third CollectionView")
 ] )
 ```
 
@@ -34,38 +34,28 @@ View.CollectionView(items = [
 ### Basic example with styling
 
 ```fsharp 
-View.CollectionView
-    (
-        horizontalOptions = style.Position,
-        verticalOptions = style.Position,
-        backgroundColor = style.LayoutColor,
-        items = [
-            View.Label
-                (
-                    horizontalOptions = style.Position,
-                    verticalOptions = style.Position,
-                    backgroundColor = style.ViewColor,
-                    padding = style.Padding,  
-                    text = ("First CollectionView")
-                )
-            View.Label
-                (
-                    horizontalOptions = style.Position,
-                    verticalOptions = style.Position,
-                    backgroundColor = style.ViewColor2,
-                    padding = style.Padding,  
-                    text = ("Second CollectionView")
-                )
-            View.Label
-                (
-                    horizontalOptions = style.Position,
-                    verticalOptions = style.Position,
-                    backgroundColor = style.ViewColor3,
-                    padding = style.Padding,  
-                    text = ("Third CollectionView")
-                )
-        ] 
-    )
+CollectionView([
+    Label("First CollectionView")
+        .horizontalOptions(style.Position),
+        .verticalOptions(style.Position),
+        .backgroundColor(style.ViewColor),
+        .padding(style.Padding)
+    
+    Label("Second CollectionView")
+        .horizontalOptions(style.Position),
+        .verticalOptions(style.Position),
+        .backgroundColor(style.ViewColor3),
+        .padding(style.Padding)
+    
+    Label("Third CollectionView")
+        .horizontalOptions(style.Position),
+        .verticalOptions(style.Position),
+        .backgroundColor(style.ViewColor3),
+        .padding(style.Padding) 
+    ] )
+        .horizontalOptions(style.Position),
+        .verticalOptions(style.Position),
+        .backgroundColor(style.LayoutColor),
 ```
 
 <img src="images/view/CollectionView-adr-styled.png" width="300">

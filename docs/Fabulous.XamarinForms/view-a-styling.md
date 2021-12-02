@@ -15,11 +15,13 @@ various parts of your view logic.
 For example, if a set of Labels share the same margin and color you can write this:
 ```fsharp
 let Label text = 
-	View.Label(text=text, margin=Thickness(0.0, 4.0), textColor=Color.Black)
+	Label(text)
+	    .margin(Thickness(0.0, 4.0))
+	    .textColor(Color.Black)
 
-Label(text="This monkey is laid back and relaxed, and likes to watch the world go by.")
-Label(text="  - Often smiles mysteriously")
-Label(text="  - Sleeps sitting up")
+Label("This monkey is laid back and relaxed, and likes to watch the world go by.")
+Label("  - Often smiles mysteriously")
+Label("  - Sleeps sitting up")
 ```
 
 We do not give a full guide here as it is routine application of F# coding.  
@@ -67,9 +69,11 @@ type App () as app =
 ```
 Set the style classes as follows:
 ```fsharp
-    View.Label(text="Hello", styleClass="detailPageTitle")
+    Label("Hello")
+        .styleClass("detailPageTitle")
     ...
-    View.Label(text="Main Page", styleClass="mainPageTitle")
+    Label("Main Page")
+        .styleClass("mainPageTitle")
 ```
 
 You can also add style sheets for particular elements and their contents by using the `styleSheets` property for each visual element. For example:
@@ -78,8 +82,9 @@ You can also add style sheets for particular elements and their contents by usin
 // Always define your style sheets as static values, sine their object identity is signficant!
 let styleSheet = StyleSheet.FromAssemblyResource(Assembly.GetExecutingAssembly(),"MyProject.Assets.styles.css")
 
-let view model disptch = 
-    View.ContentPage(styleSheets=[myStyleSheet], ...)
+let view model = 
+    ContentPage(...)
+     .styleSheets([myStyleSheet])
 ```
 
 ### "Xaml" coding via explicit `Style` objects
@@ -90,8 +95,9 @@ and attaching them to your application.   We don't go into details here
 ```fsharp
 // Always define your styles as static values, sine their object identity is signficant!
 let style = Style...
-let view model disptch = 
-    View.ContentPage(styles=[myStyle], ...)
+let view model = 
+    ContentPage(...)
+        .styles([myStyle])
 ```
 
 ### Resource Dictionaries
@@ -122,5 +128,3 @@ Other kinds of resources like images need a little more attention and you may ne
 
 See also:
 * [Xamarin.Forms styling](https://docs.microsoft.com/en-us/xamarin/xamarin-forms/user-interface/styles/)
-
-
