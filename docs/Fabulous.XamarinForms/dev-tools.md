@@ -90,9 +90,9 @@ module App =
 
     let update model msg = ...
 
-    let view model dispatch = ...
+    let view model = ...
 
-    let program = Program.mkProgram init update view
+    let program = Program.statefulApplication init update view
 ```
 
 If a declaration like this is found the `program` object replaces the currently running Elmish program and the view is updated.
@@ -123,7 +123,7 @@ The model state of the app is re-initialized.
 
            let update (helper1, helper2) model msg = ...
 
-           let view model dispatch = ...
+           let view model = ...
 
        #if DEBUG
        // The fake program, used when LiveUpdate is activated and a program change has been made
