@@ -24,14 +24,11 @@ View.Label("Label")
 ### Basic example with styling
 
 ```fsharp 
-View.Label
-    (
-        horizontalOptions = style.Position,
-        verticalOptions = style.Position,
-        backgroundColor = style.ViewColor,
-        padding = style.Padding,
-        text = "Label"
-    )
+Label("Label")
+    .horizontalOptions(style.Position)
+    .verticalOptions(style.Position)
+    .backgroundColor(style.ViewColor)
+    .padding(style.Padding)
 ```
 
 
@@ -51,5 +48,5 @@ See also:
 The Label view is used for displaying text, both single and multi-line. Labels can have text decorations, colored text, and use custom fonts (families, sizes, and options).
 
 ```fsharp 
-View.Label(text = "this is a label")
+Label("this is a label")
 ```

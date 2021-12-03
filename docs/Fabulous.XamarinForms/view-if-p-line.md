@@ -14,9 +14,9 @@ Line
 
 
 ```fsharp 
-View.Line
+Line
     (
-        stroke = View.SolidColorBrush(Color.Black),
+        stroke = SolidColorBrush(Color.Black),
         x1 = 40., 
         y1 = 0., 
         x2 = 0., 
@@ -33,17 +33,15 @@ View.Line
 ```fsharp 
 View.Line
     (
-        horizontalOptions = style.Position,
-        verticalOptions = style.Position,
-        backgroundColor = style.ViewColor,
         stroke = View.SolidColorBrush(Color.Black),
         x1 = 40., 
         y1 = 0., 
         x2 = 0., 
         y2 = 120.
-    )
+    ).horizontalOptions(style.Position)
+     .verticalOptions(style.Position)
+     .backgroundColor(style.ViewColor)
 ```
-
 
 <img src="images/view/Line-adr-styled.png" width="300">
 
@@ -61,21 +59,20 @@ See also:
 `Line` can be used to draw lines.
 
 ```fsharp 
-View.Label(text = "Line")
-View.Line(x1 = 40., y1 = 0., x2 = 0., y2 = 120., stroke = View.SolidColorBrush(Color.Red))
+Label("Line")
+Line(x1 = 40., y1 = 0., x2 = 0., y2 = 120., stroke = SolidColorBrush(Color
+Label("Line with stroke")
+Line(x1 = 40., y1 = 0., x2 = 0., y2 = 120., stroke = SolidColorBrush(Color.DarkBlue), strokeThickness = 4.)
 
-View.Label(text = "Line with stroke")
-View.Line(x1 = 40., y1 = 0., x2 = 0., y2 = 120., stroke = View.SolidColorBrush(Color.DarkBlue), strokeThickness = 4.)
+Label("Dashed line")
+Line(x1 = 40., y1 = 0., x2 = 0., y2 = 120., stroke = SolidColorBrush(Color.DarkBlue), strokeDashArray = [ 1.; 1. ], strokeDashOffset = 6.)
 
-View.Label(text = "Dashed line")
-View.Line(x1 = 40., y1 = 0., x2 = 0., y2 = 120., stroke = View.SolidColorBrush(Color.DarkBlue), strokeDashArray = [ 1.; 1. ], strokeDashOffset = 6.)
+Label("LineCap: Flat")
+Line(x1 = 0., y1 = 20., x2 = 300., y2 = 20., stroke = SolidColorBrush(Color.Red), strokeThickness = 12., strokeLineCap = Shapes.PenLineCap.Flat)
 
-View.Label(text = "LineCap: Flat")
-View.Line(x1 = 0., y1 = 20., x2 = 300., y2 = 20., stroke = View.SolidColorBrush(Color.Red), strokeThickness = 12., strokeLineCap = Shapes.PenLineCap.Flat)
+Label("LineCap: Square")
+Line(x1 = 0., y1 = 20., x2 = 300., y2 = 20., stroke = SolidColorBrush(Color.Red), strokeThickness = 12., strokeLineCap = Shapes.PenLineCap.Square)
 
-View.Label(text = "LineCap: Square")
-View.Line(x1 = 0., y1 = 20., x2 = 300., y2 = 20., stroke = View.SolidColorBrush(Color.Red), strokeThickness = 12., strokeLineCap = Shapes.PenLineCap.Square)
-
-View.Label(text = "LineCap: Round")
-View.Line(x1 = 0., y1 = 20., x2 = 300., y2 = 20., stroke = View.SolidColorBrush(Color.Red), strokeThickness = 12., strokeLineCap = Shapes.PenLineCap.Round)
+Label("LineCap: Round")
+Line(x1 = 0., y1 = 20., x2 = 300., y2 = 20., stroke = SolidColorBrush(Color.Red), strokeThickness = 12., strokeLineCap = Shapes.PenLineCap.Round)
 ```

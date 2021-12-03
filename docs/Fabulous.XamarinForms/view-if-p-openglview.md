@@ -14,7 +14,7 @@ OpenGLView
 
 
 ```fsharp 
-View.OpenGLView(hasRenderLoop = true)
+OpenGLView(hasRenderLoop = true)
 ```
 
 <img src="images/view/OpenGLView-adr-basic.png" width="300">
@@ -24,14 +24,11 @@ View.OpenGLView(hasRenderLoop = true)
 ### Basic example with styling
 
 ```fsharp 
-View.OpenGLView
-    (
-        horizontalOptions = style.Position,
-        verticalOptions = style.Position,
-        backgroundColor = style.ViewColor,
-        margin = style.Thickness,
-        hasRenderLoop = true                                                    
-    )
+OpenGLView(hasRenderLoop = true)
+    .margin(style.Thickness)
+    .horizontalOptions(style.Position)
+    .verticalOptions(style.Position)
+    .backgroundColor(style.ViewColor)
 ```
 
 

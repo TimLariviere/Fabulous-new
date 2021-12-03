@@ -14,7 +14,7 @@ Path
 
 
 ```fsharp 
-View.Path(stroke = View.SolidColorBrush(Color.Black), data = Content.fromString "M 10,100 C 100,0 200,200 300,100")
+Path(stroke = View.SolidColorBrush(Color.Black), data = Content.fromString "M 10,100 C 100,0 200,200 300,100")
 ```
 
 <img src="images/view/Path-adr-basic.png" width="300">
@@ -24,14 +24,13 @@ View.Path(stroke = View.SolidColorBrush(Color.Black), data = Content.fromString 
 ### Basic example with styling
 
 ```fsharp 
-View.Path
-    (
-        horizontalOptions = style.Position,
-        verticalOptions = style.Position,
-        backgroundColor = style.ViewColor,                                
+Path
+    (                           
         stroke = View.SolidColorBrush(Color.Black),
         data = Content.fromString "M 10,100 C 100,0 200,200 300,100"
-    )
+    ).horizontalOptions(style.Position)
+     .verticalOptions(style.Position)
+     .backgroundColor(style.ViewColor)
 ```
 
 
@@ -51,16 +50,16 @@ See also:
  `Path` can be used to draw curves and complex shapes. These curves and shapes are often described using Geometry objects. 
 
 ```fsharp 
-View.Label(text = "Path")
-View.Path(
+Label(text = "Path")
+Path(
     stroke = View.SolidColorBrush(Color.Black),
     aspect = Stretch.Uniform,
     horizontalOptions = LayoutOptions.Center,
     data = Content.fromString "M 10,50 L 200,70"
 )
 
-View.Label(text = "Cubic Bezier Path")
-View.Path(
+Label(text = "Cubic Bezier Path")
+Path(
     stroke = View.SolidColorBrush(Color.Black),
     aspect = Stretch.Uniform,
     horizontalOptions = LayoutOptions.Center,

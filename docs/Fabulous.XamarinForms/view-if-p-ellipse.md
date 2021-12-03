@@ -14,7 +14,7 @@ Ellipse
 
 
 ```fsharp 
-View.Ellipse(fill = View.SolidColorBrush(Color.Black), width = 50., height = 50.)
+Ellipse(fill = SolidColorBrush(Color.Black), width = 50., height = 50.)
 ```
 
 <img src="images/view/Ellipse-adr-basic.png" width="300">
@@ -24,7 +24,7 @@ View.Ellipse(fill = View.SolidColorBrush(Color.Black), width = 50., height = 50.
 ### Basic example with styling
 
 ```fsharp 
-View.Ellipse
+Ellipse
     (
         horizontalOptions = style.Position,
         verticalOptions = style.Position,
