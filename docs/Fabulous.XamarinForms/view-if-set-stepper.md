@@ -14,7 +14,7 @@ Stepper
 
 
 ```fsharp 
-View.Stepper( 5.0 )
+Stepper( 5.0 )
 ```
 
 <img src="images/view/Stepper-adr-basic.png" width="300">
@@ -24,14 +24,13 @@ View.Stepper( 5.0 )
 ### Basic example with styling
 
 ```fsharp 
-View.Stepper
+Stepper
     (
-        horizontalOptions = style.Position,
-        verticalOptions = style.Position,
-        backgroundColor = style.ViewColor,
         minimumMaximum = (0.0, 10.0),
         value = 5.0
-    )
+    ).horizontalOptions(style.Position)
+     .verticalOptions(style.Position)
+     .backgroundColor(style.ViewColor)
 ```
 
 
@@ -50,10 +49,10 @@ See also:
 Use a Stepper for selecting a numeric value from a range of values.
 
 ```fsharp 
-View.Stepper(
+Stepper(
     minimumMaximum = (0.0, 10.0),
     value = 2.,
     increment = 1.,
-    valueChanged = fun args -> dispatch (SliderValueChanged (...))
+    valueChanged = SliderValueChanged)
 )
 ```

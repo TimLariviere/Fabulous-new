@@ -14,7 +14,7 @@ Slider
 
 
 ```fsharp 
-View.Slider( 5.0 )
+Slider( 5.0 )
 ```
 
 <img src="images/view/Slider-adr-basic.png" width="300">
@@ -24,12 +24,8 @@ View.Slider( 5.0 )
 ### Basic example with styling
 
 ```fsharp 
-View.Slider
-(
-    backgroundColor = style.ViewColor,
-    minimumMaximum = (0.0, 10.0),
-    value = 5.0
-)
+ Slider(min = 0., max = 10., value = float model.Step)
+    .backgroundColor(style.ViewColor)
 ```
 
 
@@ -46,11 +42,7 @@ See also:
 ### More examples
 
 ```fsharp
-View.Slider(
-    minimumMaximum = (0.0, 10.0),
-    value= double step,
-    valueChanged=(fun args -> dispatch (SliderValueChanged (int (args.NewValue + 0.5))))
-)
+ Slider(min = 0., max = 10., value = float model.Step, onValueChanged = StepChanged)
 ```
 
 <img src="https://user-images.githubusercontent.com/52166903/60177363-9d737900-9810-11e9-8842-aeb904e7d739.png" width="400">

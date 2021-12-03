@@ -14,7 +14,7 @@ Switch
 
 
 ```fsharp 
-View.Switch()
+Switch()
 ```
 
 <img src="images/view/Switch-adr-basic.png" width="300">
@@ -24,13 +24,10 @@ View.Switch()
 ### Basic example with styling
 
 ```fsharp 
-View.Switch
-    (
-        horizontalOptions = style.Position,
-        verticalOptions = style.Position,
-        backgroundColor = style.ViewColor,
-        isToggled = false
-    )
+Switch(false, TimerToggled)
+    .horizontalOptions(style.Position)
+    .verticalOptions(style.Position)
+    .backgroundColor(style.ViewColor)
 ```
 
 
@@ -49,8 +46,5 @@ See also:
 `Switch` is a horizontal toggle button that can be manipulated by the user to toggle between on and off states, which are represented by a boolean value. 
 
 ```fsharp 
-View.Switch(
-    isToggled = false, 
-    toggled = fun on -> dispatch (SwitchToggled (...))
-)
+Switch(false, SwitchToggled)
 ```

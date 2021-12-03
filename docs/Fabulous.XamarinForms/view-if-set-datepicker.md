@@ -24,12 +24,10 @@ View.DatePicker()
 ### Basic example with styling
 
 ```fsharp 
-View.DatePicker
-    (
-        horizontalOptions = style.Position,
-        verticalOptions = style.Position,
-        backgroundColor = style.ViewColor
-    )
+DatePicker()
+    .horizontalOptions(style.Position)
+    .verticalOptions(style.Position)
+    .backgroundColor(style.ViewColor)
 ```
 
 
@@ -46,7 +44,7 @@ See also:
 ### More examples
 
 ```fsharp
-View.DatePicker(minimumDate = DateTime.Today,
+DatePicker(minimumDate = DateTime.Today,
     maximumDate = DateTime.Today + TimeSpan.FromDays(365.0),
     date = startDate,
     dateSelected=(fun args -> dispatch (StartDateSelected args.NewDate)))
