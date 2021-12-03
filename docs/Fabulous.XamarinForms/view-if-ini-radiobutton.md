@@ -27,32 +27,20 @@ VerticalStackLayout([
 ### Basic example with styling
 
 ```fsharp 
-View.StackLayout
-    (                                   
-        horizontalOptions = style.Position,
-        verticalOptions = style.Position,
-        backgroundColor = style.LayoutColor,
-        children = [                                
-            View.RadioButton
-                (
-                    horizontalOptions = style.Position,
-                    verticalOptions = style.Position,
-                    backgroundColor = style.ViewColor,
-                    padding = style.Padding,
-                    isChecked = true,                                            
-                    content = Content.String "RadioButton 1"
-                )
-            View.RadioButton
-                (
-                    horizontalOptions = style.Position,
-                    verticalOptions = style.Position,
-                    backgroundColor = style.ViewColor,
-                    padding = style.Padding,
-                    isChecked = false,
-                    content = Content.String "RadioButton 2"
-                )
-        ]
-    )
+VerticalStackLayout([                                
+    RadioButton(true, "RadioButton 1")
+        .horizontalOptions(style.Position)
+        .verticalOptions(style.Position)
+        .backgroundColor(style.ViewColor)
+        .padding(style.Padding)
+    RadioButton(false, "RadioButton 2")
+        .horizontalOptions(style.Position)
+        .verticalOptions(style.Position)
+        .backgroundColor(style.ViewColor)
+        .padding(style.Padding)
+    ]).horizontalOptions(style.Position)
+      .verticalOptions(style.Position)
+      .backgroundColor(style.LayoutColor)
 ```
 
 <img src="images/view/RadioButton-adr-styled.png" width="300">
@@ -69,15 +57,15 @@ See also:
 ### More examples
 
 ```fsharp 
-View.StackLayout( children = [
+VerticalStackLayout([
     // These RadioButtons will be grouped togehter, beacause they are in the same StackLayout
-    View.RadioButton(
+    RadioButton(
         padding = Thickness 2.0,
         content = Content.String("content1"), 
         isChecked = true
         checkedChanged = (fun on -> dispatch (...))
     )
-    View.RadioButton(
+    RadioButton(
         padding = Thickness 2.0,
         content = Content.String("content2"), 
         isChecked = false
