@@ -14,39 +14,40 @@ A TabbedPage displays an array of tabs across the top of the screen, each of whi
 
 ### Basic example
 ```fsharp       
-View.TabbedPage(children = [
-        View.ContentPage(title ="First Tab", content = View.Label("TabbedPage 1"))                
-        View.ContentPage(title ="Second Tab", content = View.Label("TabbedPage 2"))
-] )
+
+TabbedPage(
+    title,
+    [   
+        ContentPage("First Tab",  View.Label("TabbedPage 1"))
+        ContentPage("Second Tab",  View.Label("TabbedPage 2"))
+    ])
 ```
 <img src="images/pages/tabbed-adr-basic.png" width="300">
 <br /> 
 
 ### Basic example with styling
 ```fsharp       
-View.TabbedPage(
-    backgroundColor = style.PageColor,
-    title ="TabbedPage",
-    children = [
-        View.ContentPage( title ="First Tab", content = View.Label
-            (                                 
-                horizontalOptions = style.Position,
-                verticalOptions = style.Position,
-                backgroundColor = style.ViewColor,
-                padding = style.Padding,
-                text = "TabbedPage 1" 
-            ) 
+TabbedPage(
+    "TabbedPage",
+    [
+        ContentPage(
+            "First Tab",
+            Label("TabbedPage 1")
+                .horizontalOptions(style.Position)
+                .verticalOptions(style.Position)
+                .backgroundColor(style.ViewColor)
+                .padding(style.Padding)
         )
-        View.ContentPage( title ="Second Tab", content = View.Label
-            (                                
-                horizontalOptions = style.Position,
-                verticalOptions = style.Position,
-                backgroundColor = style.ViewColor,
-                padding = style.Padding,
-                text = "TabbedPage 2"
-            ) 
-        )                
-    ] )
+        ContentPage(
+            "Second Tab",
+            Label("TabbedPage 2")
+                .horizontalOptions(style.Position)
+                .verticalOptions(style.Position)
+                .backgroundColor(style.ViewColor)
+                .padding(style.Padding)
+        )
+    )                
+] ).backgroundColor(style.PageColor)
 ```
 
 <img src="images/pages/tabbed-adr-styled.png" width="300">
@@ -56,5 +57,3 @@ View.TabbedPage(
 See also:
 
 * [`Xamarin.Forms.TabbedPage`](https://docs.microsoft.com/en-us/dotnet/api/Xamarin.Forms.TabbedPage)
-
-

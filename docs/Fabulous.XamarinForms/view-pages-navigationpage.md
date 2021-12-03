@@ -12,12 +12,9 @@ A Page that manages the navigation and user-experience of a stack of other pages
 
 ### Basic example
 ```fsharp 
-View.NavigationPage
-    (
-        pages = [
-            View.ContentPage(title = "ContentPage", content = View.Label("NavigationPage with a single Label"))
-        ]
-    )
+NavigationPage([
+    ContentPage("ContentPage", Label("NavigationPage with a single Label"))
+])
 ```
 
 <img src="images/pages/navigation-adr-basic.png" width="300">
@@ -26,20 +23,14 @@ View.NavigationPage
 
 ### Basic example with styling
 ```fsharp 
-View.NavigationPage
-    (
-        pages = [
-            View.ContentPage(
-                title = "ContentPage", 
-                content = 
-                    View.Label
-                        (
-                            horizontalOptions = model.MyStyle.Position,
-                            verticalOptions = model.MyStyle.Position,
-                            backgroundColor = model.MyStyle.ViewColor,
-                            padding = model.MyStyle.Padding,
-                            text = "NavigationPage with a single Label" "
-                        )
+NavigationPage([
+    ContentPage(
+        "ContentPage", 
+            View.Label("NavigationPage with a single Label")
+                .horizontalOptions(style.Position)
+                .verticalOptions(style.Position)
+                .backgroundColor(style.ViewColor)
+                .padding(style.Padding)
         ]
     )
 ```
