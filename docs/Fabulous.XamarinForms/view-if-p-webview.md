@@ -12,37 +12,23 @@ WebView
 
 ### Basic example
 
-
 ```fsharp 
-View.ContentPage(                    
-    backgroundColor = style.PageColor,
-    title ="WebView",                         
-    content = 
-        View.WebView
-            (                        
-                source = UrlWebViewSource.op_Implicit "https://fsprojects.github.io/Fabulous/Fabulous.XamarinForms/"
-            )
-)
+ContentPage("WebView", WebView("https://fsprojects.github.io/Fabulous/Fabulous.XamarinForms/"))
+    .backgroundColor(style.PageColor)
 ```
-
 <img src="images/view/WebView-adr-basic.png" width="300">
 
 <br /> <br /> 
 
 ### Basic example with styling
 
-```fsharp 
-View.ContentPage(                    
-    backgroundColor = style.PageColor,
-    title ="WebView",                         
-    content = 
-        View.WebView
-            (
-                backgroundColor = style.ViewColor,
-                margin = style.Thickness,                                
-                source = UrlWebViewSource.op_Implicit "https://fsprojects.github.io/Fabulous/Fabulous.XamarinForms/"
-            )
-)
+```fsharp
+ContentPage(
+    "WebView",
+    WebView("https://fsprojects.github.io/Fabulous/Fabulous.XamarinForms/")
+        .backgroundColor(style.ViewColor)
+        .margin(style.Thickness)  
+    ).backgroundColor(style.PageColor)
 ```
 
 
@@ -63,9 +49,7 @@ See also:
 
 ```fsharp 
 let fabulousSite = "https://fsprojects.github.io/Fabulous/Fabulous.XamarinForms/"
-View.WebView( 
-    source = UrlWebViewSource.op_Implicit fabulousSite, 
-    backgroundColor = Color.Red,
-    margin = Thickness(20.)
-)
+WebView(fabulousSite)
+    .backgroundColor(style.ViewColor)
+    .margin(Thickness(20.)  
 ```

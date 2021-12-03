@@ -14,7 +14,7 @@ Polyline
 
 
 ```fsharp 
-View.Polyline
+Polyline
     (
         points = Points.fromString "0,0 10,30, 15,0 18,60 23,30 35,30 40,0 43,60 48,30 100,30",
         stroke = View.SolidColorBrush(Color.Black),
@@ -29,16 +29,15 @@ View.Polyline
 ### Basic example with styling
 
 ```fsharp 
-View.Polyline
+Polyline
     (
-        horizontalOptions = style.Position,
-        verticalOptions = style.Position,
-        backgroundColor = style.ViewColor,
-        margin = style.Thickness,  
         points = Points.fromString "0,0 10,30, 15,0 18,60 23,30 35,30 40,0 43,60 48,30 100,30",
         stroke = View.SolidColorBrush(Color.Black),
         strokeThickness = 1.
-    )
+    ).horizontalOptions(style.Position)
+     .verticalOptions(style.Position)
+     .backgroundColor(style.ViewColor)
+     .margin(style.Thickness)
 ```
 
 
@@ -62,15 +61,15 @@ let polylinePoints1 = "0,0 10,30, 15,0 18,60 23,30 35,30 40,0 43,60 48,30 100,30
 let polylinePoints2 = "0 48, 0 144, 96 150, 100 0, 192 0, 192 96, 50 96, 48 192, 150 200 144 48"
 let polylinePoints3 = "20 20,250 50,20 120"
 
-View.Label("Polygon")
-View.Polyline(
+Label("Polygon")
+Polyline(
     points = Points.fromString polylinePoints1,
     stroke = View.SolidColorBrush(Color.Red),
     strokeThickness = 1.
 )
 
-View.Label("Polyline with dashed stroke")
-View.Polyline(
+Label("Polyline with dashed stroke")
+Polyline(
     points = Points.fromString polylinePoints1,
     stroke = View.SolidColorBrush(Color.Red),
     strokeThickness = 2.,
@@ -78,8 +77,8 @@ View.Polyline(
     strokeDashOffset = 6.
 )
 
-View.Label("EvenOdd polyline")
-View.Polyline(
+Label("EvenOdd polyline")
+Polyline(
     points = Points.fromString polylinePoints2,
     fill = View.SolidColorBrush(Color.Blue),
     fillRule = Shapes.FillRule.EvenOdd,
@@ -87,8 +86,8 @@ View.Polyline(
     strokeThickness = 3.
 )
 
-View.Label("NonZero polyline")
-View.Polyline(
+Label("NonZero polyline")
+Polyline(
     points = Points.fromString polylinePoints2,
     fill = View.SolidColorBrush(Color.Black),
     fillRule = Shapes.FillRule.Nonzero,
@@ -96,24 +95,24 @@ View.Polyline(
     strokeThickness = 3.
 )
 
-View.Label("LineJoin: Miter")
-View.Polyline(
+Label("LineJoin: Miter")
+Polyline(
     points = Points.fromString polylinePoints3,
     stroke = View.SolidColorBrush(Color.DarkBlue),
     strokeThickness = 20.,
     strokeLineJoin = Shapes.PenLineJoin.Miter
 )
 
-View.Label("LineJoin: Bevel")
-View.Polyline(
+Label("LineJoin: Bevel")
+Polyline(
     points = Points.fromString polylinePoints3,
     stroke = View.SolidColorBrush(Color.DarkBlue),
     strokeThickness = 20.,
     strokeLineJoin = Shapes.PenLineJoin.Bevel
 )
 
-View.Label("LineJoin: Round")
-View.Polyline(
+Label("LineJoin: Round")
+Polyline(
     points = Points.fromString polylinePoints3,
     stroke = View.SolidColorBrush(Color.DarkBlue),
     strokeThickness = 20.,

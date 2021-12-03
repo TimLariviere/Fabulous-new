@@ -14,7 +14,7 @@ Polygon
 
 
 ```fsharp 
-View.Polygon
+Polygon
     (                           
         points = Points.fromString "40,10 70,80 10,50",
         fill = View.SolidColorBrush(Color.Black),
@@ -30,17 +30,17 @@ View.Polygon
 ### Basic example with styling
 
 ```fsharp 
-View.Polygon
+Polygon
     (
-        horizontalOptions = style.Position,
-        verticalOptions = style.Position,
         backgroundColor = style.ViewColor,     
         margin = style.Thickness,                             
         points = Points.fromString "40,10 70,80 10,50",
         fill = View.SolidColorBrush(Color.Black),
         stroke = View.SolidColorBrush(Color.Orange),
         strokeThickness = 5.            
-    )
+    ).horizontalOptions(style.Position)
+     .verticalOptions(style.Position)
+     .backgroundColor(style.ViewColor)
 ```
 
 
@@ -63,16 +63,16 @@ See also:
 let polygonPoints1 = "40,10 70,80 10,50"
 let polygonPoints2 = "0 48, 0 144, 96 150, 100 0, 192 0, 192 96, 50 96, 48 192, 150 200 144 48"
 
-View.Label("Polygon")
-View.Polygon(
+Label("Polygon")
+Polygon(
     points = Points.fromString polygonPoints1,
     fill = View.SolidColorBrush(Color.AliceBlue),
     stroke = View.SolidColorBrush(Color.Green),
     strokeThickness = 5.
 )
 
-View.Label("Polygon with dashed stroke")
-View.Polygon(
+Label("Polygon with dashed stroke")
+Polygon(
     points = Points.fromString polygonPoints1,
     fill = View.SolidColorBrush(Color.AliceBlue),
     stroke = View.SolidColorBrush(Color.Green),
@@ -81,8 +81,8 @@ View.Polygon(
     strokeDashOffset = 6.
 )
 
-View.Label("EvenOdd polygon")
-View.Polygon(
+Label("EvenOdd polygon")
+Polygon(
     points = Points.fromString polygonPoints2,
     fill = View.SolidColorBrush(Color.Blue),
     fillRule = Shapes.FillRule.EvenOdd,
@@ -90,8 +90,8 @@ View.Polygon(
     strokeThickness = 3.
 )
 
-View.Label("NonZero polygon")
-View.Polygon(
+Label("NonZero polygon")
+Polygon(
     points = Points.fromString polygonPoints2,
     fill = View.SolidColorBrush(Color.Black),
     fillRule = Shapes.FillRule.Nonzero,

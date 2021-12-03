@@ -14,7 +14,7 @@ Rectangle
 
 
 ```fsharp 
-View.Rectangle
+Rectangle
     (                   
         fill = View.SolidColorBrush(Color.Black),
         stroke = View.SolidColorBrush(Color.Orange),
@@ -31,18 +31,17 @@ View.Rectangle
 ### Basic example with styling
 
 ```fsharp 
-View.Rectangle
-    (
-        horizontalOptions = style.Position,
-        verticalOptions = style.Position,
-        backgroundColor = style.ViewColor,      
-        margin = style.Thickness,                            
+Rectangle
+    (                       
         fill = View.SolidColorBrush(Color.Black),
         stroke = View.SolidColorBrush(Color.Orange),
         strokeThickness = 5.,                                
         width = 150.,
         height = 50.
-    )
+    ).horizontalOptions(style.Position)
+     .verticalOptions(style.Position)
+     .backgroundColor(style.ViewColor)
+     .margin(style.Thickness)
 ```
 
 
@@ -62,44 +61,42 @@ See also:
 `Rectangle` can be used to draw rectangles and squares. 
 
 ```fsharp 
-View.Label("Filled rectangle")
-View.Rectangle(
+Label("Filled rectangle")
+Rectangle(
     fill = View.SolidColorBrush(Color.Red),
     width = 150.,
     height = 50.,
     horizontalOptions = LayoutOptions.Start
 )
 
-View.Label("Square")
-View.Rectangle(
+Label("Square")
+Rectangle(
     stroke = View.SolidColorBrush(Color.Red),
     strokeThickness = 4.,
     width = 150.,
-    height = 150.,
-    horizontalOptions = LayoutOptions.Start
-)
+    height = 150.
+).horizontalOptions(LayoutOptions.Start)
 
-View.Label("Rectangle with stroke")
-View.Rectangle(
+
+Label("Rectangle with stroke")
+Rectangle(
     stroke = View.SolidColorBrush(Color.Red),
     strokeThickness = 4.,
     width = 150.,
-    height = 50.,
-    horizontalOptions = LayoutOptions.Start
-)
+    height = 50.
+).horizontalOptions(LayoutOptions.Start)
 
-View.Label("Filled rectangle with stroke")
-View.Rectangle(
+Label("Filled rectangle with stroke")
+Rectangle(
     fill = View.SolidColorBrush(Color.DarkBlue),
     stroke = View.SolidColorBrush(Color.Red),
     strokeThickness = 4.,
     width = 150.,
     height = 50.,
-    horizontalOptions = LayoutOptions.Start
-)
+).horizontalOptions(LayoutOptions.Start)
 
-View.Label("Filled rectangle with dashed stroke")
-View.Rectangle(
+Label("Filled rectangle with dashed stroke")
+Rectangle(
     fill = View.SolidColorBrush(Color.DarkBlue),
     stroke = View.SolidColorBrush(Color.Red),
     strokeThickness = 4.,
@@ -107,11 +104,10 @@ View.Rectangle(
     strokeDashOffset = 6.,
     width = 150.,
     height = 50.,
-    horizontalOptions = LayoutOptions.Start
-)
+).horizontalOptions(LayoutOptions.Start)
 
-View.Label("Rectangle with rounded corners")
-View.Rectangle(
+Label("Rectangle with rounded corners")
+Rectangle(
     fill = View.SolidColorBrush(Color.Blue),
     stroke = View.SolidColorBrush(Color.Black),
     strokeThickness = 3.,
@@ -119,6 +115,5 @@ View.Rectangle(
     radiusY = 10.,
     width = 200.,
     height = 100.,
-    horizontalOptions = LayoutOptions.Start
-)
+).horizontalOptions(LayoutOptions.Start)
 ```

@@ -14,7 +14,7 @@ CheckBox
 
 
 ```fsharp 
-View.CheckBox(true)
+CheckBox(true, CheckedChanged)
 ```
 
 <img src="images/view/CheckBox-adr-basic.png" width="300">
@@ -24,13 +24,10 @@ View.CheckBox(true)
 ### Basic example with styling
 
 ```fsharp 
-View.CheckBox
-    (
-        horizontalOptions = style.Position,
-        verticalOptions = style.Position,
-        backgroundColor = style.LayoutColor,
-        isChecked = true
-    )
+CheckBox(true)
+    .horizontalOptions(style.Position)
+    .verticalOptions(style.Position)
+    .backgroundColor(style.LayoutColor)
 ```
 
 
@@ -48,8 +45,5 @@ See also:
 
 ```fsharp 
 
-View.CheckBox(
-    isChecked = true,
-    checkedChanged = (fun on -> dispatch (...))
-)
+CheckBox(true, CheckedChanged)
 ```
