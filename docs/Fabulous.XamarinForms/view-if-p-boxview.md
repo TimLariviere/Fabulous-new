@@ -14,7 +14,7 @@ BoxView
 
 
 ```fsharp 
-View.BoxView()
+BoxView(Color.Black)
 ```
 
 <img src="images/view/BoxView-adr-basic.png" width="300">
@@ -24,12 +24,7 @@ View.BoxView()
 ### Basic example with styling
 
 ```fsharp 
-View.BoxView
-    (
-        horizontalOptions = style.Position,
-        verticalOptions = style.Position,
-        backgroundColor = style.ViewColor
-    )
+BoxView(Color.Black)
 ```
 
 
@@ -48,10 +43,8 @@ See also:
 
 An example `BoxView` is as follows:
 ```fsharp 
-View.BoxView(
-    color = Color.CornflowerBlue, 
-    cornerRadius = CornerRadius 10., 
-    horizontalOptions = LayoutOptions.Center
-    )
+BoxView(Color.CornflowerBlue)
+    .cornerRadius(10.)
+    .horizontalOptions(LayoutOptions.Center)
 ```
 <img src="https://user-images.githubusercontent.com/6429007/60753625-c1377b80-9fd5-11e9-91cc-eaef04a372cf.png" width="400">
