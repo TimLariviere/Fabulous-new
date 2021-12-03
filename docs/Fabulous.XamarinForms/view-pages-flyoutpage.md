@@ -11,24 +11,20 @@ FlyoutPage
 ### Basic example
 
 ```fsharp 
-flyout = View.ContentPage
-    (   title ="flyoutPage",    
-        content = 
-            View.StackLayout( children = [
-                View.ListViewGrouped(
-                    items = [ 
-                        "Introduction Pages", View.TextCell("Introduction Pages"), introductionPages
-                        "Sample Pages", View.TextCell("Sample Pages"), samplePages
-                        "Sample Layouts", View.TextCell("Sample Layouts"), sampleLayouts 
-                        "Sample Displays", View.TextCell("Sample Displays"), sampleDisplays
-                    ], 
-                    itemSelected = (fun idx -> dispatch (ListViewSelectedItemChanged idx.Value))
-                )
-            ])
-    ), 
-detail = View.NavigationPage
-    (   title = "details",         
-        pages = [ activePage model.SelectedPage ] 
+flyout = ContentPage
+    ("flyoutPage",    
+     VerticalStackLayout([
+        ListViewGrouped([ 
+            "Introduction Pages", View.TextCell("Introduction Pages"), introductionPages
+            "Sample Pages", View.TextCell("Sample Pages"), samplePages
+            "Sample Layouts", View.TextCell("Sample Layouts"), sampleLayouts 
+            "Sample Displays", View.TextCell("Sample Displays"), sampleDisplays
+        ], itemSelected = (fun idx -> dispatch (ListViewSelectedItemChanged idx.Value)))
+    ])
+), 
+detail = NavigationPage
+    ("details",         
+     [ activePage model.SelectedPage ] 
     )
 ```
 <img src="images/pages/flyout-adr-basic.png" width="300">

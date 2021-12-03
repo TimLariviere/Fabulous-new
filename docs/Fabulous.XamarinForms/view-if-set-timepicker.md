@@ -14,7 +14,7 @@ TimePicker
 
 
 ```fsharp 
-View.TimePicker()
+TimePicker()
 ```
 
 <img src="images/view/TimePicker-adr-basic.png" width="300">
@@ -24,12 +24,10 @@ View.TimePicker()
 ### Basic example with styling
 
 ```fsharp 
-View.TimePicker
-    (
-        horizontalOptions = style.Position,
-        verticalOptions = style.Position,
-        backgroundColor = style.ViewColor
-    )
+TimePicker()
+    .horizontalOptions(style.Position)
+     .verticalOptions(style.Position)
+     .backgroundColor(style.ViewColor)
 ```
 
 
@@ -47,7 +45,5 @@ See also:
 
 ### TimePicker
 ```fsharp 
-View.TimePicker(
-    time = TimeSpan (12, 22, 0)                
-)
+TimePicker(TimeSpan (12, 22, 0))
 ```

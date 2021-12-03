@@ -26,18 +26,18 @@ The basic principles of implementing push/pop navigation are as follows:
 5. Utilize `popped` event to handle page removal
 
 ```fsharp
-let view model dispatch =
-    View.NavigationPage(pages=
+let view model =
+    NavigationPage(pages=
         [ for page in model.PageStack do
             match page with
             | "Home" ->
-                yield View.ContentPage(...).HasNavigationBar(true).HasBackButton(true)
+                yield ContentPage(...).hasNavigationBar(true).hasBackButton(true)
             | "PageA" ->
-                yield View.ContentPage(...).HasNavigationBar(true).HasBackButton(true)
+                yield ContentPage(...).hasNavigationBar(true).hasBackButton(true)
             | "PageB" ->
-                yield View.ContentPage(...).HasNavigationBar(true).HasBackButton(true)
+                yield ContentPage(...).hasNavigationBar(true).hasBackButton(true)
         ],
-        popped = (fun _ -> dispatch NavigationPopped))
+        popped = NavigationPopped)
 ```
 
 ### NavigationPage Toolbar
@@ -45,11 +45,12 @@ let view model dispatch =
 A toolbar can be added to a navigation page using `.ToolbarItems([ ... ])` as follows:
 
 ```fsharp
-let view model dispatch =
+let view model =
     ...
-    View.NavigationPage(pages =
-        [ View.ContentPage(...)
-            .ToolbarItems([View.ToolbarItem(text = "About", command = (fun () -> dispatch (ShowAbout true))) ] )
+    View.NavigationPage([
+        ContentPage(...)
+            .ToolbarItems([ToolbarItem("About", ShowAbout true))
+    ] )
 ```
 
 ### Example: Modal pages by pushing an extra page
@@ -66,23 +67,25 @@ type Msg =
     | ...
     | ShowAbout of bool
 
-let view model dispatch =
+let view model =
     ...
-    let rootPage dispatch =
-        View.ContentPage(title = "Root Page", content = View.Button(text = "About", command = (fun () -> dispatch (ShowAbout true))))
+    let rootPage =
+        ContentPage(
+            "Root Page",
+            Button("About",ShowAbout true)
+        )
 
-    let modalPage dispatch =
-        View.ContentPage(title = "About",
-            content= View.StackLayout(
-                children = [
-                    View.Label(text = "Fabulous!")
-                    View.Button(text = "Continue", command = (fun () -> dispatch (ShowAbout false) ))
-                ]))
+    let modalPage =
+        ContentPage("About",
+            VerticalStackLayout([
+                Label("Fabulous!")
+                Button(text = "Continue", ShowAbout false))
+            ]))
 
-    View.NavigationPage(pages=
-        [ yield rootPage dispatch
+    NavigationPage(
+        [ yield rootPage
           if model.ShowAbout then
-              yield modalPage dispatch
+              yield modalPage
         ])
 ```
 
@@ -91,8 +94,8 @@ let view model dispatch =
 Return a `TabbedPage` from your view:
 
 ```fsharp
-let view model dispatch =
-    View.TabbedPage(children = [ ... ])
+let view model =
+    TabbedPage([ ... ])
 ```
 
 ### CarouselPage navigation
@@ -100,8 +103,8 @@ let view model dispatch =
 Return a `CarouselPage` from your view:
 
 ```fsharp
-let view model dispatch =
-    View.CarouselPage(children = [ ... ])
+let view model =
+    CarouselPage([ ... ])
 ```
 
 ### MasterDetail Page navigation
@@ -109,10 +112,10 @@ let view model dispatch =
 Return a `FlyoutPage` from your view:
 
 ```fsharp
-let view model dispatch =
-    View.FlyoutPage(
-        flyout = View.ContentPage(title ="flyoutPage", ...), // 'title' is needed for the flyout page
-        detail = View.ContentPage(...)        
+let view model =
+    FlyoutPage(
+        flyout = ContentPage("flyoutPage", ...), // 'title' is needed for the flyout page
+        detail = ContentPage(...)        
     )
 ```
 

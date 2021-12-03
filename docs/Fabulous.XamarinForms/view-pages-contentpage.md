@@ -12,7 +12,7 @@ ContentPage
 A single page app typically returns a `ContentPage`. For example:
 
 ```fsharp 
-View.ContentPage(title = "ContentPage", content = View.Label("ContentPage with a single Label"))
+ContentPage("ContentPage", Label("ContentPage with a single Label"))
 ```
 <img src="images/pages/content-adr-basic.png" width="300">
 <br /> <br /> 
@@ -23,15 +23,11 @@ View.ContentPage(title = "ContentPage", content = View.Label("ContentPage with a
 View.ContentPage(
     backgroundColor = style.PageColor,
     title = "ContentPage",
-    content = 
-        View.Label
-            (   
-                horizontalOptions = style.Position,
-                verticalOptions = style.Position,
-                backgroundColor = style.ViewColor,
-                padding = style.Padding,
-                text = sprintf "ContentPage with a single Label" 
-            )
+    Label(sprintf "ContentPage with a single Label")
+        .horizontalOptions(style.Position)
+        .verticalOptions(style.Position)
+        .backgroundColor(style.ViewColor)
+        .padding(style.Padding)
 )
 ```
 <img src="images/pages/content-adr-styled.png" width="300">
@@ -41,12 +37,3 @@ View.ContentPage(
 See also:
 
 * [`Xamarin.Forms.ContentPage`](https://docs.microsoft.com/en-us/dotnet/api/Xamarin.Forms.ContentPage)
-
-
-
-
-
-
-
-
-

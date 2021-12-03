@@ -12,9 +12,9 @@ CarouselPage
 
 
 ```fsharp 
-View.CarouselPage(children = [
-    View.ContentPage(title ="carousel1", content = View.Label("carousel page 1") )
-    View.ContentPage(title ="carousel1", content = View.Label("carousel page 2") )
+CarouselPage([
+    ContentPage("carousel1", Label("carousel page 1") )
+    ContentPage("carousel1", Label("carousel page 2") )
 ] )
 ```
 <img src="images/pages/content-adr-basic.png" width="300">
@@ -23,30 +23,27 @@ View.CarouselPage(children = [
 ### Basic example with styling
 
 ```fsharp 
-View.CarouselPage(
-    backgroundColor = style.PageColor,
-    title = "CarouselPage",
-    children = [
-        View.ContentPage(title ="carousel1", content = View.Label
-            (
-                horizontalOptions = style.Position,
-                verticalOptions = style.Position,
-                backgroundColor = style.ViewColor,
-                padding = style.Padding,
-                text = "carousel page 1"
-            )
+CarouselPage(
+    "CarouselPage",
+    [
+        ContentPage(
+            "carousel1",
+            View.Label("carousel page 1")
+                .horizontalOptions(style.Position)
+                .verticalOptions(style.Position)
+                .backgroundColor(style.ViewColor)
+                .padding(style.Padding)
         )                
-        View.ContentPage(title ="carousel1", content = View.Label
-            (
-                horizontalOptions = style.Position,
-                verticalOptions = style.Position,
-                backgroundColor = style.ViewColor,
-                padding = style.Padding,
-                text = "carousel page 2"
-            )
+        ContentPage(
+            "carousel1",
+            View.Label("carousel page 2")
+                .horizontalOptions(style.Position)
+                .verticalOptions(style.Position)
+                .backgroundColor(style.ViewColor)
+                .padding(style.Padding)
         )
     ]
-)
+).backgroundColor(style.PageColor)
 ```
 <img src="images/pages/carousel-adr-styled.png" width="300">
 
