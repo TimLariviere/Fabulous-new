@@ -42,7 +42,7 @@ module VisualElement =
     let IsVisible = Attributes.defineBindable<bool> Xamarin.Forms.VisualElement.IsVisibleProperty
 
 module NavigableElement =
-    let Style = Attributes.defineBindable<Style> Xamarin.Forms.NavigableElement.StyleProperty
+    let Style = Attributes.defineWidget ViewNode.getViewNode "" (fun target -> (target :?> Xamarin.Forms.NavigableElement).Style) (fun target value -> (target :?> Xamarin.Forms.NavigableElement).Style <- unbox value)
 
 module View =
     let HorizontalOptions = Attributes.defineBindable<LayoutOptions> Xamarin.Forms.View.HorizontalOptionsProperty

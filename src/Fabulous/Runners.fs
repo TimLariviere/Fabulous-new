@@ -57,7 +57,7 @@ module ViewAdapters =
             _widget <- widget
 
             let definition = WidgetDefinitionStore.get widget.Key
-            _root <- definition.CreateView(widget, context)
+            _root <- definition.CreateView(widget, context, ValueNone)
             _root
 
         member _.OnStateChanged(args) =

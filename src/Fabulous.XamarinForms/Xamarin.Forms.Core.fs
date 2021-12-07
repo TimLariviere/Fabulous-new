@@ -484,6 +484,12 @@ type ViewExtensions () =
     static member inline gestureRecognizers(this: #IViewWidgetBuilder<_>, value: #seq<IGestureRecognizerWidgetBuilder<'msg>>) =
         this.AddWidgetCollectionAttribute(View.GestureRecognizers.WithValue(ViewHelpers.compileSeq value))
     [<Extension>]
+    static member inline style(this: Label<'msg>, value: LabelStyle<'msg>) =
+        this.AddWidgetAttribute(NavigableElement.Style.WithValue((value :> IStyleWidgetBuilder<'msg>).Compile()))
+    [<Extension>]
+    static member inline style(this: Button<'msg>, value: ButtonStyle<'msg>) =
+        this.AddWidgetAttribute(NavigableElement.Style.WithValue((value :> IStyleWidgetBuilder<'msg>).Compile()))
+    [<Extension>]
     static member inline horizontalTextAlignment(this: #ILabelWidgetBuilder<_>, value: Xamarin.Forms.TextAlignment) =
         this.AddScalarAttribute(Label.HorizontalTextAlignment.WithValue(value))
     [<Extension>]
@@ -570,44 +576,43 @@ type ViewExtensions () =
     [<Extension>]
     static member inline popped(this: NavigationPage<'msg>, value: 'msg) =
         this.AddScalarAttribute(NavigationPage.Popped.WithValue(fun _ -> box value))
-
     [<Extension>]
     static member inline hasNavigationBar(this: #IPageWidgetBuilder<'msg>, value: bool) =
         this.AddScalarAttribute(NavigationPage.HasNavigationBar.WithValue(value))
-
     [<Extension>]
     static member inline hasBackButton(this: #IPageWidgetBuilder<'msg>, value: bool) =
         this.AddScalarAttribute(NavigationPage.HasBackButton.WithValue(value))
 
-[<AbstractClass; Sealed>]
-type View private () =
-    static member inline Application<'msg>(mainPage) = Application<'msg>.Create(mainPage)
-    static member inline ContentPage<'msg>(title, content) = ContentPage<'msg>.Create(title, content)
-    static member inline VerticalStackLayout<'msg>(children) = StackLayout<'msg>.CreateVertical(children)
-    static member inline VerticalStackLayout<'msg>(spacing: float, children) = StackLayout<'msg>.CreateVertical(children, spacing = spacing)
-    static member inline HorizontalStackLayout<'msg>(children) = StackLayout<'msg>.CreateHorizontal(children)
-    static member inline HorizontalStackLayout<'msg>(spacing: float, children) = StackLayout<'msg>.CreateHorizontal(children, spacing = spacing)
-    static member inline Label<'msg>(text) = Label<'msg>.Create(text)
-    static member inline Button<'msg>(text, onClicked) = Button<'msg>.Create(text, onClicked)
-    static member inline Switch<'msg>(isToggled, onToggled) = Switch<'msg>.Create(isToggled, onToggled)
-    static member inline Slider<'msg>(value, onValueChanged) = Slider<'msg>.Create(value, onValueChanged)
-    static member inline Slider<'msg>(min, max, value, onValueChanged) = Slider<'msg>.Create(value, onValueChanged, min = min, max = max)
-    static member inline Grid<'msg>(children) = Grid<'msg>.Create(children)
-    static member inline Grid<'msg>(coldefs, rowdefs, children) = Grid<'msg>.Create(children, coldefs = coldefs, rowdefs = rowdefs)
-    static member inline ActivityIndicator<'msg>(isRunning) = ActivityIndicator<'msg>.Create(isRunning)
-    static member inline ContentView<'msg>(content) = ContentView<'msg>.Create(content)
-    static member inline RefreshView<'msg>(isRefreshing, onRefreshing, content) = RefreshView<'msg>.Create(isRefreshing, onRefreshing, content)
-    static member inline ScrollView<'msg>(content) = ScrollView<'msg>.Create(content)
-    static member inline Image<'msg>(path: string, aspect) = Image<'msg>.Create(path, aspect)
-    static member inline Image<'msg>(uri: System.Uri, aspect) = Image<'msg>.Create(uri, aspect)
-    static member inline Image<'msg>(stream: Stream, aspect) = Image<'msg>.Create(stream, aspect)
-    static member inline BoxView<'msg>(color) = BoxView<'msg>.Create(color)
-    static member inline NavigationPage<'msg>(pages) = NavigationPage<'msg>.Create(pages)
-    static member inline Entry<'msg>(text, onTextChanged) = Entry<'msg>.Create(text, onTextChanged)
-    static member inline TapGestureRecognizer<'msg>(onTapped) = TapGestureRecognizer<'msg>.Create(onTapped)
-    static member inline SearchBar<'msg>(text, onTextChanged, onSearchButtonPressed) = SearchBar<'msg>.Create(text, onTextChanged, onSearchButtonPressed)
-    static member inline ToolbarItem<'msg>(text, onClicked) = ToolbarItem<'msg>.Create(text, onClicked)
-    static member inline Editor<'msg>(text, onTextChanged) = Editor<'msg>.Create(text, onTextChanged)
-    static member inline ViewCell<'msg>(view) = ViewCell<'msg>.Create(view)
-    static member inline ImageButton<'msg>(path: string, onClicked, aspect) = ImageButton<'msg>.Create(path, onClicked, aspect)
-    static member inline TabbedPage<'msg>(title, children) = TabbedPage<'msg>.Create(title, children)
+[<AutoOpen>]
+module Views =
+    type Fabulous.XamarinForms.View with
+        static member inline Application<'msg>(mainPage) = Application<'msg>.Create(mainPage)
+        static member inline ContentPage<'msg>(title, content) = ContentPage<'msg>.Create(title, content)
+        static member inline VerticalStackLayout<'msg>(children) = StackLayout<'msg>.CreateVertical(children)
+        static member inline VerticalStackLayout<'msg>(spacing: float, children) = StackLayout<'msg>.CreateVertical(children, spacing = spacing)
+        static member inline HorizontalStackLayout<'msg>(children) = StackLayout<'msg>.CreateHorizontal(children)
+        static member inline HorizontalStackLayout<'msg>(spacing: float, children) = StackLayout<'msg>.CreateHorizontal(children, spacing = spacing)
+        static member inline Label<'msg>(text) = Label<'msg>.Create(text)
+        static member inline Button<'msg>(text, onClicked) = Button<'msg>.Create(text, onClicked)
+        static member inline Switch<'msg>(isToggled, onToggled) = Switch<'msg>.Create(isToggled, onToggled)
+        static member inline Slider<'msg>(value, onValueChanged) = Slider<'msg>.Create(value, onValueChanged)
+        static member inline Slider<'msg>(min, max, value, onValueChanged) = Slider<'msg>.Create(value, onValueChanged, min = min, max = max)
+        static member inline Grid<'msg>(children) = Grid<'msg>.Create(children)
+        static member inline Grid<'msg>(coldefs, rowdefs, children) = Grid<'msg>.Create(children, coldefs = coldefs, rowdefs = rowdefs)
+        static member inline ActivityIndicator<'msg>(isRunning) = ActivityIndicator<'msg>.Create(isRunning)
+        static member inline ContentView<'msg>(content) = ContentView<'msg>.Create(content)
+        static member inline RefreshView<'msg>(isRefreshing, onRefreshing, content) = RefreshView<'msg>.Create(isRefreshing, onRefreshing, content)
+        static member inline ScrollView<'msg>(content) = ScrollView<'msg>.Create(content)
+        static member inline Image<'msg>(path: string, aspect) = Image<'msg>.Create(path, aspect)
+        static member inline Image<'msg>(uri: System.Uri, aspect) = Image<'msg>.Create(uri, aspect)
+        static member inline Image<'msg>(stream: Stream, aspect) = Image<'msg>.Create(stream, aspect)
+        static member inline BoxView<'msg>(color) = BoxView<'msg>.Create(color)
+        static member inline NavigationPage<'msg>(pages) = NavigationPage<'msg>.Create(pages)
+        static member inline Entry<'msg>(text, onTextChanged) = Entry<'msg>.Create(text, onTextChanged)
+        static member inline TapGestureRecognizer<'msg>(onTapped) = TapGestureRecognizer<'msg>.Create(onTapped)
+        static member inline SearchBar<'msg>(text, onTextChanged, onSearchButtonPressed) = SearchBar<'msg>.Create(text, onTextChanged, onSearchButtonPressed)
+        static member inline ToolbarItem<'msg>(text, onClicked) = ToolbarItem<'msg>.Create(text, onClicked)
+        static member inline Editor<'msg>(text, onTextChanged) = Editor<'msg>.Create(text, onTextChanged)
+        static member inline ViewCell<'msg>(view) = ViewCell<'msg>.Create(view)
+        static member inline ImageButton<'msg>(path: string, onClicked, aspect) = ImageButton<'msg>.Create(path, onClicked, aspect)
+        static member inline TabbedPage<'msg>(title, children) = TabbedPage<'msg>.Create(title, children)

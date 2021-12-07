@@ -65,15 +65,17 @@ module App =
                             .automationId("CountLabel")
                             .centerTextHorizontal()
                             .style (
-                                createStyleFor [ Label.TextColorProperty, box Color.Green
-                                                 Label.FontSizeProperty, box 24. ]
+                                LabelStyle()
+                                    .textColor(Color.Green)
+                                    .fontSize(24.)
                             )
 
                         Button("Increment", Increment)
                             .style(
-                                createStyleFor [ Button.BackgroundColorProperty, box Color.Green
-                                                 Button.TextColorProperty, box Color.White ]
-                                )
+                                ButtonStyle()
+                                    .backgroundColor(if model.Count = 0 then Color.Blue else Color.Green)
+                                    .textColor(Color.White)
+                            )
                             .automationId("IncrementButton")
 
                         Button("Decrement", Decrement)
@@ -104,9 +106,8 @@ module App =
                     ])
                         .paddingLayout(30.)
                         .centerVertical()
-            ).hasNavigationBar(false)
+                ).hasNavigationBar(false)
             ])
-
         )
 
     let program = Program.statefulApplicationWithCmdMsg init update view mapCmdMsgToCmd

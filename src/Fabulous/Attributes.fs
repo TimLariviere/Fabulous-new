@@ -10,9 +10,9 @@ module Helpers =
     let canReuse<'T when 'T: equality> (prev: 'T) (curr: 'T) =
         prev = curr
 
-    let createViewForWidget (context: ViewTreeContext) (widget: Widget) =
+    let createViewForWidget (target: obj voption) (context: ViewTreeContext) (widget: Widget) =
         let widgetDefinition = WidgetDefinitionStore.get widget.Key
-        widgetDefinition.CreateView (widget, context)
+        widgetDefinition.CreateView (widget, context, target)
 
 module ScalarAttributeComparers =
     let noCompare (a, b) = ScalarAttributeComparison.Different b
@@ -26,21 +26,18 @@ module ScalarAttributeComparers =
 module Attributes =
     type [<Struct>] AttributesBuilder (scalarAttributes: ScalarAttribute[], widgetAttributes: WidgetAttribute[], widgetCollectionAttributes: WidgetCollectionAttribute[]) =
         member x.AddScalar(attr: ScalarAttribute) =
-            let attribs = scalarAttributes
             let attribs2 = Array.zeroCreate (scalarAttributes.Length + 1)
             Array.blit scalarAttributes 0 attribs2 0 scalarAttributes.Length
             attribs2.[scalarAttributes.Length] <- attr
             AttributesBuilder(attribs2, widgetAttributes, widgetCollectionAttributes)
 
         member x.AddWidget(attr: WidgetAttribute) =
-            let attribs = widgetAttributes
             let attribs2 = Array.zeroCreate (widgetAttributes.Length + 1)
             Array.blit widgetAttributes 0 attribs2 0 widgetAttributes.Length
             attribs2.[widgetAttributes.Length] <- attr
             AttributesBuilder(scalarAttributes, attribs2, widgetCollectionAttributes)
 
         member x.AddWidgetCollection(attr: WidgetCollectionAttribute) =
-            let attribs = widgetCollectionAttributes
             let attribs2 = Array.zeroCreate (widgetCollectionAttributes.Length + 1)
             Array.blit widgetCollectionAttributes 0 attribs2 0 widgetCollectionAttributes.Length
             attribs2.[widgetCollectionAttributes.Length] <- attr
@@ -107,7 +104,7 @@ module Attributes =
             | ValueNone -> set target null
             | ValueSome widget ->
                 let viewNode = getViewNode target
-                let view = Helpers.createViewForWidget viewNode.Context widget
+                let view = Helpers.createViewForWidget (ValueSome target) viewNode.Context widget
                 set target view
 
         defineWidgetWithConverter name applyDiff updateTarget
@@ -127,7 +124,7 @@ module Attributes =
             for diff in diffs do
                 match diff with
                 | WidgetCollectionItemChange.Insert (index, widget) ->
-                    let view = Helpers.createViewForWidget viewNode.Context widget
+                    let view = Helpers.createViewForWidget (ValueSome target) viewNode.Context widget
                     targetColl.Insert(index, unbox view)
         
                 | WidgetCollectionItemChange.Update (index, widgetDiff) ->
@@ -138,7 +135,7 @@ module Attributes =
                     if widgetDiff.WidgetCollectionChanges.Length > 0 then viewNode.ApplyWidgetCollectionDiff(widgetDiff.WidgetCollectionChanges)
         
                 | WidgetCollectionItemChange.Replace (index, widget) ->
-                    let view = Helpers.createViewForWidget viewNode.Context widget
+                    let view = Helpers.createViewForWidget (ValueSome target) viewNode.Context widget
                     targetColl.[index] <- unbox view
         
                 | _ -> ()
@@ -152,7 +149,7 @@ module Attributes =
             | ValueNone -> ()
             | ValueSome widgets ->
                 for widget in widgets do
-                    let view = Helpers.createViewForWidget viewNode.Context widget
+                    let view = Helpers.createViewForWidget (ValueSome target) viewNode.Context widget
                     targetColl.Add(unbox view)
         
         defineWidgetCollectionWithConverter name applyDiff updateTarget
@@ -246,6 +243,13 @@ type WidgetExtensions () =
             let newBuilder = builder.AddScalars(attrs)
             let result = (^T: (new: Attributes.AttributesBuilder -> ^T) newBuilder)
             result
+            
+    [<Extension>]
+    static member inline AddWidgetAttribute(this: ^T, attr: WidgetAttribute) =
+        let builder = (^T : (member Builder: Attributes.AttributesBuilder) this)
+        let newBuilder = builder.AddWidget(attr)
+        let result = (^T: (new: Attributes.AttributesBuilder -> ^T) newBuilder)
+        result
 
     [<Extension>]
     static member inline AddWidgetCollectionAttribute(this: ^T, attr: WidgetCollectionAttribute) =

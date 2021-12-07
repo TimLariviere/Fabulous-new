@@ -1,8 +1,8 @@
 namespace Fabulous.XamarinForms
 
 open Fabulous
+open Fabulous.XamarinForms
 open Xamarin.Forms
-open System
 
 type [<Struct>] AppThemeValues<'T> =
     { Light: 'T
@@ -51,4 +51,21 @@ module Attributes =
                 | ValueNone -> (target :?> BindableObject).ClearValue(bindableProperty)
                 | ValueSome { Light = light; Dark = ValueNone } -> (target :?> BindableObject).SetValue(bindableProperty, light)
                 | ValueSome { Light = light; Dark = ValueSome dark } -> (target :?> BindableObject).SetOnAppTheme(bindableProperty, light, dark)
+            )
+
+    let defineStyleSetter<'T when 'T: equality> (bindableProperty: Xamarin.Forms.BindableProperty) =
+        Attributes.defineScalarWithConverter<'T, 'T>
+            bindableProperty.PropertyName
+            id
+            ScalarAttributeComparers.equalityCompare
+            (fun (newValueOpt, target) ->
+                let style = (target :?> BindableStyle).FormsStyle
+                let setterOpt = style.Setters |> Seq.tryFind (fun s -> s.Property = bindableProperty)
+                match struct (newValueOpt, setterOpt) with
+                | ValueNone, None -> ()
+                | ValueNone, Some setter -> style.Setters.Remove(setter) |> ignore
+                | ValueSome value, None ->
+                    style.Setters.Add(Xamarin.Forms.Setter(Property = bindableProperty, Value = value))
+                    ()
+                | ValueSome value, Some setter -> setter.Value <- value
             )
