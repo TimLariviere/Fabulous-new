@@ -1,5 +1,6 @@
 namespace Fabulous
 
+open System
 open Microsoft.FSharp.Core
 
 // TODO try to use it to optimize ArraySlice<'t> voption type
@@ -34,17 +35,34 @@ module Array =
     /// 2. there are few elements, we expect to have only a handful of them per widget
     /// 3. stable, which is handy for duplicate attributes, e.g. we can choose which one to pick
     /// https://en.wikipedia.org/wiki/Insertion_sort
-    let inline sortInPlace<'T, 'V when 'V: comparison> ([<InlineIfLambda>] getKey: 'T -> 'V) (attrs: 'T []) : 'T [] =
-        let N = attrs.GetLength(0)
+    let inline sortInPlace<'T, 'V when 'V: comparison> ([<InlineIfLambda>] getKey: 'T -> 'V) (values: 'T []) : 'T [] =
+        let N = values.Length
 
         for i in [ 1 .. N - 1 ] do
             for j = i downto 1 do
-                let key = getKey attrs.[j]
-                let prevKey = getKey(attrs.[j - 1])
+                let key = getKey values.[j]
+                let prevKey = getKey(values.[j - 1])
 
                 if key < prevKey then
-                    let temp = attrs.[j]
-                    attrs.[j] <- attrs.[j - 1]
-                    attrs.[j - 1] <- temp
+                    let temp = values.[j]
+                    values.[j] <- values.[j - 1]
+                    values.[j - 1] <- temp
 
-        attrs
+        values
+
+
+    let inline sortSpanInPlace<'T, 'V when 'V: comparison>
+        ([<InlineIfLambda>] getKey: 'T -> 'V)
+        (values: Span<'T>)
+        : unit =
+        let N = values.Length
+
+        for i in [ 1 .. N - 1 ] do
+            for j = i downto 1 do
+                let key = getKey values.[j]
+                let prevKey = getKey(values.[j - 1])
+
+                if key < prevKey then
+                    let temp = values.[j]
+                    values.[j] <- values.[j - 1]
+                    values.[j - 1] <- temp

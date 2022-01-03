@@ -6,6 +6,9 @@ open Fabulous.StackAllocatedCollections
 open Fabulous.StackAllocatedCollections.StackList
 open Microsoft.FSharp.Core
 
+module BuildersMemPool =
+    let widgets = MemoryPool.Pool<Widget>()
+    let scalars = MemoryPool.Pool<ScalarAttribute>()
 
 type AttributesBundle =
     (struct (StackList<ScalarAttribute> * WidgetAttribute [] option * WidgetCollectionAttribute [] option))
@@ -46,9 +49,12 @@ type WidgetBuilder<'msg, 'marker> =
                 DebugName = $"{typeof<'marker>.Name}<{typeof<'msg>.Name}>"
 #endif
                 ScalarAttributes =
-                    match StackList.length &scalarAttributes with
-                    | 0us -> None
-                    | _ -> Some(Array.sortInPlace(fun a -> a.Key) (StackList.toArray &scalarAttributes))
+                    let slice =
+                        StackList.toArraySlice(&scalarAttributes, BuildersMemPool.scalars)
+
+                    Array.sortSpanInPlace(fun (a: ScalarAttribute) -> a.Key) (ArraySlice.toSpan slice)
+
+                    ValueSome slice
 
                 WidgetAttributes =
                     widgetAttributes
@@ -162,7 +168,7 @@ type CollectionBuilder<'msg, 'marker, 'itemMarker> =
 
         member inline x.Run(c: Content<'msg>) =
             let attrValue =
-                match MutStackArray1.toArraySlice &c.Widgets with
+                match MutStackArray1.toArraySlice(&c.Widgets, BuildersMemPool.widgets) with
                 | ValueNone -> ArraySlice.emptyWithNull()
                 | ValueSome slice -> slice
 
@@ -173,7 +179,7 @@ type CollectionBuilder<'msg, 'marker, 'itemMarker> =
 
         member inline _.Combine(a: Content<'msg>, b: Content<'msg>) : Content<'msg> =
             let res =
-                MutStackArray1.combineMut(&a.Widgets, b.Widgets)
+                MutStackArray1.combineMut(&a.Widgets, b.Widgets, BuildersMemPool.widgets)
 
             { Widgets = res }
 
@@ -203,7 +209,7 @@ type AttributeCollectionBuilder<'msg, 'marker, 'itemMarker> =
 
         member inline x.Run(c: Content<'msg>) =
             let attrValue =
-                match MutStackArray1.toArraySlice &c.Widgets with
+                match MutStackArray1.toArraySlice(&c.Widgets, BuildersMemPool.widgets) with
                 | ValueNone -> ArraySlice.emptyWithNull()
                 | ValueSome slice -> slice
 
@@ -211,7 +217,7 @@ type AttributeCollectionBuilder<'msg, 'marker, 'itemMarker> =
 
         member inline _.Combine(a: Content<'msg>, b: Content<'msg>) : Content<'msg> =
             {
-                Widgets = MutStackArray1.combineMut(&a.Widgets, b.Widgets)
+                Widgets = MutStackArray1.combineMut(&a.Widgets, b.Widgets, BuildersMemPool.widgets)
             }
 
         member inline _.Zero() : Content<'msg> = { Widgets = MutStackArray1.Empty }

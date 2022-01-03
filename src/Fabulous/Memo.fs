@@ -1,6 +1,7 @@
 namespace Fabulous
 
 open Fabulous
+open Microsoft.FSharp.Core
 
 module Memo =
 
@@ -28,9 +29,23 @@ module Memo =
     let internal MemoWidgetKey = WidgetDefinitionStore.getNextKey()
 
     let inline private getMemoData (widget: Widget) : MemoData =
-        (Array.find(fun (a: ScalarAttribute) -> a.Key = MemoAttributeKey) (Option.get widget.ScalarAttributes))
-            .Value
-        :?> MemoData
+        match widget.ScalarAttributes with
+        | ValueNone -> failwith "no scalar attributes"
+        | ValueSome slice ->
+            let span = ArraySlice.toSpan slice
+            let mutable i = 0
+            let mutable res = None
+
+            while i < span.Length && Option.isNone res do
+                let attr = span.[i]
+
+                if attr.Key = MemoAttributeKey then
+                    res <- Some(attr.Value :?> MemoData)
+                else
+                    i <- i + 1
+
+            Option.get res
+
 
     let internal canReuseMemoizedViewNode prev next =
         (getMemoData prev).MarkerTypeHash = (getMemoData next).MarkerTypeHash

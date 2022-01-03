@@ -59,7 +59,7 @@ and [<Struct>] Widget =
 #if DEBUG
         DebugName: string
 #endif
-        ScalarAttributes: ScalarAttribute [] option
+        ScalarAttributes: ArraySlice<ScalarAttribute> voption
         WidgetAttributes: WidgetAttribute [] option
         WidgetCollectionAttributes: WidgetCollectionAttribute [] option
     }
@@ -89,7 +89,7 @@ and [<Struct; RequireQualifiedAccess>] WidgetCollectionItemChange =
 
 and [<Struct; NoComparison; NoEquality>] WidgetDiff =
     {
-        ScalarChanges: ScalarChange [] option
+        ScalarChanges: ArraySlice<ScalarChange> voption
         WidgetChanges: ArraySlice<WidgetChange> voption
         WidgetCollectionChanges: ArraySlice<WidgetCollectionChange> voption
     }
@@ -116,6 +116,6 @@ and IViewNode =
     abstract member GetViewNodeForChild : obj -> IViewNode
     abstract member TryGetHandler<'T> : AttributeKey -> 'T voption
     abstract member SetHandler<'T> : AttributeKey * 'T voption -> unit
-    abstract member ApplyScalarDiffs : ScalarChange [] -> unit
+    abstract member ApplyScalarDiffs : ArraySlice<ScalarChange> -> unit
     abstract member ApplyWidgetDiffs : ArraySlice<WidgetChange> -> unit
     abstract member ApplyWidgetCollectionDiffs : ArraySlice<WidgetCollectionChange> -> unit

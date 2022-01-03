@@ -100,8 +100,8 @@ module Attributes =
             let childNode = get node.Target
 
             match diff.ScalarChanges with
-            | Some changes -> childNode.ApplyScalarDiffs(changes)
-            | None -> ()
+            | ValueSome changes -> childNode.ApplyScalarDiffs(changes)
+            | ValueNone -> ()
 
             match diff.WidgetChanges with
             | ValueSome slice -> childNode.ApplyWidgetDiffs(slice)
@@ -143,8 +143,8 @@ module Attributes =
                         node.GetViewNodeForChild(targetColl.[index])
 
                     match widgetDiff.ScalarChanges with
-                    | Some changes -> childNode.ApplyScalarDiffs(changes)
-                    | None -> ()
+                    | ValueSome changes -> childNode.ApplyScalarDiffs(changes)
+                    | ValueNone -> ()
 
                     match widgetDiff.WidgetChanges with
                     | ValueSome slice -> childNode.ApplyWidgetDiffs(slice)

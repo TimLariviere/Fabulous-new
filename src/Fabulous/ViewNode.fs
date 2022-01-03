@@ -40,7 +40,7 @@ type ViewNode(parentNode: IViewNode voption, treeContext: ViewTreeContext, targe
             if not targetRef.IsAlive then
                 ()
             else
-                for diff in diffs do
+                for diff in ArraySlice.toSpan diffs do
                     match diff with
                     | ScalarChange.Added added ->
                         let definition =

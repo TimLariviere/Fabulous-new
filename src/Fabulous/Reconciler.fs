@@ -1,9 +1,41 @@
 ﻿namespace Fabulous
 
+open System
 open Fabulous
+open Fabulous.MemoryPool
 open Fabulous.StackAllocatedCollections
 
 module Reconciler =
+
+    module private MemPool =
+        let widgetChanges = Pool<WidgetChange>()
+        let scalarChanges = Pool<ScalarChange>()
+        let widgetColChanges = Pool<WidgetCollectionChange>()
+        let widgetColItemChange = Pool<WidgetCollectionItemChange>()
+
+
+    let inline mapToSlice (col: 'v []) (f: 'v -> 'u) (pool: Pool<'u>) =
+        let arr = pool.allocate col.Length
+
+        for i = 0 to col.Length - 1 do
+            arr.[i] <- f col.[i]
+
+        ArraySlice(uint16 col.Length, arr)
+
+    let inline mapSlice (slice: ArraySlice<'v>) (f: 'v -> 'u) (pool: Pool<'u>) =
+        let struct (size, _) = slice
+        let len = int size
+        let arr = pool.allocate len
+
+        let source = ArraySlice.toSpan slice
+        let destination = Span(arr, 0, len)
+
+        for i = 0 to len - 1 do
+            destination.[i] <- f source.[i]
+
+        ArraySlice(size, arr)
+
+
     /// Let's imagine that we have the following situation
     /// prev = [|1,2,6,7|] note that it is sorted
     /// next = [|8,5,6,2|] unsorted
@@ -28,24 +60,37 @@ module Reconciler =
     ///
     /// break when we reached both ends of the arrays
     let rec diffScalarAttributes
-        (prev: ScalarAttribute [] option)
-        (next: ScalarAttribute [] option)
-        : ScalarChange [] option =
+        (prev: ArraySlice<ScalarAttribute> voption)
+        (next: ArraySlice<ScalarAttribute> voption)
+        : ArraySlice<ScalarChange> voption =
         match (prev, next) with
-        | None, None -> None
+        | ValueNone, ValueNone -> ValueNone
 
         // all were deleted
-        | Some prev, None -> prev |> Array.map ScalarChange.Removed |> Some
-        | None, Some next -> next |> Array.map ScalarChange.Added |> Some
-        | Some prev, Some next ->
+        | ValueSome prev, ValueNone ->
+            let res =
+                mapSlice prev ScalarChange.Removed MemPool.scalarChanges
+
+            BuildersMemPool.scalars.recycleSlice prev
+            res |> ValueSome
+
+
+        | ValueNone, ValueSome next ->
+            mapSlice next ScalarChange.Added MemPool.scalarChanges
+            |> ValueSome
+
+        | ValueSome prev, ValueSome next ->
 
             let mutable result = DiffBuilder.create()
 
             let mutable prevIndex = 0
             let mutable nextIndex = 0
 
-            let prevLength = prev.Length
-            let nextLength = next.Length
+            let struct (prevLength, prevSpan) = prev
+            let struct (nextLength, nextSpan) = next
+
+            let nextLength = int nextLength
+            let prevLength = int prevLength
 
             while not(prevIndex >= prevLength && nextIndex >= nextLength) do
                 if prevIndex = prevLength then
@@ -62,8 +107,8 @@ module Reconciler =
 
                 else
                     // we haven't reached either of the ends
-                    let prevAttr = prev.[prevIndex]
-                    let nextAttr = next.[nextIndex]
+                    let prevAttr = prevSpan.[prevIndex]
+                    let nextAttr = nextSpan.[nextIndex]
 
                     let prevKey = prevAttr.Key
                     let nextKey = nextAttr.Key
@@ -100,18 +145,24 @@ module Reconciler =
                         nextIndex <- nextIndex + 1
 
 
-            match DiffBuilder.lenght &result with
-            | 0 -> None
-            | _ ->
-                Some(
-                    DiffBuilder.toArray
-                        &result
-                        (fun op ->
-                            match op with
-                            | DiffBuilder.Added i -> ScalarChange.Added next.[int i]
-                            | DiffBuilder.Removed i -> ScalarChange.Removed prev.[int i]
-                            | DiffBuilder.Changed i -> ScalarChange.Updated next.[int i])
-                )
+            // TODO recycle diff memory
+            let res =
+                match DiffBuilder.lenght &result with
+                | 0 -> ValueNone
+                | _ ->
+                    ValueSome(
+                        DiffBuilder.toArraySlice
+                            &result
+                            (fun op ->
+                                match op with
+                                | DiffBuilder.Added i -> ScalarChange.Added nextSpan.[int i]
+                                | DiffBuilder.Removed i -> ScalarChange.Removed prevSpan.[int i]
+                                | DiffBuilder.Changed i -> ScalarChange.Updated nextSpan.[int i])
+                            MemPool.scalarChanges
+                    )
+
+            BuildersMemPool.scalars.recycleSlice prev
+            res
 
     and diffWidgetAttributes
         (canReuseView: Widget -> Widget -> bool)
@@ -124,14 +175,13 @@ module Reconciler =
 
         // all were deleted
         | Some prev, None ->
-            prev
-            |> Array.map WidgetChange.Removed
-            |> ArraySlice.fromArray
+            mapToSlice prev WidgetChange.Removed MemPool.widgetChanges
+            |> ValueSome
+
 
         | None, Some next ->
-            next
-            |> Array.map WidgetChange.Added
-            |> ArraySlice.fromArray
+            mapToSlice next WidgetChange.Added MemPool.widgetChanges
+            |> ValueSome
 
         | Some prev, Some next ->
 
@@ -146,12 +196,14 @@ module Reconciler =
             while not(prevIndex >= prevLength && nextIndex >= nextLength) do
                 if prevIndex = prevLength then
                     // that means we are done with the prev and only need to add next's tail to added
-                    result <- MutStackArray1.addMut(&result, WidgetChange.Added next.[nextIndex])
+                    result <- MutStackArray1.addMut(&result, WidgetChange.Added next.[nextIndex], MemPool.widgetChanges)
                     nextIndex <- nextIndex + 1
 
                 elif nextIndex = nextLength then
                     // that means that we are done with new items and only need prev's tail to removed
-                    result <- MutStackArray1.addMut(&result, WidgetChange.Removed prev.[prevIndex])
+                    result <-
+                        MutStackArray1.addMut(&result, WidgetChange.Removed prev.[prevIndex], MemPool.widgetChanges)
+
                     prevIndex <- prevIndex + 1
 
                 else
@@ -167,12 +219,12 @@ module Reconciler =
                     match prevKey.CompareTo nextKey with
                     | c when c < 0 ->
                         // prev key is less than next -> remove prev key
-                        result <- MutStackArray1.addMut(&result, WidgetChange.Removed prevAttr)
+                        result <- MutStackArray1.addMut(&result, WidgetChange.Removed prevAttr, MemPool.widgetChanges)
                         prevIndex <- prevIndex + 1
 
                     | c when c > 0 ->
                         // prev key is more than next -> add next item
-                        result <- MutStackArray1.addMut(&result, WidgetChange.Added nextAttr)
+                        result <- MutStackArray1.addMut(&result, WidgetChange.Added nextAttr, MemPool.widgetChanges)
                         nextIndex <- nextIndex + 1
 
                     | _ ->
@@ -194,9 +246,9 @@ module Reconciler =
 
                         match changeOpt with
                         | ValueNone -> ()
-                        | ValueSome change -> result <- MutStackArray1.addMut(&result, change)
+                        | ValueSome change -> result <- MutStackArray1.addMut(&result, change, MemPool.widgetChanges)
 
-            MutStackArray1.toArraySlice &result
+            MutStackArray1.toArraySlice(&result, MemPool.widgetChanges)
 
 
     and diffWidgetCollectionAttributes
@@ -210,14 +262,12 @@ module Reconciler =
 
         // all were deleted
         | Some prev, None ->
-            prev
-            |> Array.map WidgetCollectionChange.Removed
-            |> ArraySlice.fromArray
+            mapToSlice prev WidgetCollectionChange.Removed MemPool.widgetColChanges
+            |> ValueSome
 
         | None, Some next ->
-            next
-            |> Array.map WidgetCollectionChange.Added
-            |> ArraySlice.fromArray
+            mapToSlice next WidgetCollectionChange.Added MemPool.widgetColChanges
+            |> ValueSome
 
         | Some prev, Some next ->
 
@@ -234,7 +284,12 @@ module Reconciler =
                 if prevIndex = prevLength then
                     // that means we are done with the prev and only need to add next's tail to added
                     // DiffBuilder.addOpMut &result DiffBuilder.Add (uint16 nextIndex)
-                    result <- MutStackArray1.addMut(&result, WidgetCollectionChange.Added next.[nextIndex])
+                    result <-
+                        MutStackArray1.addMut(
+                            &result,
+                            WidgetCollectionChange.Added next.[nextIndex],
+                            MemPool.widgetColChanges
+                        )
 
 
                     nextIndex <- nextIndex + 1
@@ -242,7 +297,12 @@ module Reconciler =
                 elif nextIndex = nextLength then
                     // that means that we are done with new items and only need prev's tail to removed
                     // DiffBuilder.addOpMut &result DiffBuilder.Remove (uint16 prevIndex)
-                    result <- MutStackArray1.addMut(&result, WidgetCollectionChange.Removed prev.[prevIndex])
+                    result <-
+                        MutStackArray1.addMut(
+                            &result,
+                            WidgetCollectionChange.Removed prev.[prevIndex],
+                            MemPool.widgetColChanges
+                        )
 
 
                     prevIndex <- prevIndex + 1
@@ -261,12 +321,24 @@ module Reconciler =
                     | c when c < 0 ->
                         // prev key is less than next -> remove prev key
 
-                        result <- MutStackArray1.addMut(&result, WidgetCollectionChange.Removed prevAttr)
+                        result <-
+                            MutStackArray1.addMut(
+                                &result,
+                                WidgetCollectionChange.Removed prevAttr,
+                                MemPool.widgetColChanges
+                            )
+
                         prevIndex <- prevIndex + 1
 
                     | c when c > 0 ->
                         // prev key is more than next -> add next item
-                        result <- MutStackArray1.addMut(&result, WidgetCollectionChange.Added nextAttr)
+                        result <-
+                            MutStackArray1.addMut(
+                                &result,
+                                WidgetCollectionChange.Added nextAttr,
+                                MemPool.widgetColChanges
+                            )
+
                         nextIndex <- nextIndex + 1
 
                     | _ ->
@@ -285,9 +357,9 @@ module Reconciler =
                             let change =
                                 WidgetCollectionChange.Updated struct (nextAttr, slice)
 
-                            result <- MutStackArray1.addMut(&result, change)
+                            result <- MutStackArray1.addMut(&result, change, MemPool.widgetColChanges)
 
-            MutStackArray1.toArraySlice &result
+            MutStackArray1.toArraySlice(&result, MemPool.widgetColChanges)
 
     and diffWidgetCollections
         (canReuseView: Widget -> Widget -> bool)
@@ -296,21 +368,22 @@ module Reconciler =
         : ArraySlice<WidgetCollectionItemChange> voption =
         let mutable result = MutStackArray1.Empty
 
-        let prev = ArraySlice.toSpan prev
-        let next = ArraySlice.toSpan next
+        let prevSpan = ArraySlice.toSpan prev
+        let nextSpan = ArraySlice.toSpan next
 
-        if prev.Length > next.Length then
-            for i = next.Length to prev.Length - 1 do
-                result <- MutStackArray1.addMut(&result, WidgetCollectionItemChange.Remove i)
+        if prevSpan.Length > nextSpan.Length then
+            for i = nextSpan.Length to prevSpan.Length - 1 do
+                result <-
+                    MutStackArray1.addMut(&result, WidgetCollectionItemChange.Remove i, MemPool.widgetColItemChange)
 
-        for i = 0 to next.Length - 1 do
-            let currItem = next.[i]
+        for i = 0 to nextSpan.Length - 1 do
+            let currItem = nextSpan.[i]
             //            index < 0 || index >= array.Length ? (FSharpOption<T>) null : FSharpOption<T>.Some(array[index]);
             let prevItemOpt =
-                if (i >= prev.Length) then
+                if (i >= prevSpan.Length) then
                     ValueNone
                 else
-                    ValueSome prev.[i]
+                    ValueSome prevSpan.[i]
 
             let changeOpt =
                 match prevItemOpt with
@@ -326,9 +399,12 @@ module Reconciler =
 
             match changeOpt with
             | ValueNone -> ()
-            | ValueSome change -> result <- MutStackArray1.addMut(&result, change)
+            | ValueSome change -> result <- MutStackArray1.addMut(&result, change, MemPool.widgetColItemChange)
 
-        MutStackArray1.toArraySlice &result
+        // NOTE here we can recycle memory from the prev widgets
+        BuildersMemPool.widgets.recycleSlice prev
+
+        MutStackArray1.toArraySlice(&result, MemPool.widgetColItemChange)
 
     and diffWidget
         (canReuseView: Widget -> Widget -> bool)
@@ -337,7 +413,7 @@ module Reconciler =
         : WidgetDiff voption =
         let prevScalarAttributes =
             match prevOpt with
-            | ValueNone -> None
+            | ValueNone -> ValueNone
             | ValueSome widget -> widget.ScalarAttributes
 
         let prevWidgetAttributes =
@@ -361,7 +437,7 @@ module Reconciler =
 
 
         match (scalarDiffs, widgetDiffs, collectionDiffs) with
-        | None, ValueNone, ValueNone -> ValueNone
+        | ValueNone, ValueNone, ValueNone -> ValueNone
         | _ ->
             ValueSome
                 {
@@ -369,6 +445,38 @@ module Reconciler =
                     WidgetChanges = widgetDiffs
                     WidgetCollectionChanges = collectionDiffs
                 }
+
+    let rec private recycleDiffMemory (diff: WidgetDiff) : unit =
+        match diff.ScalarChanges with
+        | ValueSome changes -> MemPool.scalarChanges.recycleSlice changes
+        | ValueNone -> ()
+
+        match diff.WidgetChanges with
+        | ValueSome slice ->
+            for change in ArraySlice.toSpan slice do
+                match change with
+                | WidgetChange.Updated (struct (_, widgetDiff)) -> recycleDiffMemory widgetDiff
+                | _ -> ()
+
+            MemPool.widgetChanges.recycleSlice slice
+        | ValueNone -> ()
+
+        match diff.WidgetCollectionChanges with
+        | ValueSome slice ->
+            for change in ArraySlice.toSpan slice do
+                match change with
+                | WidgetCollectionChange.Updated (struct (_, itemChangesSlice)) ->
+                    for change in ArraySlice.toSpan itemChangesSlice do
+                        match change with
+                        | WidgetCollectionItemChange.Update (struct (_, widgetDiff)) -> recycleDiffMemory widgetDiff
+                        | _ -> ()
+
+                    MemPool.widgetColItemChange.recycleSlice itemChangesSlice
+                | _ -> ()
+
+            MemPool.widgetColChanges.recycleSlice slice
+
+        | ValueNone -> ()
 
     /// Diffs changes and applies them on the target
     let update
@@ -381,8 +489,8 @@ module Reconciler =
         | ValueNone -> ()
         | ValueSome diff ->
             match diff.ScalarChanges with
-            | Some changes -> node.ApplyScalarDiffs(changes)
-            | None -> ()
+            | ValueSome changes -> node.ApplyScalarDiffs(changes)
+            | ValueNone -> ()
 
             match diff.WidgetChanges with
             | ValueSome slice -> node.ApplyWidgetDiffs(slice)
@@ -391,3 +499,5 @@ module Reconciler =
             match diff.WidgetCollectionChanges with
             | ValueSome slice -> node.ApplyWidgetCollectionDiffs(slice)
             | ValueNone -> ()
+
+            recycleDiffMemory(diff)

@@ -8,6 +8,7 @@
         <None Include="PackageREADME.md" Pack="true" PackagePath="\"/>
         <Compile Include="ArraySlice.fs"/>
         <Compile Include="ArrayExtra.fs"/>
+        <Compile Include="MemoryPool.fs"/>
         <Compile Include="StackAllocatedCollections.fs"/>
         <Compile Include="Core.fs"/>
         <Compile Include="AttributeDefinitions.fs"/>
