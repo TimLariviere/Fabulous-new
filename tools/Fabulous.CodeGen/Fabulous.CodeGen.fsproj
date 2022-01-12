@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Description>Code generator for wrapping existing controls to be able to use them in Fabulous-based frameworks</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Models.fs" />
+    <Compile Include="Helpers.fs" />
+    <Compile Include="Result.fs" />
+    <Compile Include="AssemblyReader\Models.fs" />
+    <Compile Include="AssemblyReader\Converters.fs" />
+    <Compile Include="AssemblyReader\AssemblyResolver.fs" />
+    <Compile Include="AssemblyReader\Resolver.fs" />
+    <Compile Include="AssemblyReader\Reader.fs" />
+    <Compile Include="Binder\Models.fs" />
+    <Compile Include="Binder\Binder.fs" />
+    <Compile Include="Binder\Optimizer.fs" />
+    <Compile Include="Binder\Expander.fs" />
+    <Compile Include="Generator\Models.fs" />
+    <Compile Include="Generator\Preparer.fs" />
+    <Compile Include="Generator\CodeGenerator.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="6.0.1" />
+    <PackageReference Include="Mono.Cecil" Version="0.11.4" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Microsoft.FSharpLu.Json" Version="0.11.7" />
+  </ItemGroup>
+</Project>
