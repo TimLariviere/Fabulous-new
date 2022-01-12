@@ -41,3 +41,6 @@ docs/Fabulous/.obsidian/
 docs/.obsidian/
 src/Fabulous.Benchmarks/BenchmarkDotNet.Artifacts
 nupkgs/
+src/Fabulous.XamarinForms/Xamarin.Forms.Core.Attributes.Generated.fs
+
+src/Fabulous.XamarinForms/Xamarin.Forms.Core.Generated.fs

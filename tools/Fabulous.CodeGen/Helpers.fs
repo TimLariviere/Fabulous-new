@@ -38,8 +38,8 @@ module Text =
     let eitherStringOrDefault v1 v2 defaultValue =
         match v1, v2 with
         | "", "" -> defaultValue
-        | "", value2 -> v2
-        | value1, _ -> v1
+        | "", value2 -> value2
+        | value1, _ -> value1
 
     let toLowerPascalCase (str : string) =
         match str with

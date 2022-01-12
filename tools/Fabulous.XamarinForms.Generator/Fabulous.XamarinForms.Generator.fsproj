@@ -18,6 +18,7 @@
     <Compile Include="XFConverters.fs" />
     <Compile Include="XFOptimizer.fs" />
     <Compile Include="Program.fs" />
+    <Content Include="Xamarin.Forms.Core.json" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Fabulous.CodeGen\Fabulous.CodeGen.fsproj" />
