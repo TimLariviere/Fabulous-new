@@ -1,6 +1,6 @@
 {
   "assemblies": [
-    "packages/generator/Xamarin.Forms/lib/netstandard2.0/Xamarin.Forms.Core.dll"
+    "../../packages/generator/Xamarin.Forms/lib/netstandard2.0/Xamarin.Forms.Core.dll"
   ],
   "outputNamespace": "Fabulous.XamarinForms",
   "types": [

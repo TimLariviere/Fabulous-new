@@ -17,15 +17,11 @@ module CodeGenerator =
         | Some attributeKey -> attributeKey
     
     let generateNamespace (namespaceOfGeneratedCode: string) (additionalNamespaces: string array) (w: StringWriter) = 
-        w.printfn "// Copyright 2018-2020 Fabulous contributors. See LICENSE.md for license."
+        w.printfn "// Copyright 2018-2022 Fabulous contributors. See LICENSE.md for license."
         w.printfn $"namespace %s{namespaceOfGeneratedCode}"
         w.printfn ""
-        w.printfn "#nowarn \"59\" // cast always holds"
-        w.printfn "#nowarn \"66\" // cast always holds"
-        w.printfn "#nowarn \"67\" // cast always holds"
-        w.printfn "#nowarn \"760\""
-        w.printfn ""
         w.printfn "open Fabulous"
+        w.printfn "open Fabulous.XamarinForms"
         
         for additionalNamespace in additionalNamespaces do
             w.printfn $"open %s{additionalNamespace}"
@@ -34,14 +30,14 @@ module CodeGenerator =
         w
 
     let generateAttributes (members: AttributeData array) (w: StringWriter) =
-        w.printfn "module ViewAttributes ="
-        for m in members do
-            let typeName =
-                match m.Name with
-                | "Created" -> "(obj -> unit)"
-                | _ -> m.ModelType
-                
-            w.printfn $"    let %s{getAttributeKeyName m.UniqueName} : AttributeKey<_> = AttributeKey<%s{typeName}>(\"%s{m.UniqueName}\")"
+//        w.printfn "module ViewAttributes ="
+//        for m in members do
+//            let typeName =
+//                match m.Name with
+//                | "Created" -> "(obj -> unit)"
+//                | _ -> m.ModelType
+//                
+//            w.printfn $"    let %s{getAttributeKeyName m.UniqueName} : AttributeKey<_> = AttributeKey<%s{typeName}>(\"%s{m.UniqueName}\")"
         w.printfn ""
         w
 
@@ -436,11 +432,11 @@ module CodeGenerator =
         use writer = new StringWriter()
         
         writer
-        |> generateNamespace data.Namespace data.AdditionalNamespaces
-        |> generateBuilders data.Builders
-        |> generateViewers data.Viewers
-        |> generateConstructors data.Constructors
-        |> generateViewExtensions data.ViewExtensions
+//        |> generateNamespace data.Namespace data.AdditionalNamespaces
+//        |> generateBuilders data.Builders
+//        |> generateViewers data.Viewers
+//        |> generateConstructors data.Constructors
+//        |> generateViewExtensions data.ViewExtensions
         |> toString
 
     let generateCode

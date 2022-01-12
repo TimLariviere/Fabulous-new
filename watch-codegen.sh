@@ -1,0 +1,1 @@
+dotnet watch run --project tools/Fabulous.XamarinForms.Generator/Fabulous.XamarinForms.Generator.fsproj -- -m Xamarin.Forms.Core.json -a ../../src/Fabulous.XamarinForms/Xamarin.Forms.Core.Attributes.Generated.fs -b ../../src/Fabulous.XamarinForms/Xamarin.Forms.Core.Generated.fs -d
