@@ -48,11 +48,11 @@ module XFConverters =
             | x -> Some (sprintf "Xamarin.Forms.LayoutOptions(Xamarin.Forms.LayoutAlignment.%s, %s)" (Enum.GetName(typeof<LayoutAlignment>, x.Alignment)) (if x.Expands then "true" else "false"))
         | :? Button.ButtonContentLayout as buttonContentLayout ->
             tryGetStringRepresentationOfDefaultValue buttonContentLayout.Position
-            |> Option.map (fun positionName -> sprintf "Xamarin.Forms.Button.ButtonContentLayout(%s, %s)" positionName (floatToString buttonContentLayout.Spacing))
+            |> Option.map (fun positionName -> $"Xamarin.Forms.Button.ButtonContentLayout(%s{positionName}, %s{floatToString buttonContentLayout.Spacing})")
         | :? Rectangle as rectangle when rectangle = Rectangle.Zero -> Some "Xamarin.Forms.Rectangle.Zero"
-        | :? Rectangle as rectangle -> Some (sprintf "Xamarin.Forms.Rectangle(%s, %s, %s, %s)" (floatToString rectangle.X) (floatToString rectangle.Y) (floatToString rectangle.Width) (floatToString rectangle.Height))
+        | :? Rectangle as rectangle -> Some $"Xamarin.Forms.Rectangle(%s{floatToString rectangle.X}, %s{floatToString rectangle.Y}, %s{floatToString rectangle.Width}, %s{floatToString rectangle.Height})"
         | :? Size as size when size.IsZero -> Some "Xamarin.Forms.Size.Zero"
-        | :? Size as size -> Some (sprintf "Xamarin.Forms.Size(%s, %s)" (floatToString size.Width) (floatToString size.Height))
+        | :? Size as size -> Some $"Xamarin.Forms.Size(%s{floatToString size.Width}, %s{floatToString size.Height})"
         | :? IVisual as visual ->
             match visual.GetType().Name with
             | "MatchParentVisual" -> Some "Xamarin.Forms.VisualMarker.MatchParent"
@@ -60,11 +60,11 @@ module XFConverters =
             | "Material" -> Some "Xamarin.Forms.VisualMarker.Material"
             | _ -> None
         | :? FlexBasis as flexBasis when flexBasis = FlexBasis.Auto -> Some "Xamarin.Forms.FlexBasis.Auto"
-        | :? FlexBasis as flexBasis -> Some (sprintf "Xamarin.Forms.FlexBasis(%s)" (float32ToString flexBasis.Length))
+        | :? FlexBasis as flexBasis -> Some $"Xamarin.Forms.FlexBasis(%s{float32ToString flexBasis.Length})"
         | :? LinearItemsLayout as linearItemsLayout when linearItemsLayout = (LinearItemsLayout.Horizontal :?> LinearItemsLayout) -> Some (sprintf "Xamarin.Forms.LinearItemsLayout.Horizontal")
         | :? LinearItemsLayout as linearItemsLayout when linearItemsLayout = (LinearItemsLayout.Vertical :?> LinearItemsLayout) -> Some (sprintf "Xamarin.Forms.LinearItemsLayout.Vertical")
         | :? LinearItemsLayout as linearItemsLayout ->
             tryGetStringRepresentationOfDefaultValue linearItemsLayout.Orientation
-            |> Option.map (fun orientation -> sprintf "Xamarin.Forms.ListItemsLayout(%s)" orientation)
+            |> Option.map (fun orientation -> $"Xamarin.Forms.ListItemsLayout(%s{orientation})")
         | _ -> Converters.tryGetStringRepresentationOfDefaultValue defaultValue
 

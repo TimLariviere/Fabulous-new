@@ -14,7 +14,7 @@ module Program =
     }
     
     let tryReadOptions args =
-        let options = CommandLine.Parser.Default.ParseArguments<Options>(args)
+        let options = Parser.Default.ParseArguments<Options>(args)
         match options with
         | :? Parsed<Options> as parsedOptions -> Some (parsedOptions.Value)
         | _ -> None
