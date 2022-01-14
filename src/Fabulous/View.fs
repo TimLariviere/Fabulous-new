@@ -6,7 +6,7 @@ module ViewHelpers =
 
         if not (prevKey = currWidget.Key) then
             false
-        else if (prevKey = Memo.MemoWidgetKey) then
+        else if (prevKey = Memo.widgetKey) then
             Memo.canReuseMemoizedWidget prevWidget currWidget
         else
             true
@@ -24,7 +24,7 @@ module View =
               KeyType = typeof<'key>
               MarkerType = typeof<'marker> }
 
-        WidgetBuilder<'msg, Memo.Memoized<'marker>>(Memo.MemoWidgetKey, Memo.MemoAttribute.WithValue(memo))
+        WidgetBuilder<'msg, Memo.Memoized<'marker>>(Memo.widgetKey, Memo.MemoAttribute.WithValue(memo))
 
     let inline map (fn: 'oldMsg -> 'newMsg) (x: WidgetBuilder<'oldMsg, 'marker>) : WidgetBuilder<'newMsg, 'marker> =
         let fnWithBoxing =

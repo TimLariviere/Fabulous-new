@@ -20,35 +20,28 @@ open Tests.TestUI_ViewNode
 
 module Widgets =
     let register<'T when 'T :> TestViewElement and 'T: (new: unit -> 'T)> () =
-        let key = WidgetDefinitionStore.getNextKey ()
+        Widgets.withType<'T>
+            (fun key name ->
+                { Key = key
+                  Name = name
+                  TargetType = typeof<'T>
+                  CreateView =
+                      fun (widget, context, parentNode) ->
+                          let name = typeof<'T>.Name
+                          printfn $"Creating view for {name}"
 
-        let definition =
-            { Key = key
-              Name = typeof<'T>.Name
-              TargetType = typeof<'T>
-              CreateView =
-                  fun (widget, context, parentNode) ->
-                      let name = typeof<'T>.Name
-                      printfn $"Creating view for {name}"
+                          let view = new 'T()
+                          let weakReference = WeakReference(view)
 
-                      let view = new 'T()
-                      let weakReference = WeakReference(view)
+                          let viewNode =
+                              ViewNode(parentNode, context, weakReference)
 
-                      let viewNode =
-                          ViewNode(parentNode, context, weakReference)
+                          view.PropertyBag.Add(ViewNode.ViewNodeProperty, viewNode)
 
-                      view.PropertyBag.Add(ViewNode.ViewNodeProperty, viewNode)
+                          let oldWidget: Widget voption = ValueNone
 
-                      let oldWidget: Widget voption = ValueNone
-
-                      Reconciler.update context.CanReuseView oldWidget widget viewNode
-                      struct (viewNode :> IViewNode, box view) }
-
-        WidgetDefinitionStore.set key definition
-        key
-
-
-
+                          Reconciler.update context.CanReuseView oldWidget widget viewNode
+                          struct (viewNode :> IViewNode, box view) })
 
 
 //-----MARKERS-----------

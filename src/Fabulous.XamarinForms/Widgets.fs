@@ -37,35 +37,36 @@ type IToolbarItem =
     inherit IMenuItem
 
 module Widgets =
-    let registerWithAdditionalSetup<'T when 'T :> Xamarin.Forms.BindableObject and 'T: (new: unit -> 'T)>
-        (additionalSetup: 'T -> IViewNode -> unit)
-        =
-        let key = WidgetDefinitionStore.getNextKey ()
-
-        let definition =
-            { Key = key
-              Name = typeof<'T>.Name
-              TargetType = typeof<'T>
-              CreateView =
-                  fun (widget, treeContext, parentNode) ->
-                      let name = typeof<'T>.Name
-                      printfn $"Creating view for {name}"
-
-                      let view = new 'T()
-                      let weakReference = WeakReference(view)
-
-                      let node =
-                          ViewNode(parentNode, treeContext, weakReference)
-
-                      ViewNode.set node view
-
-                      additionalSetup view node
-
-                      Reconciler.update treeContext.CanReuseView ValueNone widget node
-                      struct (node :> IViewNode, box view) }
-
-        WidgetDefinitionStore.set key definition
+    let inline withType<'T> ([<InlineIfLambda>] fn: WidgetKey -> string -> WidgetDefinition) =
+        let key = WidgetDefinitionStore.getKeyForType<'T>()
+        if not (WidgetDefinitionStore.contains key) then
+            let definition = fn key typeof<'T>.Name
+            WidgetDefinitionStore.set key definition
         key
+    
+    let registerWithAdditionalSetup<'T when 'T :> Xamarin.Forms.BindableObject and 'T: (new: unit -> 'T)> (additionalSetup: 'T -> IViewNode -> unit) =
+        withType<'T>
+            (fun key name ->
+                { Key = key
+                  Name = name
+                  TargetType = typeof<'T>
+                  CreateView =
+                      fun (widget, treeContext, parentNode) ->
+                          let name = typeof<'T>.Name
+                          printfn $"Creating view for {name}"
+
+                          let view = new 'T()
+                          let weakReference = WeakReference(view)
+
+                          let node =
+                              ViewNode(parentNode, treeContext, weakReference)
+
+                          ViewNode.set node view
+
+                          additionalSetup view node
+
+                          Reconciler.update treeContext.CanReuseView ValueNone widget node
+                          struct (node :> IViewNode, box view) })
 
     let register<'T when 'T :> Xamarin.Forms.BindableObject and 'T: (new: unit -> 'T)> () =
         registerWithAdditionalSetup<'T> (fun _ _ -> ())

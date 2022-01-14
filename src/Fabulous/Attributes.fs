@@ -34,7 +34,7 @@ module Attributes =
             definition
     
     /// Define a custom attribute storing any value
-    let inline defineScalarWithConverter<'input, 'model, 'value> name convert convertValue compare updateNode =
+    let defineScalarWithConverter<'input, 'model, 'value> name convert convertValue compare updateNode =
         withName name
             (fun key name ->
                 { Key = key
@@ -45,7 +45,7 @@ module Attributes =
                   UpdateNode = updateNode } : ScalarAttributeDefinition<'input, 'model, 'value>)
 
     /// Define a custom attribute storing a widget
-    let inline defineWidgetWithConverter name applyDiff updateNode =
+    let defineWidgetWithConverter name applyDiff updateNode =
         withName name
             (fun key name ->
                 { Key = key
@@ -54,7 +54,7 @@ module Attributes =
                   UpdateNode = updateNode } : WidgetAttributeDefinition)
             
     /// Define a custom attribute storing a widget collection
-    let inline defineWidgetCollectionWithConverter name applyDiff updateNode =
+    let defineWidgetCollectionWithConverter name applyDiff updateNode =
         withName name
             (fun key name ->
                 { Key = key

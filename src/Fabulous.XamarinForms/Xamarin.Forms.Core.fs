@@ -92,97 +92,98 @@ type ITextCell =
 type ICollectionView =
     inherit IView
 
-module ViewKeys =
-    let Application =
+[<AbstractClass; Sealed>]
+type ViewKeys =
+    static member Application =
         Widgets.register<Xamarin.Forms.Application> ()
 
-    let ContentPage = Widgets.register<FabulousContentPage> ()
+    static member ContentPage = Widgets.register<FabulousContentPage> ()
 
-    let StackLayout =
+    static member StackLayout =
         Widgets.register<Xamarin.Forms.StackLayout> ()
 
-    let Grid = Widgets.register<Xamarin.Forms.Grid> ()
-    let Label = Widgets.register<Xamarin.Forms.Label> ()
+    static member Grid = Widgets.register<Xamarin.Forms.Grid> ()
+    static member Label = Widgets.register<Xamarin.Forms.Label> ()
 
-    let Button =
+    static member Button =
         Widgets.register<Xamarin.Forms.Button> ()
 
-    let Switch =
+    static member Switch =
         Widgets.register<Xamarin.Forms.Switch> ()
 
-    let Slider =
+    static member Slider =
         Widgets.register<Xamarin.Forms.Slider> ()
 
-    let ActivityIndicator =
+    static member ActivityIndicator =
         Widgets.register<Xamarin.Forms.ActivityIndicator> ()
 
-    let ContentView =
+    static member ContentView =
         Widgets.register<Xamarin.Forms.ContentView> ()
 
-    let RefreshView =
+    static member RefreshView =
         Widgets.register<Xamarin.Forms.RefreshView> ()
 
-    let ScrollView =
+    static member ScrollView =
         Widgets.register<Xamarin.Forms.ScrollView> ()
 
-    let Image = Widgets.register<Xamarin.Forms.Image> ()
+    static member Image = Widgets.register<Xamarin.Forms.Image> ()
 
-    let BoxView =
+    static member BoxView =
         Widgets.register<Xamarin.Forms.BoxView> ()
 
-    let NavigationPage =
+    static member NavigationPage =
         Widgets.register<Xamarin.Forms.NavigationPage> ()
 
-    let Entry = Widgets.register<Xamarin.Forms.Entry> ()
+    static member Entry = Widgets.register<Xamarin.Forms.Entry> ()
 
-    let TapGestureRecognizer =
+    static member TapGestureRecognizer =
         Widgets.register<Xamarin.Forms.TapGestureRecognizer> ()
 
-    let SearchBar =
+    static member SearchBar =
         Widgets.register<Xamarin.Forms.SearchBar> ()
 
-    let ToolbarItem =
+    static member ToolbarItem =
         Widgets.register<Xamarin.Forms.ToolbarItem> ()
 
-    let Editor =
+    static member Editor =
         Widgets.register<Xamarin.Forms.Editor> ()
 
-    let ViewCell =
+    static member ViewCell =
         Widgets.register<Xamarin.Forms.ViewCell> ()
 
-    let ImageButton =
+    static member ImageButton =
         Widgets.register<Xamarin.Forms.ImageButton> ()
 
-    let TabbedPage =
+    static member TabbedPage =
         Widgets.register<Xamarin.Forms.TabbedPage> ()
 
-    let DatePicker =
+    static member DatePicker =
         Widgets.register<Xamarin.Forms.DatePicker> ()
 
-    let TimePicker = Widgets.register<FabulousTimePicker> ()
+    static member TimePicker = Widgets.register<FabulousTimePicker> ()
 
-    let Stepper =
+    static member Stepper =
         Widgets.register<Xamarin.Forms.Stepper> ()
 
-    let TextCell =
+    static member TextCell =
         Widgets.register<Xamarin.Forms.TextCell> ()
 
-    let ListView =
+    static member ListView =
         Widgets.registerWithAdditionalSetup<FabulousListView>
             (fun target node -> target.ItemTemplate <- SimpleWidgetDataTemplateSelector(node))
 
-    let CollectionView =
+    static member CollectionView =
         Widgets.registerWithAdditionalSetup<Xamarin.Forms.CollectionView>
             (fun target node -> target.ItemTemplate <- SimpleWidgetDataTemplateSelector(node))
 
-    let GroupedListView =
+    static member GroupedListView =
         Widgets.registerWithAdditionalSetup<FabulousListView>
             (fun target node ->
                 target.ItemTemplate <- SimpleWidgetDataTemplateSelector(node)
                 target.GroupHeaderTemplate <- GroupedWidgetDataTemplateSelector(node, Header)
                 target.IsGroupingEnabled <- true)
 
-    let GroupedCollectionView =
+    static member GroupedCollectionView =
         Widgets.registerWithAdditionalSetup<Xamarin.Forms.CollectionView>
             (fun target node ->
                 target.ItemTemplate <- SimpleWidgetDataTemplateSelector(node)

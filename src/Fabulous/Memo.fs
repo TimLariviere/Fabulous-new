@@ -24,8 +24,6 @@ module Memo =
 
     type Memoized<'t> = { phantom: 't }
 
-    let internal MemoWidgetKey = WidgetDefinitionStore.getNextKey ()
-
     let inline private getMemoData (widget: Widget) : MemoData =
         match widget.ScalarAttributes with
         | ValueSome attrs when attrs.Length = 1 -> attrs.[0].Value :?> MemoData
@@ -68,26 +66,26 @@ module Memo =
                   Compare = compareAttributes
                   UpdateNode = updateNode } )
 
-    let private widgetDefinition: WidgetDefinition =
-        { Key = MemoWidgetKey
-          Name = "Memo"
-          TargetType = Unchecked.defaultof<_> // Memo isn't allowed in lists, so this will never get called
-          CreateView =
-              fun (widget, context, parentNode) ->
+    let widgetKey: WidgetKey =
+        Widgets.withType<Memoized<obj>>
+            (fun key name ->
+                { Key = key
+                  Name = name
+                  TargetType = Unchecked.defaultof<_> // Memo isn't allowed in lists, so this will never get called
+                  CreateView =
+                      fun (widget, context, parentNode) ->
 
-                  let memoData = getMemoData widget
+                          let memoData = getMemoData widget
 
-                  let memoizedWidget = memoData.CreateWidget memoData.KeyData
+                          let memoizedWidget = memoData.CreateWidget memoData.KeyData
 
-                  let memoizedDef =
-                      WidgetDefinitionStore.get memoizedWidget.Key
+                          let memoizedDef =
+                              WidgetDefinitionStore.get memoizedWidget.Key
 
-                  let struct (node, view) =
-                      memoizedDef.CreateView(memoizedWidget, context, parentNode)
+                          let struct (node, view) =
+                              memoizedDef.CreateView(memoizedWidget, context, parentNode)
 
-                  // store widget that was used to produce this node
-                  // to pass it to reconciler later on
-                  node.MemoizedWidget <- Some memoizedWidget
-                  struct (node, view) }
-
-    WidgetDefinitionStore.set MemoWidgetKey widgetDefinition
+                          // store widget that was used to produce this node
+                          // to pass it to reconciler later on
+                          node.MemoizedWidget <- Some memoizedWidget
+                          struct (node, view) })
