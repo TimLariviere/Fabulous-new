@@ -9,9 +9,9 @@ type AppThemeValues<'T> = { Light: 'T; Dark: 'T voption }
 
 module Attributes =
     /// Define an attribute storing a Widget for a bindable property
-    let defineBindableWidget (bindableProperty: BindableProperty) =
+    let defineBindableWidget name (bindableProperty: BindableProperty) =
         Attributes.defineWidget
-            bindableProperty.PropertyName
+            name
             (fun target ->
                 let childTarget =
                     (target :?> BindableObject)
@@ -26,14 +26,15 @@ module Attributes =
                 else
                     bindableObject.SetValue(bindableProperty, value))
 
-    let defineBindableWithComparer<'inputType, 'modelType, 'valueType>
+    let inline defineBindableWithComparer<'input, 'model, 'value>
+        name
         (bindableProperty: BindableProperty)
-        (convert: 'inputType -> 'modelType)
-        (convertValue: 'modelType -> 'valueType)
-        (compare: 'modelType * 'modelType -> ScalarAttributeComparison)
+        convert
+        convertValue
+        compare
         =
-        Attributes.defineScalarWithConverter<'inputType, 'modelType, 'valueType>
-            bindableProperty.PropertyName
+        Attributes.defineScalarWithConverter<'input, 'model, 'value>
+            name
             convert
             convertValue
             compare
@@ -44,12 +45,12 @@ module Attributes =
                 | ValueNone -> target.ClearValue(bindableProperty)
                 | ValueSome v -> target.SetValue(bindableProperty, v))
 
-    let inline defineBindable<'T when 'T: equality> bindableProperty =
-        defineBindableWithComparer<'T, 'T, 'T> bindableProperty id id ScalarAttributeComparers.equalityCompare
+    let inline defineBindable<'T when 'T : equality> name bindableProperty =
+        defineBindableWithComparer<'T, 'T, 'T> name bindableProperty id id ScalarAttributeComparers.equalityCompare
 
-    let inline defineAppThemeBindable<'T when 'T: equality> (bindableProperty: BindableProperty) =
+    let inline defineAppThemeBindable<'T when 'T: equality> name (bindableProperty: BindableProperty) =
         Attributes.defineScalarWithConverter<AppThemeValues<'T>, AppThemeValues<'T>, AppThemeValues<'T>>
-            bindableProperty.PropertyName
+            name
             id
             id
             ScalarAttributeComparers.equalityCompare

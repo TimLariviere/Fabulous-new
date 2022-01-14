@@ -5,14 +5,15 @@ open System.Collections.Generic
 open Fabulous
 open Fabulous.XamarinForms
 
-module Application =
-    let MainPage =
+[<AbstractClass; Sealed>]
+type Application =
+    static member MainPage =
         Attributes.defineWidget
             "Application_MainPage"
             (fun target -> ViewNode.get (target :?> Xamarin.Forms.Application).MainPage)
             (fun target value -> (target :?> Xamarin.Forms.Application).MainPage <- value)
 
-    let Resources =
+    static member Resources =
         Attributes.define<Xamarin.Forms.ResourceDictionary>
             "Application_Resources"
             (fun (newValueOpt, node) ->
@@ -26,7 +27,7 @@ module Application =
 
                 application.Resources <- value)
 
-    let UserAppTheme =
+    static member UserAppTheme =
         Attributes.define<Xamarin.Forms.OSAppTheme>
             "Application_UserAppTheme"
             (fun (newValueOpt, node) ->
@@ -40,250 +41,270 @@ module Application =
 
                 application.UserAppTheme <- value)
 
-    let RequestedThemeChanged =
+    static member RequestedThemeChanged =
         Attributes.defineEvent<Xamarin.Forms.AppThemeChangedEventArgs>
             "Application_RequestedThemeChanged"
             (fun target ->
                 (target :?> Xamarin.Forms.Application)
                     .RequestedThemeChanged)
 
-    let ModalPopped =
+    static member ModalPopped =
         Attributes.defineEvent<Xamarin.Forms.ModalPoppedEventArgs>
             "Application_ModalPopped"
             (fun target -> (target :?> Xamarin.Forms.Application).ModalPopped)
 
-    let ModalPopping =
+    static member ModalPopping =
         Attributes.defineEvent<Xamarin.Forms.ModalPoppingEventArgs>
             "Application_ModalPopping"
             (fun target ->
                 (target :?> Xamarin.Forms.Application)
                     .ModalPopping)
 
-    let ModalPushed =
+    static member ModalPushed =
         Attributes.defineEvent<Xamarin.Forms.ModalPushedEventArgs>
             "Application_ModalPushed"
             (fun target -> (target :?> Xamarin.Forms.Application).ModalPushed)
 
-    let ModalPushing =
+    static member ModalPushing =
         Attributes.defineEvent<Xamarin.Forms.ModalPushingEventArgs>
             "Application_ModalPushing"
             (fun target ->
                 (target :?> Xamarin.Forms.Application)
                     .ModalPushing)
 
-module Page =
-    let BackgroundImageSource =
-        Attributes.defineBindable<Xamarin.Forms.ImageSource> Xamarin.Forms.Page.BackgroundImageSourceProperty
+[<AbstractClass; Sealed>]
+type Page =
+    static member BackgroundImageSource =
+        Attributes.defineBindable<Xamarin.Forms.ImageSource> "Page_BackgroundImageSource" Xamarin.Forms.Page.BackgroundImageSourceProperty
 
-    let IconImageSource =
-        Attributes.defineBindable<Xamarin.Forms.ImageSource> Xamarin.Forms.Page.IconImageSourceProperty
+    static member IconImageSource =
+        Attributes.defineBindable<Xamarin.Forms.ImageSource> "Page_IconImageSource" Xamarin.Forms.Page.IconImageSourceProperty
 
-    let IsBusy =
-        Attributes.defineBindable<bool> Xamarin.Forms.Page.IsBusyProperty
+    static member IsBusy =
+        Attributes.defineBindable<bool> "Page_IsBusy" Xamarin.Forms.Page.IsBusyProperty
 
-    let Padding =
-        Attributes.defineBindable<Xamarin.Forms.Thickness> Xamarin.Forms.Page.PaddingProperty
+    static member Padding =
+        Attributes.defineBindable<Xamarin.Forms.Thickness> "Page_Padding" Xamarin.Forms.Page.PaddingProperty
 
-    let Title =
-        Attributes.defineBindable<string> Xamarin.Forms.Page.TitleProperty
+    static member Title =
+        Attributes.defineBindable<string> "Page_Title" Xamarin.Forms.Page.TitleProperty
 
-    let ToolbarItems =
+    static member ToolbarItems =
         Attributes.defineWidgetCollection<Xamarin.Forms.ToolbarItem>
             "Page_ToolbarItems"
             (fun target -> (target :?> Xamarin.Forms.Page).ToolbarItems)
 
-    let Appearing =
+    static member Appearing =
         Attributes.defineEventNoArg "Page_Appearing" (fun target -> (target :?> Xamarin.Forms.Page).Appearing)
 
-    let Disappearing =
+    static member Disappearing =
         Attributes.defineEventNoArg "Page_Disappearing" (fun target -> (target :?> Xamarin.Forms.Page).Disappearing)
 
-    let LayoutChanged =
+    static member LayoutChanged =
         Attributes.defineEventNoArg "Page_LayoutChanged" (fun target -> (target :?> Xamarin.Forms.Page).LayoutChanged)
 
-module ContentPage =
-    let Content =
-        Attributes.defineBindableWidget Xamarin.Forms.ContentPage.ContentProperty
+[<AbstractClass; Sealed>]
+type ContentPage =
+    static member Content =
+        Attributes.defineBindableWidget "Page_Content" Xamarin.Forms.ContentPage.ContentProperty
 
-    let SizeAllocated =
+    static member SizeAllocated =
         Attributes.defineEvent<SizeAllocatedEventArgs>
             "ContentPage_SizeAllocated"
             (fun target -> (target :?> FabulousContentPage).SizeAllocated)
 
-module Layout =
-    let Padding =
-        Attributes.defineBindable<Xamarin.Forms.Thickness> Xamarin.Forms.Layout.PaddingProperty
+[<AbstractClass; Sealed>]
+type Layout =
+    static member Padding =
+        Attributes.defineBindable<Xamarin.Forms.Thickness> "Layout_Padding" Xamarin.Forms.Layout.PaddingProperty
 
-    let CascadeInputTransparent =
-        Attributes.defineBindable<bool> Xamarin.Forms.Layout.CascadeInputTransparentProperty
+    static member CascadeInputTransparent =
+        Attributes.defineBindable<bool> "Layout_CascadeInputTransparent" Xamarin.Forms.Layout.CascadeInputTransparentProperty
 
-    let IsClippedToBounds =
-        Attributes.defineBindable<bool> Xamarin.Forms.Layout.IsClippedToBoundsProperty
+    static member IsClippedToBounds =
+        Attributes.defineBindable<bool> "Layout_IsClippedToBounds" Xamarin.Forms.Layout.IsClippedToBoundsProperty
 
-    let LayoutChanged =
+    static member LayoutChanged =
         Attributes.defineEventNoArg
             "Layout_LayoutChanged"
             (fun target -> (target :?> Xamarin.Forms.Layout).LayoutChanged)
 
-module LayoutOfView =
-    let Children =
+[<AbstractClass; Sealed>]
+type LayoutOfView =
+    static member Children =
         Attributes.defineWidgetCollection
             "LayoutOfWidget_Children"
             (fun target ->
                 (target :?> Xamarin.Forms.Layout<Xamarin.Forms.View>)
                     .Children)
 
-module StackLayout =
-    let Orientation =
-        Attributes.defineBindable<Xamarin.Forms.StackOrientation> Xamarin.Forms.StackLayout.OrientationProperty
+[<AbstractClass; Sealed>]
+type StackLayout =
+    static member Orientation =
+        Attributes.defineBindable<Xamarin.Forms.StackOrientation> "StackLayout_Orientation" Xamarin.Forms.StackLayout.OrientationProperty
 
-    let Spacing =
-        Attributes.defineBindable<float> Xamarin.Forms.StackLayout.SpacingProperty
+    static member Spacing =
+        Attributes.defineBindable<float> "StackLayout_Spacing" Xamarin.Forms.StackLayout.SpacingProperty
 
-module Element =
-    let AutomationId =
-        Attributes.defineBindable<string> Xamarin.Forms.Element.AutomationIdProperty
+[<AbstractClass; Sealed>]
+type Element =
+    static member AutomationId =
+        Attributes.defineBindable<string> "Element_AutomationId" Xamarin.Forms.Element.AutomationIdProperty
 
-module VisualElement =
-    let IsEnabled =
-        Attributes.defineBindable<bool> Xamarin.Forms.VisualElement.IsEnabledProperty
+[<AbstractClass; Sealed>]
+type VisualElement =
+    static member IsEnabled =
+        Attributes.defineBindable<bool> "VisualElement_IsEnabled" Xamarin.Forms.VisualElement.IsEnabledProperty
 
-    let Opacity =
-        Attributes.defineBindable<float> Xamarin.Forms.VisualElement.OpacityProperty
+    static member Opacity =
+        Attributes.defineBindable<float> "VisualElement_Opacity" Xamarin.Forms.VisualElement.OpacityProperty
 
-    let BackgroundColor =
-        Attributes.defineBindable<Xamarin.Forms.Color> Xamarin.Forms.VisualElement.BackgroundColorProperty
+    static member BackgroundColor =
+        Attributes.defineBindable<Xamarin.Forms.Color> "VisualElement_BackgroundColor" Xamarin.Forms.VisualElement.BackgroundColorProperty
 
-    let Height =
-        Attributes.defineBindable<float> Xamarin.Forms.VisualElement.HeightRequestProperty
+    static member Height =
+        Attributes.defineBindable<float> "VisualElement_Height" Xamarin.Forms.VisualElement.HeightRequestProperty
 
-    let Width =
-        Attributes.defineBindable<float> Xamarin.Forms.VisualElement.WidthRequestProperty
+    static member Width =
+        Attributes.defineBindable<float> "VisualElement_Width" Xamarin.Forms.VisualElement.WidthRequestProperty
 
-    let IsVisible =
-        Attributes.defineBindable<bool> Xamarin.Forms.VisualElement.IsVisibleProperty
+    static member IsVisible =
+        Attributes.defineBindable<bool> "VisualElement_IsVisible" Xamarin.Forms.VisualElement.IsVisibleProperty
 
-module NavigableElement =
-    let Style =
-        Attributes.defineBindable<Xamarin.Forms.Style> Xamarin.Forms.NavigableElement.StyleProperty
+[<AbstractClass; Sealed>]
+type NavigableElement =
+    static member Style =
+        Attributes.defineBindable<Xamarin.Forms.Style> "NavigableElement_Style" Xamarin.Forms.NavigableElement.StyleProperty
 
-module View =
-    let HorizontalOptions =
-        Attributes.defineBindable<Xamarin.Forms.LayoutOptions> Xamarin.Forms.View.HorizontalOptionsProperty
+[<AbstractClass; Sealed>]
+type View =
+    static member HorizontalOptions =
+        Attributes.defineBindable<Xamarin.Forms.LayoutOptions> "View_HorizontalOptions" Xamarin.Forms.View.HorizontalOptionsProperty
 
-    let VerticalOptions =
-        Attributes.defineBindable<Xamarin.Forms.LayoutOptions> Xamarin.Forms.View.VerticalOptionsProperty
+    static member VerticalOptions =
+        Attributes.defineBindable<Xamarin.Forms.LayoutOptions> "View_VerticalOptions" Xamarin.Forms.View.VerticalOptionsProperty
 
-    let Margin =
-        Attributes.defineBindable<Xamarin.Forms.Thickness> Xamarin.Forms.View.MarginProperty
+    static member Margin =
+        Attributes.defineBindable<Xamarin.Forms.Thickness> "View_Margin" Xamarin.Forms.View.MarginProperty
 
-    let GestureRecognizers =
+    static member GestureRecognizers =
         Attributes.defineWidgetCollection<Xamarin.Forms.IGestureRecognizer>
             "View_GestureRecognizers"
             (fun target -> (target :?> Xamarin.Forms.View).GestureRecognizers)
 
-module Label =
-    let Text =
-        Attributes.defineBindable<string> Xamarin.Forms.Label.TextProperty
+[<AbstractClass; Sealed>]
+type Label =
+    static member Text =
+        Attributes.defineBindable<string> "Label_Text" Xamarin.Forms.Label.TextProperty
 
-    let HorizontalTextAlignment =
-        Attributes.defineBindable<Xamarin.Forms.TextAlignment> Xamarin.Forms.Label.HorizontalTextAlignmentProperty
+    static member HorizontalTextAlignment =
+        Attributes.defineBindable<Xamarin.Forms.TextAlignment> "Label_HorizontalTextAlignment" Xamarin.Forms.Label.HorizontalTextAlignmentProperty
 
-    let VerticalTextAlignment =
-        Attributes.defineBindable<Xamarin.Forms.TextAlignment> Xamarin.Forms.Label.VerticalTextAlignmentProperty
+    static member VerticalTextAlignment =
+        Attributes.defineBindable<Xamarin.Forms.TextAlignment> "Label_VerticalTextAlignment" Xamarin.Forms.Label.VerticalTextAlignmentProperty
 
-    let FontSize =
-        Attributes.defineBindable<double> Xamarin.Forms.Label.FontSizeProperty
+    static member FontSize =
+        Attributes.defineBindable<double> "Label_FontSize" Xamarin.Forms.Label.FontSizeProperty
 
-    let Padding =
-        Attributes.defineBindable<Xamarin.Forms.Thickness> Xamarin.Forms.Label.PaddingProperty
+    static member Padding =
+        Attributes.defineBindable<Xamarin.Forms.Thickness> "Label_Padding" Xamarin.Forms.Label.PaddingProperty
 
-    let TextColor =
-        Attributes.defineBindable<Xamarin.Forms.Color> Xamarin.Forms.Label.TextColorProperty
+    static member TextColor =
+        Attributes.defineBindable<Xamarin.Forms.Color> "Label_TextColor" Xamarin.Forms.Label.TextColorProperty
 
-    let FontAttributes =
-        Attributes.defineBindable<Xamarin.Forms.FontAttributes> Xamarin.Forms.Label.FontAttributesProperty
+    static member FontAttributes =
+        Attributes.defineBindable<Xamarin.Forms.FontAttributes> "Label_FontAttributes" Xamarin.Forms.Label.FontAttributesProperty
 
-    let LineBreakMode =
-        Attributes.defineBindable<Xamarin.Forms.LineBreakMode> Xamarin.Forms.Label.LineBreakModeProperty
+    static member LineBreakMode =
+        Attributes.defineBindable<Xamarin.Forms.LineBreakMode> "Label_LineBreakMode" Xamarin.Forms.Label.LineBreakModeProperty
 
-module Button =
-    let Text =
-        Attributes.defineBindable<string> Xamarin.Forms.Button.TextProperty
+[<AbstractClass; Sealed>]
+type Button =
+    static member Text =
+        Attributes.defineBindable<string> "Button_Text" Xamarin.Forms.Button.TextProperty
 
-    let Clicked =
+    static member Clicked =
         Attributes.defineEventNoArg "Button_Clicked" (fun target -> (target :?> Xamarin.Forms.Button).Clicked)
 
-    let TextColor =
-        Attributes.defineAppThemeBindable<Xamarin.Forms.Color> Xamarin.Forms.Button.TextColorProperty
+    static member TextColor =
+        Attributes.defineAppThemeBindable<Xamarin.Forms.Color> "Button_TextColor" Xamarin.Forms.Button.TextColorProperty
 
-    let FontSize =
-        Attributes.defineBindable<double> Xamarin.Forms.Button.FontSizeProperty
+    static member FontSize =
+        Attributes.defineBindable<double> "Button_FontSize" Xamarin.Forms.Button.FontSizeProperty
 
-module ImageButton =
-    let Source =
-        Attributes.defineBindable<Xamarin.Forms.ImageSource> Xamarin.Forms.ImageButton.SourceProperty
+[<AbstractClass; Sealed>]
+type ImageButton =
+    static member Source =
+        Attributes.defineBindable<Xamarin.Forms.ImageSource> "ImageButton_Source" Xamarin.Forms.ImageButton.SourceProperty
 
-    let Aspect =
-        Attributes.defineBindable<Xamarin.Forms.Aspect> Xamarin.Forms.ImageButton.AspectProperty
+    static member Aspect =
+        Attributes.defineBindable<Xamarin.Forms.Aspect> "ImageButton_Aspect" Xamarin.Forms.ImageButton.AspectProperty
 
-    let Clicked =
+    static member Clicked =
         Attributes.defineEventNoArg "ImageButton_Clicked" (fun target -> (target :?> Xamarin.Forms.ImageButton).Clicked)
 
-module Switch =
-    let IsToggled =
-        Attributes.defineBindable<bool> Xamarin.Forms.Switch.IsToggledProperty
+[<AbstractClass; Sealed>]
+type Switch =
+    static member IsToggled =
+        Attributes.defineBindable<bool> "Switch_IsToggled" Xamarin.Forms.Switch.IsToggledProperty
 
-    let Toggled =
+    static member Toggled =
         Attributes.defineEvent<Xamarin.Forms.ToggledEventArgs>
             "Switch_Toggled"
             (fun target -> (target :?> Xamarin.Forms.Switch).Toggled)
 
-module Slider =
-    let MinimumMaximum =
+[<AbstractClass; Sealed>]
+type Slider =
+    static member MinimumMaximum =
         Attributes.define<float * float> "Slider_MinimumMaximum" ViewUpdaters.updateSliderMinMax
 
-    let Value =
-        Attributes.defineBindable<float> Xamarin.Forms.Slider.ValueProperty
+    static member Value =
+        Attributes.defineBindable<float> "Slider_Value" Xamarin.Forms.Slider.ValueProperty
 
-    let ValueChanged =
+    static member ValueChanged =
         Attributes.defineEvent<Xamarin.Forms.ValueChangedEventArgs>
             "Slider_ValueChanged"
             (fun target -> (target :?> Xamarin.Forms.Slider).ValueChanged)
 
-module ActivityIndicator =
-    let IsRunning =
-        Attributes.defineBindable<bool> Xamarin.Forms.ActivityIndicator.IsRunningProperty
+[<AbstractClass; Sealed>]
+type ActivityIndicator =
+    static member IsRunning =
+        Attributes.defineBindable<bool> "ActivityIndicator_IsRunning" Xamarin.Forms.ActivityIndicator.IsRunningProperty
 
-module ContentView =
-    let Content =
-        Attributes.defineBindableWidget Xamarin.Forms.ContentView.ContentProperty
+[<AbstractClass; Sealed>]
+type ContentView =
+    static member Content =
+        Attributes.defineBindableWidget "ContentView_Content" Xamarin.Forms.ContentView.ContentProperty
 
-module RefreshView =
-    let IsRefreshing =
-        Attributes.defineBindable<bool> Xamarin.Forms.RefreshView.IsRefreshingProperty
+[<AbstractClass; Sealed>]
+type RefreshView =
+    static member IsRefreshing =
+        Attributes.defineBindable<bool> "RefreshView_IsRefreshing" Xamarin.Forms.RefreshView.IsRefreshingProperty
 
-    let Refreshing =
+    static member Refreshing =
         Attributes.defineEventNoArg
             "RefreshView_Refreshing"
             (fun target -> (target :?> Xamarin.Forms.RefreshView).Refreshing)
 
-module ScrollView =
-    let Content =
+[<AbstractClass; Sealed>]
+type ScrollView =
+    static member Content =
         Attributes.defineWidget
             "ScrollView_Content"
             (fun target -> ViewNode.get (target :?> Xamarin.Forms.ScrollView).Content)
             (fun target value -> (target :?> Xamarin.Forms.ScrollView).Content <- value)
 
-module Image =
-    let Source =
-        Attributes.defineBindable<Xamarin.Forms.ImageSource> Xamarin.Forms.Image.SourceProperty
+[<AbstractClass; Sealed>]
+type Image =
+    static member Source =
+        Attributes.defineBindable<Xamarin.Forms.ImageSource> "Image_Source" Xamarin.Forms.Image.SourceProperty
 
-    let Aspect =
-        Attributes.defineBindable<Xamarin.Forms.Aspect> Xamarin.Forms.Image.AspectProperty
+    static member Aspect =
+        Attributes.defineBindable<Xamarin.Forms.Aspect> "Image_Aspect" Xamarin.Forms.Image.AspectProperty
 
-module Grid =
-    let ColumnDefinitions =
+[<AbstractClass; Sealed>]
+type Grid =
+    static member ColumnDefinitions =
         Attributes.defineScalarWithConverter<seq<Dimension>, Dimension array, Dimension array>
             "Grid_ColumnDefinitions"
             Array.ofSeq
@@ -291,7 +312,7 @@ module Grid =
             ScalarAttributeComparers.equalityCompare
             ViewUpdaters.updateGridColumnDefinitions
 
-    let RowDefinitions =
+    static member RowDefinitions =
         Attributes.defineScalarWithConverter<seq<Dimension>, Dimension array, Dimension array>
             "Grid_RowDefinitions"
             Array.ofSeq
@@ -299,104 +320,112 @@ module Grid =
             ScalarAttributeComparers.equalityCompare
             ViewUpdaters.updateGridRowDefinitions
 
-    let Column =
-        Attributes.defineBindable<int> Xamarin.Forms.Grid.ColumnProperty
+    static member Column =
+        Attributes.defineBindable<int> "Grid_Column" Xamarin.Forms.Grid.ColumnProperty
 
-    let Row =
-        Attributes.defineBindable<int> Xamarin.Forms.Grid.RowProperty
+    static member Row =
+        Attributes.defineBindable<int> "Grid_Row" Xamarin.Forms.Grid.RowProperty
 
-    let ColumnSpacing =
-        Attributes.defineBindable<float> Xamarin.Forms.Grid.ColumnSpacingProperty
+    static member ColumnSpacing =
+        Attributes.defineBindable<float> "Grid_ColumnSpacing" Xamarin.Forms.Grid.ColumnSpacingProperty
 
-    let RowSpacing =
-        Attributes.defineBindable<float> Xamarin.Forms.Grid.RowSpacingProperty
+    static member RowSpacing =
+        Attributes.defineBindable<float> "Grid_RowSpacing" Xamarin.Forms.Grid.RowSpacingProperty
 
-    let ColumnSpan =
-        Attributes.defineBindable<int> Xamarin.Forms.Grid.ColumnSpanProperty
+    static member ColumnSpan =
+        Attributes.defineBindable<int> "Grid_ColumnSpan" Xamarin.Forms.Grid.ColumnSpanProperty
 
-    let RowSpan =
-        Attributes.defineBindable<int> Xamarin.Forms.Grid.RowSpanProperty
+    static member RowSpan =
+        Attributes.defineBindable<int> "Grid_RowSpan" Xamarin.Forms.Grid.RowSpanProperty
 
-module BoxView =
-    let Color =
-        Attributes.defineBindable<Xamarin.Forms.Color> Xamarin.Forms.BoxView.ColorProperty
+[<AbstractClass; Sealed>]
+type BoxView =
+    static member Color =
+        Attributes.defineBindable<Xamarin.Forms.Color> "BoxView_Color" Xamarin.Forms.BoxView.ColorProperty
 
-module NavigationPage =
-    let Pages =
+[<AbstractClass; Sealed>]
+type NavigationPage =
+    static member Pages =
         Attributes.defineWidgetCollectionWithConverter
             "NavigationPage_Pages"
             ViewUpdaters.applyDiffNavigationPagePages
             ViewUpdaters.updateNavigationPagePages
 
-    let BarBackgroundColor =
-        Attributes.defineBindable<Xamarin.Forms.Color> Xamarin.Forms.NavigationPage.BarBackgroundColorProperty
+    static member BarBackgroundColor =
+        Attributes.defineBindable<Xamarin.Forms.Color> "NavigationPage_BarBackgroundColor" Xamarin.Forms.NavigationPage.BarBackgroundColorProperty
 
-    let BarTextColor =
-        Attributes.defineBindable<Xamarin.Forms.Color> Xamarin.Forms.NavigationPage.BarTextColorProperty
+    static member BarTextColor =
+        Attributes.defineBindable<Xamarin.Forms.Color> "NavigationPage_BarTextColor" Xamarin.Forms.NavigationPage.BarTextColorProperty
 
-    let HasNavigationBar =
-        Attributes.defineBindable<bool> Xamarin.Forms.NavigationPage.HasNavigationBarProperty
+    static member HasNavigationBar =
+        Attributes.defineBindable<bool> "NavigationPage_HasNavigationBar" Xamarin.Forms.NavigationPage.HasNavigationBarProperty
 
-    let HasBackButton =
-        Attributes.defineBindable<bool> Xamarin.Forms.NavigationPage.HasBackButtonProperty
+    static member HasBackButton =
+        Attributes.defineBindable<bool> "NavigationPage_HasBackButton" Xamarin.Forms.NavigationPage.HasBackButtonProperty
 
-    let Popped =
+    static member Popped =
         Attributes.defineEvent<Xamarin.Forms.NavigationEventArgs>
             "NavigationPage_Popped"
             (fun target -> (target :?> Xamarin.Forms.NavigationPage).Popped)
 
-module Entry =
-    let Text =
-        Attributes.defineBindable<string> Xamarin.Forms.Entry.TextProperty
+[<AbstractClass; Sealed>]
+type Entry =
+    static member Text =
+        Attributes.defineBindable<string> "Entry_Text" Xamarin.Forms.Entry.TextProperty
 
-    let TextChanged =
+    static member TextChanged =
         Attributes.defineEvent<Xamarin.Forms.TextChangedEventArgs>
             "Entry_TextChanged"
             (fun target -> (target :?> Xamarin.Forms.Entry).TextChanged)
 
-    let Placeholder =
-        Attributes.defineBindable<string> Xamarin.Forms.Entry.PlaceholderProperty
+    static member Placeholder =
+        Attributes.defineBindable<string> "Entry_Placeholder" Xamarin.Forms.Entry.PlaceholderProperty
 
-    let Keyboard =
-        Attributes.defineBindable<Xamarin.Forms.Keyboard> Xamarin.Forms.Entry.KeyboardProperty
+    static member Keyboard =
+        Attributes.defineBindable<Xamarin.Forms.Keyboard> "Entry_Keyboard" Xamarin.Forms.Entry.KeyboardProperty
 
-module TapGestureRecognizer =
-    let Tapped =
+[<AbstractClass; Sealed>]
+type TapGestureRecognizer =
+    static member Tapped =
         Attributes.defineEventNoArg
             "TapGestureRecognizer_Tapped"
             (fun target ->
                 (target :?> Xamarin.Forms.TapGestureRecognizer)
                     .Tapped)
 
-module SearchBar =
-    let Text =
-        Attributes.defineBindable<string> Xamarin.Forms.SearchBar.TextProperty
+[<AbstractClass; Sealed>]
+type SearchBar =
+    static member Text =
+        Attributes.defineBindable<string> "SearchBar_Text" Xamarin.Forms.SearchBar.TextProperty
 
-    let CancelButtonColor =
-        Attributes.defineBindable<Xamarin.Forms.Color> Xamarin.Forms.SearchBar.CancelButtonColorProperty
+    static member CancelButtonColor =
+        Attributes.defineBindable<Xamarin.Forms.Color> "SearchBar_CancelButtonColor" Xamarin.Forms.SearchBar.CancelButtonColorProperty
 
-    let SearchButtonPressed =
+    static member SearchButtonPressed =
         Attributes.defineEventNoArg
             "SearchBar_SearchButtonPressed"
             (fun target ->
                 (target :?> Xamarin.Forms.SearchBar)
                     .SearchButtonPressed)
 
-module InputView =
-    let TextChanged =
+[<AbstractClass; Sealed>]
+type InputView =
+    static member TextChanged =
         Attributes.defineEvent<Xamarin.Forms.TextChangedEventArgs>
             "InputView_TextChanged"
             (fun target -> (target :?> Xamarin.Forms.InputView).TextChanged)
 
-module MenuItem =
-    let Text =
-        Attributes.defineBindable<string> Xamarin.Forms.MenuItem.TextProperty
+[<AbstractClass; Sealed>]
+type MenuItem =
+    static member Text =
+        Attributes.defineBindable<string> "MenuItem_Text" Xamarin.Forms.MenuItem.TextProperty
 
-    let Clicked =
+    static member Clicked =
         Attributes.defineEventNoArg "MenuItem_Clicked" (fun target -> (target :?> Xamarin.Forms.MenuItem).Clicked)
 
-module ToolbarItem =
-    let Order =
+[<AbstractClass; Sealed>]
+type ToolbarItem =
+    static member Order =
         Attributes.define<Xamarin.Forms.ToolbarItemOrder>
             "ToolbarItem_Order"
             (fun (newValueOpt, node) ->
@@ -407,107 +436,115 @@ module ToolbarItem =
                 | ValueNone -> toolbarItem.Order <- Xamarin.Forms.ToolbarItemOrder.Default
                 | ValueSome order -> toolbarItem.Order <- order)
 
-module Editor =
-    let Text =
-        Attributes.defineBindable<string> Xamarin.Forms.Editor.TextProperty
+[<AbstractClass; Sealed>]
+type Editor =
+    static member Text =
+        Attributes.defineBindable<string> "Editor_Text" Xamarin.Forms.Editor.TextProperty
 
-module ViewCell =
-    let View =
+[<AbstractClass; Sealed>]
+type ViewCell =
+    static member View =
         Attributes.defineWidget
             "ViewCell_View"
             (fun target -> ViewNode.get (target :?> Xamarin.Forms.ViewCell).View)
             (fun target value -> (target :?> Xamarin.Forms.ViewCell).View <- value)
 
-module MultiPageOfPage =
-    let Children =
+[<AbstractClass; Sealed>]
+type MultiPageOfPage =
+    static member Children =
         Attributes.defineWidgetCollection
             "MultiPageOfPage"
             (fun target ->
                 (target :?> Xamarin.Forms.MultiPage<Xamarin.Forms.Page>)
                     .Children)
 
-module DatePicker =
-    let CharacterSpacing =
-        Attributes.defineBindable<float> Xamarin.Forms.DatePicker.CharacterSpacingProperty
+[<AbstractClass; Sealed>]
+type DatePicker =
+    static member CharacterSpacing =
+        Attributes.defineBindable<float> "DatePicker_CharacterSpacing" Xamarin.Forms.DatePicker.CharacterSpacingProperty
 
-    let Date =
-        Attributes.defineBindable<DateTime> Xamarin.Forms.DatePicker.DateProperty
+    static member Date =
+        Attributes.defineBindable<DateTime> "DatePicker_Date" Xamarin.Forms.DatePicker.DateProperty
 
-    let FontAttributes =
-        Attributes.defineBindable<Xamarin.Forms.FontAttributes> Xamarin.Forms.DatePicker.FontAttributesProperty
+    static member FontAttributes =
+        Attributes.defineBindable<Xamarin.Forms.FontAttributes> "DatePicker_FontAttributes" Xamarin.Forms.DatePicker.FontAttributesProperty
 
-    let FontFamily =
-        Attributes.defineBindable<string> Xamarin.Forms.DatePicker.FontFamilyProperty
+    static member FontFamily =
+        Attributes.defineBindable<string> "DatePicker_FontFamily" Xamarin.Forms.DatePicker.FontFamilyProperty
 
-    let FontSize =
-        Attributes.defineBindable<float> Xamarin.Forms.DatePicker.FontSizeProperty
+    static member FontSize =
+        Attributes.defineBindable<float> "DatePicker_FontSize" Xamarin.Forms.DatePicker.FontSizeProperty
 
-    let Format =
-        Attributes.defineBindable<string> Xamarin.Forms.DatePicker.FormatProperty
+    static member Format =
+        Attributes.defineBindable<string> "DatePicker_Format" Xamarin.Forms.DatePicker.FormatProperty
 
-    let MaximumDate =
-        Attributes.defineBindable<DateTime> Xamarin.Forms.DatePicker.MaximumDateProperty
+    static member MaximumDate =
+        Attributes.defineBindable<DateTime> "DatePicker_MaximumDate" Xamarin.Forms.DatePicker.MaximumDateProperty
 
-    let MinimumDate =
-        Attributes.defineBindable<DateTime> Xamarin.Forms.DatePicker.MinimumDateProperty
+    static member MinimumDate =
+        Attributes.defineBindable<DateTime> "DatePicker_MinimumDate" Xamarin.Forms.DatePicker.MinimumDateProperty
 
-    let TextColor =
-        Attributes.defineAppThemeBindable<Xamarin.Forms.Color> Xamarin.Forms.DatePicker.TextColorProperty
+    static member TextColor =
+        Attributes.defineAppThemeBindable<Xamarin.Forms.Color> "DatePicker_TextColor" Xamarin.Forms.DatePicker.TextColorProperty
 
-    let TextTransform =
-        Attributes.defineBindable<Xamarin.Forms.TextTransform> Xamarin.Forms.DatePicker.TextTransformProperty
+    static member TextTransform =
+        Attributes.defineBindable<Xamarin.Forms.TextTransform> "DatePicker_TextTransform" Xamarin.Forms.DatePicker.TextTransformProperty
 
-    let DateSelected =
+    static member DateSelected =
         Attributes.defineEvent<Xamarin.Forms.DateChangedEventArgs>
             "DatePicker_DateSelected"
             (fun target -> (target :?> Xamarin.Forms.DatePicker).DateSelected)
 
-module TimePicker =
-    let CharacterSpacing =
-        Attributes.defineBindable<float> Xamarin.Forms.TimePicker.CharacterSpacingProperty
+[<AbstractClass; Sealed>]
+type TimePicker =
+    static member CharacterSpacing =
+        Attributes.defineBindable<float> "TimePicker_CharacterSpacing" Xamarin.Forms.TimePicker.CharacterSpacingProperty
 
-    let Time =
-        Attributes.defineBindable<TimeSpan> Xamarin.Forms.TimePicker.TimeProperty
+    static member Time =
+        Attributes.defineBindable<TimeSpan> "TimePicker_Time" Xamarin.Forms.TimePicker.TimeProperty
 
-    let TimeSelected =
+    static member TimeSelected =
         Attributes.defineEvent "TimePicker_TimeSelected" (fun target -> (target :?> FabulousTimePicker).TimeSelected)
 
-    let FontAttributes =
-        Attributes.defineBindable<Xamarin.Forms.FontAttributes> Xamarin.Forms.TimePicker.FontAttributesProperty
+    static member FontAttributes =
+        Attributes.defineBindable<Xamarin.Forms.FontAttributes> "TimePicker_FontAttributes" Xamarin.Forms.TimePicker.FontAttributesProperty
 
-    let FontFamily =
-        Attributes.defineBindable<string> Xamarin.Forms.TimePicker.FontFamilyProperty
+    static member FontFamily =
+        Attributes.defineBindable<string> "TimePicker_FontFamily" Xamarin.Forms.TimePicker.FontFamilyProperty
 
-    let FontSize =
-        Attributes.defineBindable<float> Xamarin.Forms.TimePicker.FontSizeProperty
+    static member FontSize =
+        Attributes.defineBindable<float> "TimePicker_FontSize" Xamarin.Forms.TimePicker.FontSizeProperty
 
-    let Format =
-        Attributes.defineBindable<string> Xamarin.Forms.TimePicker.FormatProperty
+    static member Format =
+        Attributes.defineBindable<string> "TimePicker_Format" Xamarin.Forms.TimePicker.FormatProperty
 
-    let TextColor =
-        Attributes.defineAppThemeBindable<Xamarin.Forms.Color> Xamarin.Forms.TimePicker.TextColorProperty
+    static member TextColor =
+        Attributes.defineAppThemeBindable<Xamarin.Forms.Color> "TimePicker_TextColor" Xamarin.Forms.TimePicker.TextColorProperty
 
-    let TextTransform =
-        Attributes.defineBindable<Xamarin.Forms.TextTransform> Xamarin.Forms.TimePicker.TextTransformProperty
+    static member TextTransform =
+        Attributes.defineBindable<Xamarin.Forms.TextTransform> "TimePicker_TextTransform" Xamarin.Forms.TimePicker.TextTransformProperty
 
-module Stepper =
-    let Increment =
-        Attributes.defineBindable<float> Xamarin.Forms.Stepper.IncrementProperty
+[<AbstractClass; Sealed>]
+type Stepper =
+    static member Increment =
+        Attributes.defineBindable<float> "Stepper_Increment" Xamarin.Forms.Stepper.IncrementProperty
 
-    let MinimumMaximum =
+    static member MinimumMaximum =
         Attributes.define<float * float> "Stepper_MinimumMaximum" ViewUpdaters.updateStepperMinMax
 
-    let Value =
-        Attributes.defineBindable<float> Xamarin.Forms.Stepper.ValueProperty
+    static member Value =
+        Attributes.defineBindable<float> "Stepper_Value" Xamarin.Forms.Stepper.ValueProperty
 
-    let ValueChanged =
+    static member ValueChanged =
         Attributes.defineEvent<Xamarin.Forms.ValueChangedEventArgs>
             "Stepper_ValueChanged"
             (fun target -> (target :?> Xamarin.Forms.Stepper).ValueChanged)
 
-module ItemsView =
-    let ItemsSource<'T> =
+[<AbstractClass; Sealed>]
+type ItemsView =
+    static member ItemsSource<'T>() =
         Attributes.defineBindableWithComparer<WidgetItems<'T>, WidgetItems<'T>, IEnumerable<Widget>>
+            $"ItemsView_ItemsSource<{typeof<'T>.Name}"
             Xamarin.Forms.ItemsView.ItemsSourceProperty
             id
             (fun modelValue ->
@@ -517,8 +554,9 @@ module ItemsView =
                 })
             (fun (a, b) -> ScalarAttributeComparers.equalityCompare (a.OriginalItems, b.OriginalItems))
 
-    let GroupedItemsSource<'T> =
+    static member GroupedItemsSource<'T>() =
         Attributes.defineBindableWithComparer<GroupedWidgetItems<'T>, GroupedWidgetItems<'T>, IEnumerable<GroupItem>>
+            $"ItemsView_GroupedItemsSource<{typeof<'T>}"
             Xamarin.Forms.ItemsView.ItemsSourceProperty
             id
             (fun modelValue ->
@@ -528,9 +566,11 @@ module ItemsView =
                 })
             (fun (a, b) -> ScalarAttributeComparers.equalityCompare (a.OriginalItems, b.OriginalItems))
 
-module ItemsViewOfCell =
-    let ItemsSource<'T> =
+[<AbstractClass; Sealed>]
+type ItemsViewOfCell =
+    static member ItemsSource<'T>() =
         Attributes.defineBindableWithComparer<WidgetItems<'T>, WidgetItems<'T>, IEnumerable<Widget>>
+            $"ItemsViewOfCell_ItemsSource<{typeof<'T>}>"
             Xamarin.Forms.ItemsView<Xamarin.Forms.Cell>
                 .ItemsSourceProperty
             id
@@ -541,8 +581,9 @@ module ItemsViewOfCell =
                 })
             (fun (a, b) -> ScalarAttributeComparers.equalityCompare (a.OriginalItems, b.OriginalItems))
 
-    let GroupedItemsSource<'T> =
+    static member GroupedItemsSource<'T>() =
         Attributes.defineBindableWithComparer<GroupedWidgetItems<'T>, GroupedWidgetItems<'T>, IEnumerable<GroupItem>>
+            $"ItemsViewOfCell_ItemsSource<{typeof<'T>}>"
             Xamarin.Forms.ItemsView<Xamarin.Forms.Cell>
                 .ItemsSourceProperty
             id
@@ -553,29 +594,32 @@ module ItemsViewOfCell =
                 })
             (fun (a, b) -> ScalarAttributeComparers.equalityCompare (a.OriginalItems, b.OriginalItems))
 
-module ListView =
-    let RowHeight =
-        Attributes.defineBindable<int> Xamarin.Forms.ListView.RowHeightProperty
+[<AbstractClass; Sealed>]
+type ListView =
+    static member RowHeight =
+        Attributes.defineBindable<int> "ListView_RowHeight" Xamarin.Forms.ListView.RowHeightProperty
 
-    let SelectionMode =
-        Attributes.defineBindable<Xamarin.Forms.ListViewSelectionMode> Xamarin.Forms.ListView.SelectionModeProperty
+    static member SelectionMode =
+        Attributes.defineBindable<Xamarin.Forms.ListViewSelectionMode> "ListView_SelectionMode" Xamarin.Forms.ListView.SelectionModeProperty
 
-    let ItemTapped =
+    static member ItemTapped =
         Attributes.defineEvent "ListView_ItemTapped" (fun target -> (target :?> Xamarin.Forms.ListView).ItemTapped)
 
 
-module TextCell =
-    let Text =
-        Attributes.defineBindable<string> Xamarin.Forms.TextCell.TextProperty
+[<AbstractClass; Sealed>]
+type TextCell =
+    static member Text =
+        Attributes.defineBindable<string> "TextCell_Text" Xamarin.Forms.TextCell.TextProperty
 
-    let TextColor =
-        Attributes.defineBindable<Xamarin.Forms.Color> Xamarin.Forms.TextCell.TextColorProperty
+    static member TextColor =
+        Attributes.defineBindable<Xamarin.Forms.Color> "TextCell_TextColor" Xamarin.Forms.TextCell.TextColorProperty
 
-module CollectionView =
-    let RemainingItemsThreshold =
-        Attributes.defineBindable<int> Xamarin.Forms.CollectionView.RemainingItemsThresholdProperty
+[<AbstractClass; Sealed>]
+type CollectionView =
+    static member RemainingItemsThreshold =
+        Attributes.defineBindable<int> "CollectionView_RemainingItemsThreshold" Xamarin.Forms.CollectionView.RemainingItemsThresholdProperty
 
-    let RemainingItemsThresholdReached =
+    static member RemainingItemsThresholdReached =
         Attributes.defineEventNoArg
             "CollectionView_RemainingItemsThresholdReached"
             (fun target ->

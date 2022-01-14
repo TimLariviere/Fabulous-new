@@ -24,7 +24,6 @@ module Memo =
 
     type Memoized<'t> = { phantom: 't }
 
-    let private MemoAttributeKey = AttributeDefinitionStore.getNextKey ()
     let internal MemoWidgetKey = WidgetDefinitionStore.getNextKey ()
 
     let inline private getMemoData (widget: Widget) : MemoData =
@@ -60,17 +59,14 @@ module Memo =
         | ValueNone -> ()
 
     let internal MemoAttribute =
-        { Key = MemoAttributeKey
-          Name = "MemoAttribute"
-          Convert = id
-          ConvertValue = id
-          Compare = compareAttributes
-          UpdateNode = updateNode }
-
-    AttributeDefinitionStore.set MemoAttributeKey MemoAttribute
-
-
-
+        Attributes.withName "MemoAttribute"
+            (fun key name ->
+                { Key = key
+                  Name = name
+                  Convert = id
+                  ConvertValue = id
+                  Compare = compareAttributes
+                  UpdateNode = updateNode } )
 
     let private widgetDefinition: WidgetDefinition =
         { Key = MemoWidgetKey

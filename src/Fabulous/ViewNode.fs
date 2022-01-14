@@ -40,19 +40,19 @@ type ViewNode(parentNode: IViewNode voption, treeContext: ViewTreeContext, targe
                     match diff with
                     | ScalarChange.Added added ->
                         let definition =
-                            AttributeDefinitionStore.get added.Key :?> IScalarAttributeDefinition
+                            AttributeDefinitionStore.get<IScalarAttributeDefinition> added.Key 
 
                         definition.UpdateNode(ValueSome added.Value, this)
 
                     | ScalarChange.Removed removed ->
                         let definition =
-                            AttributeDefinitionStore.get removed.Key :?> IScalarAttributeDefinition
+                            AttributeDefinitionStore.get<IScalarAttributeDefinition> removed.Key
 
                         definition.UpdateNode(ValueNone, this)
 
                     | ScalarChange.Updated newAttr ->
                         let definition =
-                            AttributeDefinitionStore.get newAttr.Key :?> IScalarAttributeDefinition
+                            AttributeDefinitionStore.get<IScalarAttributeDefinition> newAttr.Key
 
                         definition.UpdateNode(ValueSome newAttr.Value, this)
 
@@ -65,19 +65,19 @@ type ViewNode(parentNode: IViewNode voption, treeContext: ViewTreeContext, targe
                     | WidgetChange.Added newWidget
                     | WidgetChange.ReplacedBy newWidget ->
                         let definition =
-                            AttributeDefinitionStore.get newWidget.Key :?> WidgetAttributeDefinition
+                            AttributeDefinitionStore.get<WidgetAttributeDefinition> newWidget.Key 
 
                         definition.UpdateNode(ValueSome newWidget.Value, this :> IViewNode)
 
                     | WidgetChange.Removed removed ->
                         let definition =
-                            AttributeDefinitionStore.get removed.Key :?> WidgetAttributeDefinition
+                            AttributeDefinitionStore.get<WidgetAttributeDefinition> removed.Key
 
                         definition.UpdateNode(ValueNone, this :> IViewNode)
 
                     | WidgetChange.Updated struct (newAttr, diffs) ->
                         let definition =
-                            AttributeDefinitionStore.get newAttr.Key :?> WidgetAttributeDefinition
+                            AttributeDefinitionStore.get<WidgetAttributeDefinition> newAttr.Key
 
                         definition.ApplyDiff(diffs, this :> IViewNode)
 
@@ -89,18 +89,18 @@ type ViewNode(parentNode: IViewNode voption, treeContext: ViewTreeContext, targe
                     match diff with
                     | WidgetCollectionChange.Added added ->
                         let definition =
-                            AttributeDefinitionStore.get added.Key :?> WidgetCollectionAttributeDefinition
+                            AttributeDefinitionStore.get<WidgetCollectionAttributeDefinition> added.Key
 
                         definition.UpdateNode(ValueSome added.Value, this :> IViewNode)
 
                     | WidgetCollectionChange.Removed removed ->
                         let definition =
-                            AttributeDefinitionStore.get removed.Key :?> WidgetCollectionAttributeDefinition
+                            AttributeDefinitionStore.get<WidgetCollectionAttributeDefinition> removed.Key
 
                         definition.UpdateNode(ValueNone, this :> IViewNode)
 
                     | WidgetCollectionChange.Updated struct (newAttr, diffs) ->
                         let definition =
-                            AttributeDefinitionStore.get newAttr.Key :?> WidgetCollectionAttributeDefinition
+                            AttributeDefinitionStore.get<WidgetCollectionAttributeDefinition> newAttr.Key
 
                         definition.ApplyDiff(diffs, this :> IViewNode)

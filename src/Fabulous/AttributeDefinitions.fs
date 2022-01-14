@@ -97,16 +97,24 @@ type WidgetCollectionAttributeDefinition =
             x.UpdateNode(newValueOpt, node)
 
 module AttributeDefinitionStore =
-    let private _attributes =
-        Dictionary<AttributeKey, IAttributeDefinition>()
+    let private _keys = Dictionary<string, AttributeKey>()
+    let private _attributes = Dictionary<AttributeKey, IAttributeDefinition>()
 
     let mutable private _nextKey = 0
 
-    let get key = _attributes.[key]
+    let get<'T when 'T :> IAttributeDefinition> key = _attributes.[key] :?> 'T
     let set key value = _attributes.[key] <- value
-    let remove key = _attributes.Remove(key) |> ignore
-
-    let getNextKey () : AttributeKey =
-        let key = _nextKey
-        _nextKey <- _nextKey + 1
-        key
+    
+    let getKeyForName (name: string): AttributeKey =
+        match _keys.TryGetValue(name) with
+        | true, key -> key
+        | false, _ ->
+            let key = _nextKey
+            _nextKey <- _nextKey + 1
+            _keys.[name] <- key
+            key
+            
+    let tryGet<'T when 'T :> IAttributeDefinition> (key: AttributeKey) =
+        match _attributes.TryGetValue(key) with
+        | false, _ -> ValueNone
+        | true, attribute -> ValueSome (attribute :?> 'T)

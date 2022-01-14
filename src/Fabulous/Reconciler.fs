@@ -88,7 +88,7 @@ module Reconciler =
                         // means that we are targeting the same attribute
 
                         let definition =
-                            AttributeDefinitionStore.get prevAttr.Key :?> IScalarAttributeDefinition
+                            AttributeDefinitionStore.get<IScalarAttributeDefinition> prevAttr.Key
 
                         match definition.CompareBoxed(prevAttr.Value, nextAttr.Value) with
                         // Previous and next values are identical, we don't need to do anything

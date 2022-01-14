@@ -404,7 +404,7 @@ type ViewBuilders private () =
     static member inline ListView<'msg, 'itemData, 'itemMarker when 'itemMarker :> ICell>(items: seq<'itemData>) =
         ViewHelpers.buildItems<'msg, IListView, 'itemData, 'itemMarker>
             ViewKeys.ListView
-            ItemsViewOfCell.ItemsSource
+            (ItemsViewOfCell.ItemsSource())
             items
 
     static member inline GroupedListView<'msg, 'groupData, 'groupMarker, 'itemData, 'itemMarker when 'itemMarker :> ICell and 'groupMarker :> ICell and 'groupData :> IEnumerable<'itemData>>
@@ -412,7 +412,7 @@ type ViewBuilders private () =
         =
         ViewHelpers.buildGroupItemsNoFooter<'msg, IListView, 'groupData, 'itemData, 'groupMarker, 'itemMarker>
             ViewKeys.GroupedListView
-            ItemsViewOfCell.GroupedItemsSource
+            (ItemsViewOfCell.GroupedItemsSource())
             items
 
     static member inline TextCell<'msg>(text: string) =
@@ -421,7 +421,7 @@ type ViewBuilders private () =
     static member inline CollectionView<'msg, 'itemData, 'itemMarker when 'itemMarker :> IView>(items: seq<'itemData>) =
         ViewHelpers.buildItems<'msg, ICollectionView, 'itemData, 'itemMarker>
             ViewKeys.CollectionView
-            ItemsView.ItemsSource
+            (ItemsView.ItemsSource())
             items
 
     static member inline GroupedCollectionView<'msg, 'groupData, 'groupMarker, 'itemData, 'itemMarker when 'itemMarker :> IView and 'groupMarker :> IView and 'groupData :> IEnumerable<'itemData>>
@@ -429,7 +429,7 @@ type ViewBuilders private () =
         =
         ViewHelpers.buildGroupItems<'msg, ICollectionView, 'groupData, 'itemData, 'groupMarker, 'itemMarker>
             ViewKeys.GroupedCollectionView
-            ItemsView.GroupedItemsSource
+            (ItemsView.GroupedItemsSource())
             items
 
 [<AbstractClass; Sealed>]

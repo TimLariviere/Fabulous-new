@@ -30,6 +30,11 @@ type TestLabel() =
 
     let mutable text = ""
     let mutable textColor = ""
+    // TODO: Fix unit tests for Memo
+    // Record is actually dependent on the sort order of Array.sortInPlace(attr.Key).
+    // By making AttributeDefinition lazy for allowing deletion of unused code by linker,
+    // the value of attr.Key is not guaranteed and completely dependent on usage.
+    // This was making ViewNodeInstanceCanBeReused.Test fail because Text was before Record in the sorted array.
     member val record = false with get, set
 
     member val changeList = [] with get, set
@@ -38,16 +43,16 @@ type TestLabel() =
         member x.Text
             with get () = text
             and set (value) =
-                if x.record then
-                    x.changeList <- List.append x.changeList [ TextSet value ]
+                //if x.record then
+                x.changeList <- List.append x.changeList [ TextSet value ]
 
                 text <- value
 
         member x.TextColor
             with get () = textColor
             and set (value) =
-                if x.record then
-                    x.changeList <- List.append x.changeList [ ColorSet value ]
+                //if x.record then
+                x.changeList <- List.append x.changeList [ ColorSet value ]
 
                 textColor <- value
 
