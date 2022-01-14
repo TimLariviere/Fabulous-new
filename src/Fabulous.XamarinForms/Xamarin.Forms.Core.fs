@@ -441,10 +441,10 @@ type View private () =
     static member inline ContentPage<'msg, 'marker when 'marker :> IView>(title, content) =
         ViewBuilders.ContentPage<'msg, 'marker>(title, content)
 
-    static member inline HorizontalStackLayout<'msg>(?spacing) =
+    static member inline HStack<'msg>(?spacing) =
         ViewBuilders.StackLayout<'msg>(Xamarin.Forms.StackOrientation.Horizontal, ?spacing = spacing)
 
-    static member inline VerticalStackLayout<'msg>(?spacing) =
+    static member inline VStack<'msg>(?spacing) =
         ViewBuilders.StackLayout<'msg>(Xamarin.Forms.StackOrientation.Vertical, ?spacing = spacing)
 
     static member inline Grid<'msg>() =
@@ -658,7 +658,7 @@ type ViewExtensions private () =
         this.AddScalar(Label.TextColor.WithValue(value))
 
     [<Extension>]
-    static member inline padding(this: WidgetBuilder<'msg, #IView>, value: Xamarin.Forms.Thickness) =
+    static member inline padding(this: WidgetBuilder<'msg, #ILabel>, value: Xamarin.Forms.Thickness) =
         this.AddScalar(Label.Padding.WithValue(value))
 
     [<Extension>]

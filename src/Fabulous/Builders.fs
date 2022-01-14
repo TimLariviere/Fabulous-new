@@ -13,7 +13,9 @@ type AttributesBundle =
 [<Struct; NoComparison; NoEquality>]
 type WidgetBuilder<'msg, 'marker> =
     struct
+        [<EditorBrowsable(EditorBrowsableState.Never)>]
         val Key: WidgetKey
+        [<EditorBrowsable(EditorBrowsableState.Never)>]
         val Attributes: AttributesBundle
 
         new(key: WidgetKey, attributes: AttributesBundle) = { Key = key; Attributes = attributes }
