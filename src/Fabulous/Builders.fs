@@ -2,8 +2,7 @@ namespace Fabulous
 
 open System.ComponentModel
 open Fabulous
-open Fabulous.StackAllocatedCollections
-open Fabulous.StackAllocatedCollections.StackList
+open Fabulous.StackList
 open Microsoft.FSharp.Core
 
 

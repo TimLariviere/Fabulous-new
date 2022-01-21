@@ -2,7 +2,7 @@ namespace Fabulous.XamarinForms
 
 open System.Runtime.CompilerServices
 open Fabulous
-open Fabulous.StackAllocatedCollections.StackList
+open Fabulous.StackList
 open Xamarin.Forms
 
 type IContentPage =

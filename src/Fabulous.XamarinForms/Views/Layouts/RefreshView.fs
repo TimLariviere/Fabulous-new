@@ -1,7 +1,7 @@
 namespace Fabulous.XamarinForms
 
 open Fabulous
-open Fabulous.StackAllocatedCollections.StackList
+open Fabulous.StackList
 open Xamarin.Forms
 
 type IRefreshView =

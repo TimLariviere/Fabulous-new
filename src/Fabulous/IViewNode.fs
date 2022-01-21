@@ -1,6 +1,5 @@
 namespace Fabulous
 
-
 /// Context of the whole view tree
 [<Struct>]
 type ViewTreeContext =

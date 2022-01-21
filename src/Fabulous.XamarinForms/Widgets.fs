@@ -4,8 +4,7 @@ open System
 open System.Collections.Generic
 open System.Runtime.CompilerServices
 open Fabulous
-open Fabulous.StackAllocatedCollections.StackList
-open Fabulous.StackAllocatedCollections
+open Fabulous.StackList
 open Microsoft.FSharp.Core
 
 [<AbstractClass; Sealed>]
