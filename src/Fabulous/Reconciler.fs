@@ -2,22 +2,19 @@
 
 open Fabulous
 
+type IViewNodeWithDiff =
+    inherit IViewNode
+    abstract member ApplyDiff: WidgetDiff inref -> unit
+    
 module Reconciler =
-
-    let private compareScalars (struct (key, a, b): struct (AttributeKey * obj * obj)) : ScalarAttributeComparison =
-        let def =
-            AttributeDefinitionStore.get key :?> IScalarAttributeDefinition
-
-        def.CompareBoxed a b
-
     let update
         (canReuseView: Widget -> Widget -> bool)
         (prevOpt: Widget voption)
         (next: Widget)
-        (node: IViewNode)
+        (node: IViewNodeWithDiff)
         : unit =
 
         let diff =
-            WidgetDiff.create (prevOpt, next, canReuseView, compareScalars)
+            WidgetDiff.create (prevOpt, next, canReuseView)
 
         node.ApplyDiff(&diff)

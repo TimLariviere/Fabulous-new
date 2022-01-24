@@ -2,12 +2,13 @@ namespace Fabulous
 
 module MapMsg =
     let MapMsg =
-        Attributes.defineScalarWithConverter<obj -> obj, _, _>
+        Attributes.defineCustomScalar<obj -> obj, _, _>
             "Fabulous_MapMsg"
             id
             id
-            ScalarAttributeComparers.noCompare
+            (fun _ _ -> false)
             (fun value node ->
+                let mappedNode = node :?> IViewNodeWithEvents
                 match value with
-                | ValueNone -> node.MapMsg <- ValueNone
-                | ValueSome fn -> node.MapMsg <- ValueSome fn)
+                | ValueNone -> mappedNode.MapMsg <- ValueNone
+                | ValueSome fn -> mappedNode.MapMsg <- ValueSome fn)

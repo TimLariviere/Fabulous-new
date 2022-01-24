@@ -2,6 +2,8 @@
 
 open System.Collections.Generic
 
+type StateKey = int
+
 module StateStore =
     type StateChangedEventArgs = { Key: StateKey; NewState: obj }
 

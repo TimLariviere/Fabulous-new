@@ -2,12 +2,12 @@ namespace Fabulous
 
 module ViewHelpers =
     let canReuseView (prevWidget: Widget) (currWidget: Widget) =
-        let prevKey = prevWidget.Key
+        let prevKey = prevWidget.Definition.Key
 
-        if not (prevKey = currWidget.Key) then
+        if not (prevKey = currWidget.Definition.Key) then
             false
-        else if (prevKey = Memo.MemoWidgetKey) then
-            Memo.canReuseMemoizedWidget prevWidget currWidget
+        else if (prevKey = Memo.widgetKey) then
+            Memo.canReuseMemoizedWidget prevWidget.Data currWidget.Data
         else
             true
 
@@ -24,7 +24,7 @@ module View =
               KeyType = typeof<'key>
               MarkerType = typeof<'marker> }
 
-        WidgetBuilder<'msg, Memo.Memoized<'marker>>(Memo.MemoWidgetKey, Memo.MemoAttribute.WithValue(memo))
+        WidgetBuilder<'msg, Memo.Memoized<'marker>>(Memo.MemoWidgetDefinition, Memo.MemoAttribute.WithValue(memo))
 
     let inline map (fn: 'oldMsg -> 'newMsg) (x: WidgetBuilder<'oldMsg, 'marker>) : WidgetBuilder<'newMsg, 'marker> =
         let fnWithBoxing =
@@ -33,7 +33,7 @@ module View =
         let builder =
             x.AddScalar(MapMsg.MapMsg.WithValue fnWithBoxing)
 
-        WidgetBuilder<'newMsg, 'marker>(builder.Key, builder.Attributes)
+        WidgetBuilder<'newMsg, 'marker>(builder.Definition, builder.Attributes)
 
     let inline lazyMap (mapFn: 'oldMsg -> 'newMsg) (viewFn: 'key -> WidgetBuilder<'oldMsg, 'marker>) (model: 'key) =
         lazy' (viewFn >> map mapFn) model

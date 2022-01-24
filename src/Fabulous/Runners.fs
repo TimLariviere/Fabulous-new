@@ -4,6 +4,8 @@ open System
 open System.Collections.Generic
 open Fabulous
 
+type ViewAdapterKey = int
+
 type Program<'arg, 'model, 'msg> =
     { Init: 'arg -> 'model * Cmd<'msg>
       Update: 'msg * 'model -> 'model * Cmd<'msg>
@@ -125,10 +127,8 @@ module ViewAdapters =
                   GetViewNode = getViewNode
                   Dispatch = this.Dispatch }
 
-            let definition = WidgetDefinitionStore.get widget.Key
-
-            let struct (_node, root) =
-                definition.CreateView(widget, treeContext, ValueNone)
+            let struct (_, root) =
+                widget.Definition.CreateView widget.Data treeContext ValueNone
 
             _root <- root
             _root
@@ -142,7 +142,7 @@ module ViewAdapters =
                 let currentWidget = view state
                 _widget <- currentWidget
 
-                let node = getViewNode _root
+                let node = getViewNode _root :?> IViewNodeWithDiff
 
                 Reconciler.update canReuseView (ValueSome prevWidget) currentWidget node
                 _allowDispatch <- true
