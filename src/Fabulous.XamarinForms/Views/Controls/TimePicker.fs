@@ -2,6 +2,7 @@ namespace Fabulous.XamarinForms
 
 open System.Runtime.CompilerServices
 open Fabulous
+open Fabulous.StackList
 open Xamarin.Forms
 
 type ITimePicker =
@@ -17,7 +18,7 @@ module TimePicker =
         Attributes.defineBindable<System.TimeSpan> TimePicker.TimeProperty
 
     let TimeSelected =
-        Attributes.defineEvent "TimePicker_TimeSelected" (fun target -> (target :?> FabulousTimePicker).TimeSelected)
+        Attributes.defineEventWithArgs<FabulousTimePicker, TimeSelectedEventArgs> "TimePicker_TimeSelected" (fun target -> target.TimeSelected)
 
     let FontAttributes =
         Attributes.defineBindable<Xamarin.Forms.FontAttributes> TimePicker.FontAttributesProperty
@@ -43,8 +44,12 @@ module TimePickerBuilders =
         static member inline TimePicker<'msg>(time: System.TimeSpan, onTimeSelected: System.TimeSpan -> 'msg) =
             WidgetBuilder<'msg, ITimePicker>(
                 TimePicker.WidgetKey,
-                TimePicker.Time.WithValue(time),
-                TimePicker.TimeSelected.WithValue(fun args -> onTimeSelected args.NewTime |> box)
+                AttributesBundle(
+                    StackList.one (TimePicker.Time.WithValue(time)),
+                    ValueSome [| TimePicker.TimeSelected.WithValue(fun args -> onTimeSelected args.NewTime |> box) |],
+                    ValueNone,
+                    ValueNone
+                )
             )
 
 [<Extension>]

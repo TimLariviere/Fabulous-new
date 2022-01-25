@@ -11,67 +11,63 @@ module Application =
     let WidgetKey = Widgets.register<Application> ()
 
     let MainPage =
-        Attributes.defineWidget
+        Attributes.defineWidget<Application, Page>
             "Application_MainPage"
-            (fun target -> ViewNode.get (target :?> Application).MainPage)
-            (fun target value -> (target :?> Application).MainPage <- value)
+            (fun target -> ViewNode.get target.MainPage)
+            (fun target value -> target.MainPage <- value)
 
     let Resources =
-        Attributes.define<ResourceDictionary>
+        Attributes.defineScalar<Application, ResourceDictionary>
             "Application_Resources"
-            (fun newValueOpt node ->
-                let application = node.Target :?> Application
-
+            (fun newValueOpt target ->
                 let value =
                     match newValueOpt with
-                    | ValueNone -> application.Resources
+                    | ValueNone -> target.Resources
                     | ValueSome v -> v
 
-                application.Resources <- value)
+                target.Resources <- value)
 
     let UserAppTheme =
-        Attributes.define<OSAppTheme>
+        Attributes.defineScalar<Application, OSAppTheme>
             "Application_UserAppTheme"
-            (fun newValueOpt node ->
-                let application = node.Target :?> Application
-
+            (fun newValueOpt target ->
                 let value =
                     match newValueOpt with
                     | ValueNone -> OSAppTheme.Unspecified
                     | ValueSome v -> v
 
-                application.UserAppTheme <- value)
+                target.UserAppTheme <- value)
 
     let RequestedThemeChanged =
-        Attributes.defineEvent<AppThemeChangedEventArgs>
+        Attributes.defineEventWithArgs<Application, AppThemeChangedEventArgs>
             "Application_RequestedThemeChanged"
-            (fun target -> (target :?> Application).RequestedThemeChanged)
+            (fun target -> target.RequestedThemeChanged)
 
     let ModalPopped =
-        Attributes.defineEvent<ModalPoppedEventArgs>
+        Attributes.defineEventWithArgs<Application, ModalPoppedEventArgs>
             "Application_ModalPopped"
-            (fun target -> (target :?> Application).ModalPopped)
+            (fun target -> target.ModalPopped)
 
     let ModalPopping =
-        Attributes.defineEvent<ModalPoppingEventArgs>
+        Attributes.defineEventWithArgs<Application, ModalPoppingEventArgs>
             "Application_ModalPopping"
-            (fun target -> (target :?> Application).ModalPopping)
+            (fun target -> target.ModalPopping)
 
     let ModalPushed =
-        Attributes.defineEvent<ModalPushedEventArgs>
+        Attributes.defineEventWithArgs<Application, ModalPushedEventArgs>
             "Application_ModalPushed"
-            (fun target -> (target :?> Application).ModalPushed)
+            (fun target -> target.ModalPushed)
 
     let ModalPushing =
-        Attributes.defineEvent<ModalPushingEventArgs>
+        Attributes.defineEventWithArgs<Application, ModalPushingEventArgs>
             "Application_ModalPushing"
-            (fun target -> (target :?> Application).ModalPushing)
+            (fun target -> target.ModalPushing)
 
 [<AutoOpen>]
 module ApplicationBuilders =
     type Fabulous.XamarinForms.View with
         static member inline Application<'msg, 'marker when 'marker :> IPage>(mainPage: WidgetBuilder<'msg, 'marker>) =
-            WidgetHelpers.buildWidgets<'msg, IApplication>
+            WidgetHelpers.buildWidget<'msg, IApplication>
                 Application.WidgetKey
                 [| Application.MainPage.WithValue(mainPage.Compile()) |]
 
@@ -87,20 +83,20 @@ type ApplicationModifiers =
 
     [<Extension>]
     static member inline onRequestedThemeChanged(this: WidgetBuilder<'msg, #IApplication>, fn: OSAppTheme -> 'msg) =
-        this.AddScalar(Application.RequestedThemeChanged.WithValue(fun args -> fn args.RequestedTheme |> box))
+        this.AddEvent(Application.RequestedThemeChanged.WithValue(fun args -> fn args.RequestedTheme |> box))
 
     [<Extension>]
     static member inline onModalPopped(this: WidgetBuilder<'msg, #IApplication>, fn: ModalPoppedEventArgs -> 'msg) =
-        this.AddScalar(Application.ModalPopped.WithValue(fn >> box))
+        this.AddEvent(Application.ModalPopped.WithValue(fn >> box))
 
     [<Extension>]
     static member inline onModalPopping(this: WidgetBuilder<'msg, #IApplication>, fn: ModalPoppingEventArgs -> 'msg) =
-        this.AddScalar(Application.ModalPopping.WithValue(fn >> box))
+        this.AddEvent(Application.ModalPopping.WithValue(fn >> box))
 
     [<Extension>]
     static member inline onModalPushed(this: WidgetBuilder<'msg, #IApplication>, fn: ModalPushedEventArgs -> 'msg) =
-        this.AddScalar(Application.ModalPushed.WithValue(fn >> box))
+        this.AddEvent(Application.ModalPushed.WithValue(fn >> box))
 
     [<Extension>]
     static member inline onModalPushing(this: WidgetBuilder<'msg, #IApplication>, fn: ModalPushingEventArgs -> 'msg) =
-        this.AddScalar(Application.ModalPushing.WithValue(fn >> box))
+        this.AddEvent(Application.ModalPushing.WithValue(fn >> box))

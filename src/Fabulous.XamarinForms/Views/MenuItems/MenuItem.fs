@@ -1,6 +1,7 @@
 namespace Fabulous.XamarinForms
 
 open Fabulous
+open Fabulous.StackList
 open Xamarin.Forms
 
 type IMenuItem =
@@ -13,7 +14,7 @@ module MenuItem =
         Attributes.defineBindable<string> MenuItem.TextProperty
 
     let Clicked =
-        Attributes.defineEventNoArg "MenuItem_Clicked" (fun target -> (target :?> MenuItem).Clicked)
+        Attributes.defineEventNoArg<MenuItem> "MenuItem_Clicked" (fun target -> target.Clicked)
 
 [<AutoOpen>]
 module MenuItemBuilders =
@@ -21,6 +22,10 @@ module MenuItemBuilders =
         static member inline MenuItem<'msg>(text: string, onClicked: 'msg) =
             WidgetBuilder<'msg, IMenuItem>(
                 MenuItem.WidgetKey,
-                MenuItem.Text.WithValue(text),
-                MenuItem.Clicked.WithValue(onClicked)
+                AttributesBundle(
+                    StackList.one (MenuItem.Text.WithValue(text)),
+                    ValueSome [| MenuItem.Clicked.WithValue(onClicked) |],
+                    ValueNone,
+                    ValueNone
+                )
             )

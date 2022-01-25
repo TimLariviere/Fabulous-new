@@ -8,31 +8,27 @@ open Xamarin.Forms.PlatformConfiguration.AndroidSpecific
 
 module iOS =
     let UseSafeArea =
-        Attributes.define<bool>
+        Attributes.defineScalar<Xamarin.Forms.Page, bool>
             "Page_UseSafeArea"
-            (fun newValueOpt node ->
-                let page = node.Target :?> Xamarin.Forms.Page
-
+            (fun newValueOpt target ->
                 let value =
                     match newValueOpt with
                     | ValueNone -> false
                     | ValueSome v -> v
 
-                page.On<iOS>().SetUseSafeArea(value) |> ignore)
+                target.On<iOS>().SetUseSafeArea(value) |> ignore)
 
 module Android =
     let ToolbarPlacement =
-        Attributes.define<ToolbarPlacement>
+        Attributes.defineScalar<Xamarin.Forms.TabbedPage, ToolbarPlacement>
             "TabbedPage_ToolbarPlacement"
-            (fun newValueOpt node ->
-                let tabbedPage = node.Target :?> Xamarin.Forms.TabbedPage
-
+            (fun newValueOpt target ->
                 let value =
                     match newValueOpt with
                     | ValueNone -> ToolbarPlacement.Default
                     | ValueSome v -> v
 
-                tabbedPage
+                target
                     .On<Android>()
                     .SetToolbarPlacement(value)
                 |> ignore)

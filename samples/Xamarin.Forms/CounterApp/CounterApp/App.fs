@@ -60,7 +60,7 @@ module App =
 
                     Button("Increment", Increment)
 
-                    Button("Decrement", Increment)
+                    Button("Decrement", Decrement)
 
                     (HStack() {
                         Label("Timer")

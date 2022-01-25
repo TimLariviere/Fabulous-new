@@ -1,7 +1,6 @@
 ﻿namespace Fabulous
 
 open System
-open Fabulous
 
 type IViewNode =
     abstract member Target: obj
@@ -10,14 +9,14 @@ type IViewNode =
 type IScalarAttributeDefinition =
     abstract member Key: string
     abstract member CompareBoxed: a: obj -> b: obj -> bool
-    abstract member UpdateNode: obj voption -> obj -> unit
+    abstract member UpdateNode: obj voption -> IViewNode -> unit
     
-type ScalarAttributeDefinition<'inputType, 'modelType, 'valueType, 'targetType> =
+type ScalarAttributeDefinition<'inputType, 'modelType, 'valueType> =
     { Key: string
       Convert: 'inputType -> 'modelType
       ConvertValue: 'modelType -> 'valueType
       Compare: 'modelType -> 'modelType -> bool
-      UpdateNode: 'valueType voption -> 'targetType -> unit }
+      UpdateNode: 'valueType voption -> IViewNode -> unit }
 
     interface IScalarAttributeDefinition with
         member x.Key = x.Key
@@ -25,13 +24,13 @@ type ScalarAttributeDefinition<'inputType, 'modelType, 'valueType, 'targetType> 
         member x.CompareBoxed a b =
             x.Compare (unbox<'modelType> a) (unbox<'modelType> b)
 
-        member x.UpdateNode newValueOpt target =
+        member x.UpdateNode newValueOpt node =
             let newValueOpt =
                 match newValueOpt with
                 | ValueNone -> ValueNone
                 | ValueSome v -> ValueSome(x.ConvertValue(unbox v))
 
-            x.UpdateNode newValueOpt (unbox target)
+            x.UpdateNode newValueOpt node
 
 type IEventAttributeDefinition =
     abstract member Key: string
@@ -41,9 +40,9 @@ type IEventAttributeDefinition =
     
 and IViewNodeWithEvents =
     inherit IViewNode
-    abstract member MapMsg: (obj -> obj) voption with get, set
     abstract member TryGetHandler<'T> : IEventAttributeDefinition -> 'T voption
     abstract member SetHandler<'T> : IEventAttributeDefinition * 'T voption -> unit
+    abstract member Dispatch: obj -> unit
 
 type EventAttributeDefinition<'inputType, 'eventHandler, 'args, 'targetType when 'eventHandler :> Delegate and 'eventHandler : delegate<'args, unit>> =
     { Key: string
@@ -51,27 +50,6 @@ type EventAttributeDefinition<'inputType, 'eventHandler, 'args, 'targetType when
       ConvertValue: ('args -> unit) -> 'eventHandler
       Compare: 'inputType -> 'inputType -> bool
       GetEvent: 'targetType -> IEvent<'eventHandler, 'args> }
-    
-    member x.DispatchMsg (node: IViewNodeWithEvents) =
-        fun msg ->
-            let mutable parentOpt = node.Parent
-            let mutable mapMsg =
-                match node.MapMsg with
-                | ValueNone -> id
-                | ValueSome fn -> fn
-
-            while parentOpt.IsSome do
-                let parent = parentOpt.Value :?> IViewNodeWithEvents
-                parentOpt <- parent.Parent
-
-                mapMsg <-
-                    match parent.MapMsg with
-                    | ValueNone -> mapMsg
-                    | ValueSome fn -> mapMsg >> fn
-
-            let newMsg = mapMsg msg
-            //node.TreeContext.Dispatch(newMsg)
-            ()
 
     interface IEventAttributeDefinition with
         member x.Key = x.Key
@@ -92,7 +70,7 @@ type EventAttributeDefinition<'inputType, 'eventHandler, 'args, 'targetType when
                 node.SetHandler(x, ValueNone)
             | ValueSome v ->
                 let msgFn = x.Convert(unbox v)
-                let dispatchFn = msgFn >> x.DispatchMsg node
+                let dispatchFn = msgFn >> node.Dispatch
                 let handler = x.ConvertValue(dispatchFn)
                 let event = x.GetEvent(unbox node.Target)
                 node.SetHandler(x, ValueSome handler)
@@ -117,8 +95,8 @@ type [<ReferenceEquality>] WidgetAttributeDefinition =
 and [<ReferenceEquality>] WidgetCollectionAttributeDefinition =
     { Key: string
       GetItemNode: IViewNode -> int -> IViewNode
-      Insert: IViewNode -> int -> obj -> unit
-      Replace: IViewNode -> int -> obj -> unit
+      Insert: IViewNode -> int -> Widget -> unit
+      Replace: IViewNode -> int -> Widget -> unit
       Remove: IViewNode -> int -> unit
       UpdateNode: ArraySlice<Widget> voption -> IViewNode -> unit }
 
@@ -156,13 +134,17 @@ and IViewNodeWithContext =
         
 [<AutoOpen>]
 module WithValue =
-    type ScalarAttributeDefinition<'inputType, 'modelType, 'valueType, 'targetType> with
+    type ScalarAttributeDefinition<'inputType, 'modelType, 'valueType> with
         member inline x.WithValue(value) : ScalarAttribute =
             { Definition = x
               Value = x.Convert(value) }
             
     type EventAttributeDefinition<'inputType, 'eventHandler, 'args, 'targetType when 'eventHandler :> Delegate and 'eventHandler : delegate<'args, unit>> with
-        member inline x.WithValue(value) : EventAttribute =
+        member inline x.WithValue(value: obj) : EventAttribute =
+            { Definition = x
+              Value = value }
+            
+        member inline x.WithValue(value: 'args -> obj) : EventAttribute =
             { Definition = x
               Value = value }
             

@@ -1,6 +1,7 @@
 namespace Fabulous.XamarinForms
 
 open Fabulous
+open Fabulous.StackList
 open Xamarin.Forms
 
 type IEditor =
@@ -18,6 +19,10 @@ module EditorBuilders =
         static member inline Editor<'msg>(text: string, onTextChanged: string -> 'msg) =
             WidgetBuilder<'msg, IEditor>(
                 Editor.WidgetKey,
-                Editor.Text.WithValue(text),
-                InputView.TextChanged.WithValue(fun args -> onTextChanged args.NewTextValue |> box)
+                AttributesBundle(
+                    StackList.one (Editor.Text.WithValue(text)),
+                    ValueSome [| InputView.TextChanged.WithValue(fun args -> onTextChanged args.NewTextValue |> box) |],
+                    ValueNone,
+                    ValueNone
+                )
             )

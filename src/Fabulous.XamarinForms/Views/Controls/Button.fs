@@ -2,6 +2,7 @@ namespace Fabulous.XamarinForms
 
 open System.Runtime.CompilerServices
 open Fabulous
+open Fabulous.StackList
 open Xamarin.Forms
 
 type IButton =
@@ -14,7 +15,7 @@ module Button =
         Attributes.defineBindable<string> Button.TextProperty
 
     let Clicked =
-        Attributes.defineEventNoArg "Button_Clicked" (fun target -> (target :?> Button).Clicked)
+        Attributes.defineEventNoArg<Button> "Button_Clicked" (fun target -> target.Clicked)
 
     let TextColor =
         Attributes.defineAppThemeBindable<Color> Button.TextColorProperty
@@ -28,8 +29,12 @@ module ButtonBuilders =
         static member inline Button<'msg>(text: string, onClicked: 'msg) =
             WidgetBuilder<'msg, IButton>(
                 Button.WidgetKey,
-                Button.Text.WithValue(text),
-                Button.Clicked.WithValue(onClicked)
+                AttributesBundle(
+                    StackList.one (Button.Text.WithValue(text)),
+                    ValueSome [| Button.Clicked.WithValue(onClicked) |],
+                    ValueNone,
+                    ValueNone
+                )
             )
 
 [<Extension>]

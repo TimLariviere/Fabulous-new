@@ -26,7 +26,7 @@ module ListView =
         Attributes.defineBindable<ListViewSelectionMode> ListView.SelectionModeProperty
 
     let ItemTapped =
-        Attributes.defineEvent "ListView_ItemTapped" (fun target -> (target :?> ListView).ItemTapped)
+        Attributes.defineEventWithArgs<ListView, ItemTappedEventArgs> "ListView_ItemTapped" (fun target -> target.ItemTapped)
 
 [<AutoOpen>]
 module ListViewBuilders =
@@ -57,4 +57,4 @@ type ListViewModifiers =
 
     [<Extension>]
     static member inline itemTapped(this: WidgetBuilder<'msg, #IListView>, fn: int -> 'msg) =
-        this.AddScalar(ListView.ItemTapped.WithValue(fun args -> fn args.ItemIndex |> box))
+        this.AddEvent(ListView.ItemTapped.WithValue(fun args -> fn args.ItemIndex |> box))

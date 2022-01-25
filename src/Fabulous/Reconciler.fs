@@ -9,8 +9,8 @@ type IViewNodeWithDiff =
 module Reconciler =
     let update
         (canReuseView: Widget -> Widget -> bool)
-        (prevOpt: Widget voption)
-        (next: Widget)
+        (prevOpt: WidgetData voption)
+        (next: WidgetData)
         (node: IViewNodeWithDiff)
         : unit =
 

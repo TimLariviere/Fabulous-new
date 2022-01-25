@@ -2,7 +2,6 @@
 
 open System
 open System.Collections.Generic
-open System.Runtime.CompilerServices
 open Fabulous
 open Fabulous.StackList
 open Microsoft.FSharp.Core
@@ -13,35 +12,25 @@ type View =
     end
 
 module Widgets =
-    let registerWithAdditionalSetup<'T when 'T :> Xamarin.Forms.BindableObject and 'T: (new: unit -> 'T)>
-        (additionalSetup: 'T -> IViewNode -> unit)
+    let inline registerWithAdditionalSetup<'T when 'T :> Xamarin.Forms.BindableObject and 'T: (new: unit -> 'T)>
+        ([<InlineIfLambda>] additionalSetup: 'T -> IViewNode -> unit)
         =
-        let key = WidgetDefinitionStore.getNextKey ()
+        { Key = typeof<'T>.Name
+          TargetType = typeof<'T>
+          CreateView =
+              fun widgetData treeContext parentNode ->                  
+                  let view = new 'T()
+                  let weakReference = WeakReference(view)
 
-        let definition =
-            { Key = key
-              Name = typeof<'T>.Name
-              TargetType = typeof<'T>
-              CreateView =
-                  fun (widget, treeContext, parentNode) ->
-                      let name = typeof<'T>.Name
-                      printfn $"Creating view for {name}"
+                  let node =
+                      ViewNode(parentNode, treeContext, weakReference)
 
-                      let view = new 'T()
-                      let weakReference = WeakReference(view)
+                  ViewNode.set node view
 
-                      let node =
-                          ViewNode(parentNode, treeContext, weakReference)
+                  additionalSetup view node
 
-                      ViewNode.set node view
-
-                      additionalSetup view node
-
-                      Reconciler.update treeContext.CanReuseView ValueNone widget node
-                      struct (node :> IViewNode, box view) }
-
-        WidgetDefinitionStore.set key definition
-        key
+                  Reconciler.update treeContext.CanReuseView ValueNone widgetData node
+                  struct (node :> IViewNode, box view) }
 
     let register<'T when 'T :> Xamarin.Forms.BindableObject and 'T: (new: unit -> 'T)> () =
         registerWithAdditionalSetup<'T> (fun _ _ -> ())
@@ -52,8 +41,8 @@ module WidgetHelpers =
         |> Seq.map (fun item -> item.Compile())
         |> Seq.toArray
 
-    let inline buildWidgets<'msg, 'marker> (key: WidgetKey) (attrs: WidgetAttribute []) =
-        WidgetBuilder<'msg, 'marker>(key, struct (StackList.empty (), ValueSome attrs, ValueNone))
+    let inline buildWidget<'msg, 'marker> (definition: WidgetDefinition) (attrs: WidgetAttribute []) =
+        WidgetBuilder<'msg, 'marker>(definition, struct (StackList.empty (), ValueNone, ValueSome attrs, ValueNone))
 
     let inline buildAttributeCollection<'msg, 'marker, 'item>
         (collectionAttributeDefinition: WidgetCollectionAttributeDefinition)
@@ -62,7 +51,7 @@ module WidgetHelpers =
         AttributeCollectionBuilder<'msg, 'marker, 'item>(widget, collectionAttributeDefinition)
 
     let buildItems<'msg, 'marker, 'itemData, 'itemMarker>
-        key
+        definition
         (attrDef: ScalarAttributeDefinition<WidgetItems<'itemData>, WidgetItems<'itemData>, IEnumerable<Widget>>)
         (items: seq<'itemData>)
         (itemTemplate: 'itemData -> WidgetBuilder<'msg, 'itemMarker>)
@@ -75,7 +64,7 @@ module WidgetHelpers =
             { OriginalItems = items
               Template = template }
 
-        WidgetBuilder<'msg, 'marker>(key, attrDef.WithValue(data))
+        WidgetBuilder<'msg, 'marker>(definition, attrDef.WithValue(data))
 
     let buildGroupItems<'msg, 'marker, 'groupData, 'itemData, 'groupMarker, 'itemMarker when 'groupData :> seq<'itemData>>
         key

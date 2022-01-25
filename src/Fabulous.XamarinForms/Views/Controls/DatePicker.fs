@@ -2,6 +2,7 @@ namespace Fabulous.XamarinForms
 
 open System.Runtime.CompilerServices
 open Fabulous
+open Fabulous.StackList
 open Xamarin.Forms
 
 type IDatePicker =
@@ -41,9 +42,9 @@ module DatePicker =
         Attributes.defineBindable<Xamarin.Forms.TextTransform> DatePicker.TextTransformProperty
 
     let DateSelected =
-        Attributes.defineEvent<DateChangedEventArgs>
+        Attributes.defineEventWithArgs<DatePicker, DateChangedEventArgs>
             "DatePicker_DateSelected"
-            (fun target -> (target :?> DatePicker).DateSelected)
+            (fun target -> target.DateSelected)
 
 [<AutoOpen>]
 module DatePickerBuilders =
@@ -51,8 +52,12 @@ module DatePickerBuilders =
         static member inline DatePicker<'msg>(date: System.DateTime, onDateSelected: System.DateTime -> 'msg) =
             WidgetBuilder<'msg, IDatePicker>(
                 DatePicker.WidgetKey,
-                DatePicker.Date.WithValue(date),
-                DatePicker.DateSelected.WithValue(fun args -> onDateSelected args.NewDate |> box)
+                AttributesBundle(
+                    StackList.one (DatePicker.Date.WithValue(date)),
+                    ValueSome [| DatePicker.DateSelected.WithValue(fun args -> onDateSelected args.NewDate |> box) |],
+                    ValueNone,
+                    ValueNone
+                )
             )
 
 [<Extension>]

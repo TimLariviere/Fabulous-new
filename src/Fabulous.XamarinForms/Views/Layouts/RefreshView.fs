@@ -14,7 +14,7 @@ module RefreshView =
         Attributes.defineBindable<bool> RefreshView.IsRefreshingProperty
 
     let Refreshing =
-        Attributes.defineEventNoArg "RefreshView_Refreshing" (fun target -> (target :?> RefreshView).Refreshing)
+        Attributes.defineEventNoArg<RefreshView> "RefreshView_Refreshing" (fun target -> target.Refreshing)
 
 [<AutoOpen>]
 module RefreshViewBuilders =
@@ -28,10 +28,8 @@ module RefreshViewBuilders =
             WidgetBuilder<'msg, IRefreshView>(
                 RefreshView.WidgetKey,
                 AttributesBundle(
-                    StackList.two (
-                        RefreshView.IsRefreshing.WithValue(isRefreshing),
-                        RefreshView.Refreshing.WithValue(onRefreshing)
-                    ),
+                    StackList.one (RefreshView.IsRefreshing.WithValue(isRefreshing)),
+                    ValueSome [| RefreshView.Refreshing.WithValue(onRefreshing) |],
                     ValueSome [| ContentView.Content.WithValue(content.Compile()) |],
                     ValueNone
                 )

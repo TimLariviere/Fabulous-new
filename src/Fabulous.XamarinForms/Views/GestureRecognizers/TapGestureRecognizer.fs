@@ -1,6 +1,7 @@
 namespace Fabulous.XamarinForms
 
 open Fabulous
+open Fabulous.StackList
 open Xamarin.Forms
 
 type ITapGestureRecognizer =
@@ -11,9 +12,9 @@ module TapGestureRecognizer =
         Widgets.register<TapGestureRecognizer> ()
 
     let Tapped =
-        Attributes.defineEventNoArg
+        Attributes.defineEventNoArg<TapGestureRecognizer>
             "TapGestureRecognizer_Tapped"
-            (fun target -> (target :?> TapGestureRecognizer).Tapped)
+            (fun target -> target.Tapped)
 
 [<AutoOpen>]
 module TapGestureRecognizerBuilders =
@@ -21,5 +22,5 @@ module TapGestureRecognizerBuilders =
         static member inline TapGestureRecognizer<'msg>(onTapped: 'msg) =
             WidgetBuilder<'msg, ITapGestureRecognizer>(
                 TapGestureRecognizer.WidgetKey,
-                TapGestureRecognizer.Tapped.WithValue(onTapped)
+                AttributesBundle(StackList.empty (), ValueSome [| TapGestureRecognizer.Tapped.WithValue(onTapped) |], ValueNone, ValueNone)
             )

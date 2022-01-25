@@ -18,7 +18,7 @@ module Layout =
         Attributes.defineBindable<bool> Layout.IsClippedToBoundsProperty
 
     let LayoutChanged =
-        Attributes.defineEventNoArg "Layout_LayoutChanged" (fun target -> (target :?> Layout).LayoutChanged)
+        Attributes.defineEventNoArg<Layout> "Layout_LayoutChanged" (fun target -> target.LayoutChanged)
 
 [<Extension>]
 type LayoutModifiers =
@@ -51,4 +51,4 @@ type LayoutModifiers =
 
     [<Extension>]
     static member inline onLayoutChanged(this: WidgetBuilder<'msg, #ILayout>, value: 'msg) =
-        this.AddScalar(Layout.LayoutChanged.WithValue(value))
+        this.AddEvent(Layout.LayoutChanged.WithValue(value))

@@ -144,7 +144,7 @@ module ViewAdapters =
 
                 let node = getViewNode _root :?> IViewNodeWithDiff
 
-                Reconciler.update canReuseView (ValueSome prevWidget) currentWidget node
+                Reconciler.update canReuseView (ValueSome prevWidget.Data) currentWidget.Data node
                 _allowDispatch <- true
 
         member _.Dispose() = _stateSubscription.Dispose()

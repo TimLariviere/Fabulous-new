@@ -16,6 +16,6 @@ module ContentView =
 module ContentViewBuilders =
     type Fabulous.XamarinForms.View with
         static member inline ContentView<'msg, 'marker when 'marker :> IView>(content: WidgetBuilder<'msg, 'marker>) =
-            WidgetHelpers.buildWidgets<'msg, IContentView>
+            WidgetHelpers.buildWidget<'msg, IContentView>
                 ContentView.WidgetKey
                 [| ContentView.Content.WithValue(content.Compile()) |]

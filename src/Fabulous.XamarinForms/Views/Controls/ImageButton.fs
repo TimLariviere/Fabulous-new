@@ -1,6 +1,7 @@
 namespace Fabulous.XamarinForms
 
 open Fabulous
+open Fabulous.StackList
 open Xamarin.Forms
 
 type IImageButton =
@@ -16,17 +17,20 @@ module ImageButton =
         Attributes.defineBindable<Xamarin.Forms.Aspect> ImageButton.AspectProperty
 
     let Clicked =
-        Attributes.defineEventNoArg "ImageButton_Clicked" (fun target -> (target :?> ImageButton).Clicked)
+        Attributes.defineEventNoArg<ImageButton> "ImageButton_Clicked" (fun target -> target.Clicked)
 
 [<AutoOpen>]
 module ImageButtonBuilders =
     type Fabulous.XamarinForms.View with
-        static member inline ImageButton<'msg>(source: ImageSource, onClicked: 'msg, aspect: Xamarin.Forms.Aspect) =
+        static member inline ImageButton<'msg>(source: ImageSource, onClicked: 'msg, aspect: Aspect) =
             WidgetBuilder<'msg, IImageButton>(
                 ImageButton.WidgetKey,
-                ImageButton.Source.WithValue(source),
-                ImageButton.Clicked.WithValue(onClicked),
-                ImageButton.Aspect.WithValue(aspect)
+                AttributesBundle(
+                    StackList.two(ImageButton.Source.WithValue(source), ImageButton.Aspect.WithValue(aspect)),
+                    ValueSome [| ImageButton.Clicked.WithValue(onClicked) |],
+                    ValueNone,
+                    ValueNone
+                )
             )
 
         static member inline ImageButton<'msg>(path: string, onClicked, aspect) =

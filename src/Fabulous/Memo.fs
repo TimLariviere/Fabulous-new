@@ -48,12 +48,12 @@ module Memo =
 
             let prevWidget =
                 match lazyNode.MemoizedWidget with
-                | Some widget -> ValueSome(widget)
+                | Some widget -> ValueSome(widget.Data)
                 | _ -> ValueNone
 
             lazyNode.MemoizedWidget <- Some memoizedWidget
 
-            Reconciler.update (node :?> IViewNodeWithContext).TreeContext.CanReuseView prevWidget memoizedWidget (node :?> IViewNodeWithDiff)
+            Reconciler.update (node :?> IViewNodeWithContext).TreeContext.CanReuseView prevWidget memoizedWidget.Data (node :?> IViewNodeWithDiff)
 
         | ValueNone -> ()
 

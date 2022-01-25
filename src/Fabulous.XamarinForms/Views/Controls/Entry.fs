@@ -2,6 +2,7 @@ namespace Fabulous.XamarinForms
 
 open System.Runtime.CompilerServices
 open Fabulous
+open Fabulous.StackList
 open Xamarin.Forms
 
 type IEntry =
@@ -25,8 +26,12 @@ module EntryBuilders =
         static member inline Entry<'msg>(text: string, onTextChanged: string -> 'msg) =
             WidgetBuilder<'msg, IEntry>(
                 Entry.WidgetKey,
-                Entry.Text.WithValue(text),
-                InputView.TextChanged.WithValue(fun args -> onTextChanged args.NewTextValue |> box)
+                AttributesBundle(
+                    StackList.one (Entry.Text.WithValue(text)),
+                    ValueSome [| InputView.TextChanged.WithValue(fun args -> onTextChanged args.NewTextValue |> box) |],
+                    ValueNone,
+                    ValueNone
+                )
             )
 
 [<Extension>]

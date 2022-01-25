@@ -7,7 +7,7 @@ open Microsoft.FSharp.Core
 
 
 type AttributesBundle =
-    (struct (StackList<ScalarAttribute> * WidgetAttribute [] voption * WidgetCollectionAttribute [] voption))
+    (struct (StackList<ScalarAttribute> * EventAttribute [] voption * WidgetAttribute [] voption * WidgetCollectionAttribute [] voption))
 
 [<Struct; NoComparison; NoEquality>]
 type WidgetBuilder<'msg, 'marker> =
@@ -21,19 +21,19 @@ type WidgetBuilder<'msg, 'marker> =
 
         new(definition: WidgetDefinition, scalar: ScalarAttribute) =
             { Definition = definition
-              Attributes = AttributesBundle(StackList.one scalar, ValueNone, ValueNone) }
+              Attributes = AttributesBundle(StackList.one scalar, ValueNone, ValueNone, ValueNone) }
 
         new(definition: WidgetDefinition, scalarA: ScalarAttribute, scalarB: ScalarAttribute) =
             { Definition = definition
-              Attributes = AttributesBundle(StackList.two (scalarA, scalarB), ValueNone, ValueNone) }
+              Attributes = AttributesBundle(StackList.two (scalarA, scalarB), ValueNone, ValueNone, ValueNone) }
 
         new(definition: WidgetDefinition, scalar1: ScalarAttribute, scalar2: ScalarAttribute, scalar3: ScalarAttribute) =
             { Definition = definition
-              Attributes = AttributesBundle(StackList.three (scalar1, scalar2, scalar3), ValueNone, ValueNone) }
+              Attributes = AttributesBundle(StackList.three (scalar1, scalar2, scalar3), ValueNone, ValueNone, ValueNone) }
 
         [<EditorBrowsable(EditorBrowsableState.Never)>]
         member x.Compile() : Widget =
-            let struct (scalarAttributes, widgetAttributes, widgetCollectionAttributes) = x.Attributes
+            let struct (scalarAttributes, eventAttributes, widgetAttributes, widgetCollectionAttributes) = x.Attributes
 
             { Definition = x.Definition
               Data =
@@ -42,7 +42,7 @@ type WidgetBuilder<'msg, 'marker> =
                       | 0us -> ValueNone
                       | _ -> ValueSome(Array.sortInPlace (fun a -> a.Definition.Key) (StackList.toArray &scalarAttributes))
                       
-                    EventAttributes = ValueNone
+                    EventAttributes = ValueOption.map (Array.sortInPlace (fun a -> a.Definition.Key)) eventAttributes
                       
                     WidgetAttributes = ValueOption.map (Array.sortInPlace (fun a -> a.Definition.Key)) widgetAttributes
                     
@@ -52,16 +52,35 @@ type WidgetBuilder<'msg, 'marker> =
 
         [<EditorBrowsable(EditorBrowsableState.Never)>]
         member inline x.AddScalar(attr: ScalarAttribute) =
-            let struct (scalarAttributes, widgetAttributes, widgetCollectionAttributes) = x.Attributes
+            let struct (scalarAttributes, eventAttributes, widgetAttributes, widgetCollectionAttributes) = x.Attributes
 
             WidgetBuilder<'msg, 'marker>(
                 x.Definition,
-                struct (StackList.add (&scalarAttributes, attr), widgetAttributes, widgetCollectionAttributes)
+                struct (StackList.add (&scalarAttributes, attr), eventAttributes, widgetAttributes, widgetCollectionAttributes)
+            )
+            
+        [<EditorBrowsable(EditorBrowsableState.Never)>]
+        member inline x.AddEvent(attr: EventAttribute) =
+            let struct (scalarAttributes, eventAttributes, widgetAttributes, widgetCollectionAttributes) = x.Attributes
+            let attribs = eventAttributes
+
+            let res =
+                match attribs with
+                | ValueNone -> [| attr |]
+                | ValueSome attribs ->
+                    let attribs2 = Array.zeroCreate (attribs.Length + 1)
+                    Array.blit attribs 0 attribs2 0 attribs.Length
+                    attribs2.[attribs.Length] <- attr
+                    attribs2
+
+            WidgetBuilder<'msg, 'marker>(
+                x.Definition,
+                struct (scalarAttributes, ValueSome res, widgetAttributes, widgetCollectionAttributes)
             )
 
         [<EditorBrowsable(EditorBrowsableState.Never)>]
         member x.AddWidget(attr: WidgetAttribute) =
-            let struct (scalarAttributes, widgetAttributes, widgetCollectionAttributes) = x.Attributes
+            let struct (scalarAttributes, eventAttributes, widgetAttributes, widgetCollectionAttributes) = x.Attributes
             let attribs = widgetAttributes
 
             let res =
@@ -73,11 +92,11 @@ type WidgetBuilder<'msg, 'marker> =
                     attribs2.[attribs.Length] <- attr
                     attribs2
 
-            WidgetBuilder<'msg, 'marker>(x.Definition, struct (scalarAttributes, ValueSome res, widgetCollectionAttributes))
+            WidgetBuilder<'msg, 'marker>(x.Definition, struct (scalarAttributes, eventAttributes, ValueSome res, widgetCollectionAttributes))
 
         [<EditorBrowsable(EditorBrowsableState.Never)>]
         member x.AddWidgetCollection(attr: WidgetCollectionAttribute) =
-            let struct (scalarAttributes, widgetAttributes, widgetCollectionAttributes) = x.Attributes
+            let struct (scalarAttributes, eventAttributes, widgetAttributes, widgetCollectionAttributes) = x.Attributes
             let attribs = widgetCollectionAttributes
 
             let res =
@@ -89,7 +108,7 @@ type WidgetBuilder<'msg, 'marker> =
                     attribs2.[attribs.Length] <- attr
                     attribs2
 
-            WidgetBuilder<'msg, 'marker>(x.Definition, struct (scalarAttributes, widgetAttributes, ValueSome res))
+            WidgetBuilder<'msg, 'marker>(x.Definition, struct (scalarAttributes, eventAttributes, widgetAttributes, ValueSome res))
     end
 
 
@@ -135,7 +154,7 @@ type CollectionBuilder<'msg, 'marker, 'itemMarker> =
 
             WidgetBuilder<'msg, 'marker>(
                 x.Definition,
-                AttributesBundle(x.Scalars, ValueNone, ValueSome [| x.Attr.WithValue(attrValue) |])
+                AttributesBundle(x.Scalars, ValueNone, ValueNone, ValueSome [| x.Attr.WithValue(attrValue) |])
             )
 
         member inline _.Combine(a: Content<'msg>, b: Content<'msg>) : Content<'msg> =

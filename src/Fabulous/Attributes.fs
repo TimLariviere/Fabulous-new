@@ -52,8 +52,8 @@ module Attributes =
     let inline defineCustomWidgetCollection
         key
         (getItemNode: IViewNode -> int -> IViewNode)
-        (insert: IViewNode -> int -> obj -> unit)
-        (replace: IViewNode -> int -> obj -> unit)
+        (insert: IViewNode -> int -> Widget -> unit)
+        (replace: IViewNode -> int -> Widget -> unit)
         (remove: IViewNode -> int -> unit)
         (updateNode: ArraySlice<Widget> voption -> IViewNode -> unit)
         =
@@ -73,7 +73,9 @@ module Attributes =
             (fun parentNode -> set (unbox parentNode.Target) null)
 
     /// Define an attribute storing a collection of Widget
-    let defineWidgetCollection<'itemType> key (getCollection: obj -> System.Collections.Generic.IList<'itemType>) =
+    let defineWidgetCollection<'targetType, 'itemType> key (getCollection: 'targetType -> System.Collections.Generic.IList<'itemType>) =
+        let getCollection = unbox >> getCollection
+        
         let updateNode (newValueOpt: ArraySlice<Widget> voption) (node: IViewNode) =
             let targetColl = getCollection node.Target
             targetColl.Clear()
@@ -93,21 +95,21 @@ module Attributes =
             (fun node index -> (getCollection node.Target).RemoveAt(index))
             updateNode
 
-    let inline defineScalar<'T when 'T: equality> name updateTarget =
-        defineCustomScalar<'T, 'T, 'T> name id id (=) updateTarget
+    let inline defineScalar<'targetType, 'T when 'T: equality> name updateTarget =
+        defineCustomScalar<'T, 'T, 'T> name id id (=) (fun newValueOpt node -> updateTarget newValueOpt (unbox<'targetType> node.Target))
 
-    let inline defineEventNoArg key (getEvent: obj -> IEvent<EventHandler, EventArgs>) =
-        defineCustomEvent
+    let inline defineEventNoArg<'targetType> key (getEvent: 'targetType -> IEvent<EventHandler, EventArgs>) =
+        defineCustomEvent<obj, EventArgs, EventHandler, 'targetType>
             key
-            (fun msg -> fun _ -> box msg)
+            (fun msg -> fun _ -> msg)
             (fun fn -> EventHandler(fun _ -> fn))
             (=)
             getEvent
 
-    let inline defineEventWithArgs<'args> key (getEvent: obj -> IEvent<EventHandler<'args>, 'args>) =
-        defineCustomEvent
+    let inline defineEventWithArgs<'targetType, 'args> key (getEvent: 'targetType -> IEvent<EventHandler<'args>, 'args>) =
+        defineCustomEvent<'args -> obj, 'args, EventHandler<'args>, 'targetType>
             key
-            (fun msg -> fun _ -> box msg)
+            id
             (fun fn -> EventHandler<'args>(fun _ -> fn))
-            (=)
+            (fun _ _ -> false)
             getEvent

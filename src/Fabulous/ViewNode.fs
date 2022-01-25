@@ -8,6 +8,7 @@ open Fabulous
 type ViewNode(parentNode: IViewNode voption, treeContext: ViewTreeContext, targetRef: System.WeakReference) =
 
     let _handlers = Dictionary<IEventAttributeDefinition, obj>()
+    let mutable _mapMsg: (obj -> obj) voption = ValueNone
 
     member inline private this.ApplyScalarDiffs(diffs: ScalarChanges inref) =
         for diff in diffs do
@@ -20,6 +21,19 @@ type ViewNode(parentNode: IViewNode voption, treeContext: ViewTreeContext, targe
 
             | ScalarChange.Updated newAttr ->
                 newAttr.Definition.UpdateNode (ValueSome newAttr.Value) this
+
+    member inline private this.ApplyEventDiffs(diffs: EventChanges inref) =
+        for diff in diffs do
+            match diff with
+            | EventChange.Added added ->
+                added.Definition.AddHandler (ValueSome added.Value) this
+
+            | EventChange.Removed removed ->
+                removed.Definition.RemoveHandler this
+
+            | EventChange.Updated newAttr ->
+                newAttr.Definition.RemoveHandler this
+                newAttr.Definition.AddHandler (ValueSome newAttr.Value) this
 
     member inline private this.ApplyWidgetDiffs(diffs: WidgetChanges inref) =
         for diff in diffs do
@@ -79,12 +93,11 @@ type ViewNode(parentNode: IViewNode voption, treeContext: ViewTreeContext, targe
                 ()
             else
                 x.ApplyScalarDiffs(&diff.ScalarChanges)
+                x.ApplyEventDiffs(&diff.EventChanges)
                 x.ApplyWidgetDiffs(&diff.WidgetChanges)
                 x.ApplyWidgetCollectionDiffs(&diff.WidgetCollectionChanges)
 
-    interface IViewNodeWithEvents with
-        member val MapMsg: (obj -> obj) voption = ValueNone with get, set
-        
+    interface IViewNodeWithEvents with        
         member _.TryGetHandler<'T>(definition: IEventAttributeDefinition) =
             match _handlers.TryGetValue(definition) with
             | false, _ -> ValueNone
@@ -95,6 +108,31 @@ type ViewNode(parentNode: IViewNode voption, treeContext: ViewTreeContext, targe
             | ValueNone -> _handlers.Remove(definition) |> ignore
             | ValueSome handler -> _handlers.[definition] <- handler
             
+        member _.Dispatch(msg: obj) =
+            let mutable parentOpt = parentNode
+            
+            let mutable mapMsg =
+                match _mapMsg with
+                | ValueNone -> id
+                | ValueSome fn -> fn
+
+            while parentOpt.IsSome do
+                let parent = parentOpt.Value :?> IMappedViewNode
+                parentOpt <- parent.Parent
+
+                mapMsg <-
+                    match parent.MapMsg with
+                    | ValueNone -> mapMsg
+                    | ValueSome fn -> mapMsg >> fn
+
+            let newMsg = mapMsg msg
+            treeContext.Dispatch(newMsg)
+            
+    interface IMappedViewNode with
+        member _.MapMsg
+            with get () = _mapMsg
+            and set value = _mapMsg <- value
+        
     interface ILazyViewNode with
         member val MemoizedWidget: Widget option = None with get, set
         

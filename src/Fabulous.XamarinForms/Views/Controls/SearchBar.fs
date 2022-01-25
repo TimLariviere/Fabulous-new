@@ -2,6 +2,7 @@ namespace Fabulous.XamarinForms
 
 open System.Runtime.CompilerServices
 open Fabulous
+open Fabulous.StackList
 open Xamarin.Forms
 
 type ISearchBar =
@@ -17,9 +18,9 @@ module SearchBar =
         Attributes.defineBindable<Color> SearchBar.CancelButtonColorProperty
 
     let SearchButtonPressed =
-        Attributes.defineEventNoArg
+        Attributes.defineEventNoArg<SearchBar>
             "SearchBar_SearchButtonPressed"
-            (fun target -> (target :?> SearchBar).SearchButtonPressed)
+            (fun target -> target.SearchButtonPressed)
 
 [<AutoOpen>]
 module SearchBarBuilders =
@@ -27,9 +28,15 @@ module SearchBarBuilders =
         static member inline SearchBar<'msg>(text: string, onTextChanged: string -> 'msg, onSearchButtonPressed: 'msg) =
             WidgetBuilder<'msg, ISearchBar>(
                 SearchBar.WidgetKey,
-                SearchBar.Text.WithValue(text),
-                InputView.TextChanged.WithValue(fun args -> onTextChanged args.NewTextValue |> box),
-                SearchBar.SearchButtonPressed.WithValue(onSearchButtonPressed)
+                AttributesBundle(
+                    StackList.one (SearchBar.Text.WithValue(text)),
+                    ValueSome [|
+                        InputView.TextChanged.WithValue(fun args -> onTextChanged args.NewTextValue |> box)
+                        SearchBar.SearchButtonPressed.WithValue(onSearchButtonPressed)
+                    |],
+                    ValueNone,
+                    ValueNone
+                )
             )
 
 [<Extension>]

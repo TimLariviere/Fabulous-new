@@ -28,17 +28,17 @@ module BindableHelpers =
 
     /// On BindableContextChanged triggered, call the Reconciler to update the cell
     let createOnBindingContextChanged canReuseView (itemType: VirtualizedItemType) (target: BindableObject) =
-        let mutable prevWidgetOpt: Widget voption = ValueNone
+        let mutable prevWidgetOpt: WidgetData voption = ValueNone
 
         let onBindingContextChanged () =
             match target.BindingContext with
             | null -> ()
             | value ->
                 let currWidget =
-                    getWidgetFromBindableContext itemType value
+                    (getWidgetFromBindableContext itemType value).Data
 
                 let node = ViewNode.get target
-                Reconciler.update canReuseView prevWidgetOpt currWidget node
+                Reconciler.update canReuseView prevWidgetOpt currWidget (node :?> IViewNodeWithDiff)
                 prevWidgetOpt <- ValueSome currWidget
 
         onBindingContextChanged
@@ -51,12 +51,12 @@ type WidgetDataTemplate(``type``, itemType, parent: IViewNode) =
             Activator.CreateInstance ``type`` :?> BindableObject
 
         let viewNode =
-            ViewNode(ValueSome parent, parent.TreeContext, WeakReference(bindableObject))
+            ViewNode(ValueSome parent, (parent :?> IViewNodeWithContext).TreeContext, WeakReference(bindableObject))
 
         bindableObject.SetValue(ViewNode.ViewNodeProperty, viewNode)
 
         let onBindingContextChanged =
-            BindableHelpers.createOnBindingContextChanged parent.TreeContext.CanReuseView itemType bindableObject
+            BindableHelpers.createOnBindingContextChanged (parent :?> IViewNodeWithContext).TreeContext.CanReuseView itemType bindableObject
 
         bindableObject.BindingContextChanged.Add(fun _ -> onBindingContextChanged ())
 
@@ -73,8 +73,7 @@ type WidgetDataTemplateSelector internal (node: IViewNode, itemType: Virtualized
         let widget =
             BindableHelpers.getWidgetFromBindableContext itemType item
 
-        let widgetDefinition = WidgetDefinitionStore.get widget.Key
-        let targetType = widgetDefinition.TargetType
+        let targetType = widget.Definition.TargetType
 
         match cache.TryGetValue(targetType) with
         | true, dataTemplate -> dataTemplate :> DataTemplate
