@@ -59,6 +59,7 @@
     <Compile Include="CollectionBuilderExtensions.fs" />
     <Compile Include="Program.fs" />
     <None Include="PackageREADME.md" Pack="true" PackagePath="\" />
+    <Compile Include="LinkerSafe.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Fabulous\Fabulous.fsproj" />

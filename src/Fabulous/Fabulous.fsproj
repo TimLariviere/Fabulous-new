@@ -21,6 +21,7 @@
         <Compile Include="MapMsg.fs" />
         <Compile Include="View.fs" />
         <Compile Include="ViewNode.fs" />
+        <Compile Include="LinkerSafe.fs" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Update="FSharp.Core" Version="6.0.1" />
