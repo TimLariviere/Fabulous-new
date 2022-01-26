@@ -18,9 +18,9 @@ module XFView =
         Attributes.defineBindable<Thickness> View.MarginProperty
 
     let GestureRecognizers =
-        Attributes.defineWidgetCollection<IGestureRecognizer>
+        Attributes.defineWidgetCollection<View, IGestureRecognizer>
             "View_GestureRecognizers"
-            (fun target -> (target :?> View).GestureRecognizers)
+            (fun target -> target.GestureRecognizers)
 
 [<Extension>]
 type ViewModifiers =

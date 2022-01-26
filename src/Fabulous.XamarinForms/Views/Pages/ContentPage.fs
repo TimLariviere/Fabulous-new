@@ -2,7 +2,7 @@ namespace Fabulous.XamarinForms
 
 open System.Runtime.CompilerServices
 open Fabulous
-open Fabulous.StackAllocatedCollections.StackList
+open Fabulous.StackList
 open Xamarin.Forms
 
 type IContentPage =
@@ -15,9 +15,9 @@ module ContentPage =
         Attributes.defineBindableWidget ContentPage.ContentProperty
 
     let SizeAllocated =
-        Attributes.defineEvent<SizeAllocatedEventArgs>
+        Attributes.defineEventWithArgs<FabulousContentPage, SizeAllocatedEventArgs>
             "ContentPage_SizeAllocated"
-            (fun target -> (target :?> FabulousContentPage).SizeAllocated)
+            (fun target -> target.SizeAllocated)
 
 [<AutoOpen>]
 module ContentPageBuilders =
@@ -31,6 +31,7 @@ module ContentPageBuilders =
                 ContentPage.WidgetKey,
                 AttributesBundle(
                     StackList.one (Page.Title.WithValue(title)),
+                    ValueNone,
                     ValueSome [| ContentPage.Content.WithValue(content.Compile()) |],
                     ValueNone
                 )
@@ -40,4 +41,4 @@ module ContentPageBuilders =
 type ContentPageModifiers =
     [<Extension>]
     static member inline onSizeAllocated(this: WidgetBuilder<'msg, #IContentPage>, fn: SizeAllocatedEventArgs -> 'msg) =
-        this.AddScalar(ContentPage.SizeAllocated.WithValue(fn >> box))
+        this.AddEvent(ContentPage.SizeAllocated.WithValue(fn >> box))

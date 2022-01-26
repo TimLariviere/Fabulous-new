@@ -24,18 +24,18 @@ module Page =
         Attributes.defineBindable<string> Page.TitleProperty
 
     let ToolbarItems =
-        Attributes.defineWidgetCollection<ToolbarItem>
+        Attributes.defineWidgetCollection<Page, ToolbarItem>
             "Page_ToolbarItems"
-            (fun target -> (target :?> Page).ToolbarItems)
+            (fun target -> target.ToolbarItems)
 
     let Appearing =
-        Attributes.defineEventNoArg "Page_Appearing" (fun target -> (target :?> Page).Appearing)
+        Attributes.defineEventNoArg<Page> "Page_Appearing" (fun target -> target.Appearing)
 
     let Disappearing =
-        Attributes.defineEventNoArg "Page_Disappearing" (fun target -> (target :?> Page).Disappearing)
+        Attributes.defineEventNoArg<Page> "Page_Disappearing" (fun target -> target.Disappearing)
 
     let LayoutChanged =
-        Attributes.defineEventNoArg "Page_LayoutChanged" (fun target -> (target :?> Page).LayoutChanged)
+        Attributes.defineEventNoArg<Page> "Page_LayoutChanged" (fun target -> target.LayoutChanged)
 
 [<Extension>]
 type PageModifiers =
@@ -49,15 +49,15 @@ type PageModifiers =
 
     [<Extension>]
     static member inline onAppearing(this: WidgetBuilder<'msg, #IPage>, value: 'msg) =
-        this.AddScalar(Page.Appearing.WithValue(value))
+        this.AddEvent(Page.Appearing.WithValue(value))
 
     [<Extension>]
     static member inline onDisappearing(this: WidgetBuilder<'msg, #IPage>, value: 'msg) =
-        this.AddScalar(Page.Disappearing.WithValue(value))
+        this.AddEvent(Page.Disappearing.WithValue(value))
 
     [<Extension>]
     static member inline onLayoutChanged(this: WidgetBuilder<'msg, #IPage>, value: 'msg) =
-        this.AddScalar(Page.LayoutChanged.WithValue(value))
+        this.AddEvent(Page.LayoutChanged.WithValue(value))
 
     [<Extension>]
     static member inline toolbarItems<'msg, 'marker when 'marker :> IPage>(this: WidgetBuilder<'msg, 'marker>) =

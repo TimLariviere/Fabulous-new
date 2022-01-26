@@ -2,66 +2,85 @@ namespace Fabulous
 
 open System.ComponentModel
 open Fabulous
-open Fabulous.StackAllocatedCollections
-open Fabulous.StackAllocatedCollections.StackList
+open Fabulous.StackList
 open Microsoft.FSharp.Core
 
 
 type AttributesBundle =
-    (struct (StackList<ScalarAttribute> * WidgetAttribute [] voption * WidgetCollectionAttribute [] voption))
+    (struct (StackList<ScalarAttribute> * EventAttribute [] voption * WidgetAttribute [] voption * WidgetCollectionAttribute [] voption))
 
 [<Struct; NoComparison; NoEquality>]
 type WidgetBuilder<'msg, 'marker> =
     struct
-        val Key: WidgetKey
+        val Definition: WidgetDefinition
         val Attributes: AttributesBundle
 
-        new(key: WidgetKey, attributes: AttributesBundle) = { Key = key; Attributes = attributes }
+        new(definition: WidgetDefinition, attributes: AttributesBundle) =
+            { Definition = definition
+              Attributes = attributes }
 
-        new(key: WidgetKey, scalar: ScalarAttribute) =
-            { Key = key
-              Attributes = AttributesBundle(StackList.one scalar, ValueNone, ValueNone) }
+        new(definition: WidgetDefinition, scalar: ScalarAttribute) =
+            { Definition = definition
+              Attributes = AttributesBundle(StackList.one scalar, ValueNone, ValueNone, ValueNone) }
 
-        new(key: WidgetKey, scalarA: ScalarAttribute, scalarB: ScalarAttribute) =
-            { Key = key
-              Attributes = AttributesBundle(StackList.two (scalarA, scalarB), ValueNone, ValueNone) }
+        new(definition: WidgetDefinition, scalarA: ScalarAttribute, scalarB: ScalarAttribute) =
+            { Definition = definition
+              Attributes = AttributesBundle(StackList.two (scalarA, scalarB), ValueNone, ValueNone, ValueNone) }
 
-        new(key: WidgetKey, scalar1: ScalarAttribute, scalar2: ScalarAttribute, scalar3: ScalarAttribute) =
-            { Key = key
-              Attributes = AttributesBundle(StackList.three (scalar1, scalar2, scalar3), ValueNone, ValueNone) }
+        new(definition: WidgetDefinition, scalar1: ScalarAttribute, scalar2: ScalarAttribute, scalar3: ScalarAttribute) =
+            { Definition = definition
+              Attributes = AttributesBundle(StackList.three (scalar1, scalar2, scalar3), ValueNone, ValueNone, ValueNone) }
 
         [<EditorBrowsable(EditorBrowsableState.Never)>]
         member x.Compile() : Widget =
-            let struct (scalarAttributes, widgetAttributes, widgetCollectionAttributes) = x.Attributes
+            let struct (scalarAttributes, eventAttributes, widgetAttributes, widgetCollectionAttributes) = x.Attributes
 
-            { Key = x.Key
-#if DEBUG
-              DebugName = $"{typeof<'marker>.Name}<{typeof<'msg>.Name}>"
-#endif
-              ScalarAttributes =
-                  match StackList.length &scalarAttributes with
-                  | 0us -> ValueNone
-                  | _ -> ValueSome(Array.sortInPlace (fun a -> a.Key) (StackList.toArray &scalarAttributes))
-
-              WidgetAttributes = ValueOption.map (Array.sortInPlace (fun a -> a.Key)) widgetAttributes
-
-
-              WidgetCollectionAttributes =
-                  widgetCollectionAttributes
-                  |> ValueOption.map (Array.sortInPlace (fun a -> a.Key)) }
+            { Definition = x.Definition
+              Data =
+                  { ScalarAttributes =
+                      match StackList.length &scalarAttributes with
+                      | 0us -> ValueNone
+                      | _ -> ValueSome(Array.sortInPlace (fun a -> a.Definition.Key) (StackList.toArray &scalarAttributes))
+                      
+                    EventAttributes = ValueOption.map (Array.sortInPlace (fun a -> a.Definition.Key)) eventAttributes
+                      
+                    WidgetAttributes = ValueOption.map (Array.sortInPlace (fun a -> a.Definition.Key)) widgetAttributes
+                    
+                    WidgetCollectionAttributes =
+                        widgetCollectionAttributes
+                        |> ValueOption.map (Array.sortInPlace (fun a -> a.Definition.Key)) } }
 
         [<EditorBrowsable(EditorBrowsableState.Never)>]
         member inline x.AddScalar(attr: ScalarAttribute) =
-            let struct (scalarAttributes, widgetAttributes, widgetCollectionAttributes) = x.Attributes
+            let struct (scalarAttributes, eventAttributes, widgetAttributes, widgetCollectionAttributes) = x.Attributes
 
             WidgetBuilder<'msg, 'marker>(
-                x.Key,
-                struct (StackList.add (&scalarAttributes, attr), widgetAttributes, widgetCollectionAttributes)
+                x.Definition,
+                struct (StackList.add (&scalarAttributes, attr), eventAttributes, widgetAttributes, widgetCollectionAttributes)
+            )
+            
+        [<EditorBrowsable(EditorBrowsableState.Never)>]
+        member inline x.AddEvent(attr: EventAttribute) =
+            let struct (scalarAttributes, eventAttributes, widgetAttributes, widgetCollectionAttributes) = x.Attributes
+            let attribs = eventAttributes
+
+            let res =
+                match attribs with
+                | ValueNone -> [| attr |]
+                | ValueSome attribs ->
+                    let attribs2 = Array.zeroCreate (attribs.Length + 1)
+                    Array.blit attribs 0 attribs2 0 attribs.Length
+                    attribs2.[attribs.Length] <- attr
+                    attribs2
+
+            WidgetBuilder<'msg, 'marker>(
+                x.Definition,
+                struct (scalarAttributes, ValueSome res, widgetAttributes, widgetCollectionAttributes)
             )
 
         [<EditorBrowsable(EditorBrowsableState.Never)>]
         member x.AddWidget(attr: WidgetAttribute) =
-            let struct (scalarAttributes, widgetAttributes, widgetCollectionAttributes) = x.Attributes
+            let struct (scalarAttributes, eventAttributes, widgetAttributes, widgetCollectionAttributes) = x.Attributes
             let attribs = widgetAttributes
 
             let res =
@@ -73,11 +92,11 @@ type WidgetBuilder<'msg, 'marker> =
                     attribs2.[attribs.Length] <- attr
                     attribs2
 
-            WidgetBuilder<'msg, 'marker>(x.Key, struct (scalarAttributes, ValueSome res, widgetCollectionAttributes))
+            WidgetBuilder<'msg, 'marker>(x.Definition, struct (scalarAttributes, eventAttributes, ValueSome res, widgetCollectionAttributes))
 
         [<EditorBrowsable(EditorBrowsableState.Never)>]
         member x.AddWidgetCollection(attr: WidgetCollectionAttribute) =
-            let struct (scalarAttributes, widgetAttributes, widgetCollectionAttributes) = x.Attributes
+            let struct (scalarAttributes, eventAttributes, widgetAttributes, widgetCollectionAttributes) = x.Attributes
             let attribs = widgetCollectionAttributes
 
             let res =
@@ -89,7 +108,7 @@ type WidgetBuilder<'msg, 'marker> =
                     attribs2.[attribs.Length] <- attr
                     attribs2
 
-            WidgetBuilder<'msg, 'marker>(x.Key, struct (scalarAttributes, widgetAttributes, ValueSome res))
+            WidgetBuilder<'msg, 'marker>(x.Definition, struct (scalarAttributes, eventAttributes, widgetAttributes, ValueSome res))
     end
 
 
@@ -100,30 +119,30 @@ type Content<'msg> = { Widgets: MutStackArray1.T<Widget> }
 [<Struct; NoComparison; NoEquality>]
 type CollectionBuilder<'msg, 'marker, 'itemMarker> =
     struct
-        val WidgetKey: WidgetKey
+        val Definition: WidgetDefinition
         val Scalars: StackList<ScalarAttribute>
         val Attr: WidgetCollectionAttributeDefinition
 
-        new(widgetKey: WidgetKey, scalars: StackList<ScalarAttribute>, attr: WidgetCollectionAttributeDefinition) =
-            { WidgetKey = widgetKey
+        new(definition: WidgetDefinition, scalars: StackList<ScalarAttribute>, attr: WidgetCollectionAttributeDefinition) =
+            { Definition = definition
               Scalars = scalars
               Attr = attr }
 
-        new(widgetKey: WidgetKey, attr: WidgetCollectionAttributeDefinition) =
-            { WidgetKey = widgetKey
+        new(definition: WidgetDefinition, attr: WidgetCollectionAttributeDefinition) =
+            { Definition = definition
               Scalars = StackList.empty ()
               Attr = attr }
 
-        new(widgetKey: WidgetKey, attr: WidgetCollectionAttributeDefinition, scalar: ScalarAttribute) =
-            { WidgetKey = widgetKey
+        new(definition: WidgetDefinition, attr: WidgetCollectionAttributeDefinition, scalar: ScalarAttribute) =
+            { Definition = definition
               Scalars = StackList.one scalar
               Attr = attr }
 
-        new(widgetKey: WidgetKey,
+        new(definition: WidgetDefinition,
             attr: WidgetCollectionAttributeDefinition,
             scalarA: ScalarAttribute,
             scalarB: ScalarAttribute) =
-            { WidgetKey = widgetKey
+            { Definition = definition
               Scalars = StackList.two (scalarA, scalarB)
               Attr = attr }
 
@@ -134,8 +153,8 @@ type CollectionBuilder<'msg, 'marker, 'itemMarker> =
                 | ValueSome slice -> slice
 
             WidgetBuilder<'msg, 'marker>(
-                x.WidgetKey,
-                AttributesBundle(x.Scalars, ValueNone, ValueSome [| x.Attr.WithValue(attrValue) |])
+                x.Definition,
+                AttributesBundle(x.Scalars, ValueNone, ValueNone, ValueSome [| x.Attr.WithValue(attrValue) |])
             )
 
         member inline _.Combine(a: Content<'msg>, b: Content<'msg>) : Content<'msg> =

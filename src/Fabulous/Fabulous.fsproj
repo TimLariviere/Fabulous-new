@@ -8,17 +8,11 @@
     </PropertyGroup>
     <ItemGroup>
         <None Include="PackageREADME.md" Pack="true" PackagePath="\" />
-        <Compile Include="ArraySlice.fs" />
-        <Compile Include="ArrayExtra.fs" />
         <Compile Include="StackAllocatedCollections.fs" />
         <Compile Include="Primitives.fs" />
         <Compile Include="WidgetDiff.fs" />
-        <Compile Include="IViewNode.fs" />
-        <Compile Include="AttributeDefinitions.fs" />
-        <Compile Include="WidgetDefinitions.fs" />
         <Compile Include="Builders.fs" />
         <Compile Include="Reconciler.fs" />
-        <Compile Include="ViewNode.fs" />
         <Compile Include="State.fs" />
         <Compile Include="Cmd.fs" />
         <Compile Include="Runners.fs" />
@@ -26,6 +20,8 @@
         <Compile Include="Memo.fs" />
         <Compile Include="MapMsg.fs" />
         <Compile Include="View.fs" />
+        <Compile Include="ViewNode.fs" />
+        <Compile Include="LinkerSafe.fs" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Update="FSharp.Core" Version="6.0.1" />

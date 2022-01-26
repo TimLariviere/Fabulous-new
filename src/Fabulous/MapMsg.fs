@@ -1,13 +1,19 @@
 namespace Fabulous
 
+type IMappedViewNode =
+    inherit IViewNode
+    abstract member MapMsg: (obj -> obj) voption with get, set
+
 module MapMsg =
     let MapMsg =
-        Attributes.defineScalarWithConverter<obj -> obj, _, _>
+        Attributes.defineCustomScalar<obj -> obj, _, _, obj>
             "Fabulous_MapMsg"
+            null
             id
             id
-            ScalarAttributeComparers.noCompare
-            (fun value node ->
+            (fun _ _ -> false)
+            (fun value node _ ->
+                let mappedNode = node :?> IMappedViewNode
                 match value with
-                | ValueNone -> node.MapMsg <- ValueNone
-                | ValueSome fn -> node.MapMsg <- ValueSome fn)
+                | ValueNone -> mappedNode.MapMsg <- ValueNone
+                | ValueSome fn -> mappedNode.MapMsg <- ValueSome fn)

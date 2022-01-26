@@ -1,8 +1,71 @@
-module Fabulous.StackAllocatedCollections
+namespace Fabulous
 
 open System
 open System.Collections.Generic
 open System.Runtime.CompilerServices
+open FSharp.NativeInterop
+
+type ArraySlice<'v> = (struct (uint16 * 'v array))
+
+module ArraySlice =
+    let inline toSpan (a: ArraySlice<'v>) =
+        let struct (size, arr) = a
+
+        match size with
+        | 0us -> Span.Empty
+        | size -> Span(arr, 0, int size)
+
+    let inline emptyWithNull () : ArraySlice<'v> = (0us, null) // note null in here
+
+    let inline fromArrayOpt (arr: 'v [] option) : ArraySlice<'v> voption =
+        match arr with
+        | None -> ValueNone
+        | Some arr -> ValueSome(uint16 arr.Length, arr)
+
+    let inline fromArray (arr: 'v []) : ArraySlice<'v> voption =
+        match arr.Length with
+        | 0 -> ValueNone
+        | size -> ValueSome(uint16 size, arr)
+
+    let shiftByMut (slice: ArraySlice<'v> inref) (by: uint16) : 'v array =
+        let struct (used, arr) = slice
+
+        let used = int used
+        let by = int by
+
+        // noop if we don't have enough space
+        if (used + by <= arr.Length) then
+            for i = used + by - 1 downto int by do
+                arr.[i] <- arr.[i - by]
+
+        arr
+
+module Array =
+    let inline appendOne (v: 'v) (arr: 'v array) =
+        let res = Array.zeroCreate (arr.Length + 1)
+        Array.blit arr 0 res 0 arr.Length
+        res.[arr.Length] <- v
+        res
+
+    /// This is insertion sort that is O(n*n) but it performs better
+    /// 1. if the array is partially sorted (second sort is cheap)
+    /// 2. there are few elements, we expect to have only a handful of them per widget
+    /// 3. stable, which is handy for duplicate attributes, e.g. we can choose which one to pick
+    /// https://en.wikipedia.org/wiki/Insertion_sort
+    let inline sortInPlace<'T, 'V when 'V: comparison> ([<InlineIfLambda>] getKey: 'T -> 'V) (attrs: 'T []) : 'T [] =
+        let N = attrs.GetLength(0)
+
+        for i in [ 1 .. N - 1 ] do
+            for j = i downto 1 do
+                let key = getKey attrs.[j]
+                let prevKey = getKey attrs.[j - 1]
+
+                if key < prevKey then
+                    let temp = attrs.[j]
+                    attrs.[j] <- attrs.[j - 1]
+                    attrs.[j - 1] <- temp
+
+        attrs
 
 module StackList =
     type private Items<'v> = (struct ('v * 'v * 'v))
@@ -106,14 +169,11 @@ module StackList =
                     | _ -> StackList(size + 1us, Items(v0, v1, v), data.before)
         end
 
-
-
 type Size =
     | Zero = 0uy
     | One = 1uy
     | Two = 2uy
     | Three = 3uy
-
 
 [<Struct; NoComparison; NoEquality>]
 type StackArray3<'v> =
@@ -262,11 +322,6 @@ module StackArray3 =
         | Many arr1, Few _ -> many (Array.append arr1 (toArray &b)) // TODO optimize
         | Many arr1, Many arr2 -> many (Array.append arr1 arr2)
 
-
-
-
-
-
 module MutStackArray1 =
     [<Struct; NoComparison; NoEquality>]
     type T<'v> =
@@ -382,72 +437,15 @@ module MutStackArray1 =
 
                     Many(newSize, newArr)
 
-
-//        match (a, b) with
-//        | Empty, _ -> b
-//        | _, Empty -> a
-//        | _, One bv -> addMut(&a, bv)
-//        | One av, Many slice ->
-//            let struct (used, arr) = slice
-//
-//            if arr.Length >= (int used) + 1 then
-//                // it means that arr can fit one more element
-//                let arr = ArraySlice.shiftByMut &slice 1us
-//                arr.[0] <- av
-//                Many(used + 1us, arr)
-//            else
-//                // we need to allocate a new one more
-//                // Note very scientific formula of growth
-//                let newArr = Array.zeroCreate(grow(arr.Length + 1))
-//
-//                Array.blit arr 0 newArr 1 (int used)
-//                newArr.[0] <- av
-//                Many(used + 1us, newArr)
-//
-//        | Many sliceA, Many sliceB ->
-//            let struct (usedA, arrA) = sliceA
-//            let struct (usedB, arrB) = sliceB
-//
-//            let newSize = usedA + usedB
-//            let usedA = int usedA
-//            let usedB = int usedB
-//
-//            if arrA.Length >= usedB + usedA then
-//                // a can fit both
-//                Array.blit arrB 0 arrA usedA usedB
-//                Many(newSize, arrA)
-//            elif arrB.Length >= usedB + usedA then
-//                // b can fit both
-//                let arr =
-//                    ArraySlice.shiftByMut &sliceB (uint16 usedA)
-//
-//                Array.blit arrA 0 arr 0 usedA
-//                Many(newSize, arrA)
-//            else
-//                // None of them can fit the result
-//                // thus allocate a new one
-//                let newArr = Array.zeroCreate(grow(usedA + usedB))
-//
-//                Array.blit arrA 0 newArr 0 usedA
-//                Array.blit arrB 0 newArr usedA usedB
-//
-//                Many(newSize, newArr)
-
-
-open FSharp.NativeInterop
-
 #nowarn "9"
 
-let inline stackalloc<'a when 'a: unmanaged> (length: int) : Span<'a> =
-    let p =
-        NativePtr.stackalloc<'a> length
-        |> NativePtr.toVoidPtr
+module StackAllocHelpers =
+    let inline stackalloc<'a when 'a: unmanaged> (length: int) : Span<'a> =
+        let p =
+            NativePtr.stackalloc<'a> length
+            |> NativePtr.toVoidPtr
 
-    Span<'a>(p, length)
-
-//let t = stackalloc<uint16>(3)
-
-
+        Span<'a>(p, length)
 
 [<IsByRefLike>]
 type DiffBuilder =
@@ -461,8 +459,6 @@ type DiffBuilder =
               cursor = cursor
               rest = null }
     end
-
-
 
 module DiffBuilder =
     // 2 bytes
@@ -491,7 +487,8 @@ module DiffBuilder =
         | Changed of changed: uint16
 
 
-    let inline create () = DiffBuilder(stackalloc<uint16> 8, 0)
+    let inline create () =
+        DiffBuilder(StackAllocHelpers.stackalloc<uint16> 8, 0)
 
     // reserve 2bits for op
     let valueMask = UInt16.MaxValue >>> 2

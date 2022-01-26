@@ -8,6 +8,6 @@ type IInputView =
 
 module InputView =
     let TextChanged =
-        Attributes.defineEvent<TextChangedEventArgs>
+        Attributes.defineEventWithArgs<InputView, TextChangedEventArgs>
             "InputView_TextChanged"
-            (fun target -> (target :?> InputView).TextChanged)
+            (fun target -> target.TextChanged)

@@ -24,11 +24,9 @@ module CollectionView =
         Attributes.defineBindable<int> CollectionView.RemainingItemsThresholdProperty
 
     let RemainingItemsThresholdReached =
-        Attributes.defineEventNoArg
+        Attributes.defineEventNoArg<CollectionView>
             "CollectionView_RemainingItemsThresholdReached"
-            (fun target ->
-                (target :?> CollectionView)
-                    .RemainingItemsThresholdReached)
+            (fun target -> target.RemainingItemsThresholdReached)
 
 [<AutoOpen>]
 module CollectionViewBuilders =
@@ -60,4 +58,4 @@ type CollectionViewModifiers =
         ) =
         this
             .AddScalar(CollectionView.RemainingItemsThreshold.WithValue(value))
-            .AddScalar(CollectionView.RemainingItemsThresholdReached.WithValue(onThresholdReached))
+            .AddEvent(CollectionView.RemainingItemsThresholdReached.WithValue(onThresholdReached))

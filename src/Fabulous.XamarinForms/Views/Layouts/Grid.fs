@@ -6,25 +6,68 @@ open Xamarin.Forms
 
 type IGrid =
     inherit Fabulous.XamarinForms.ILayout
+    
+module GridUpdaters =
+    let updateColumnDefinitions (newValueOpt: Dimension [] voption) (node: IViewNode) (bindableProperty: BindableProperty) =
+        let grid = node.Target :?> Grid
+
+        match newValueOpt with
+        | ValueNone -> grid.ClearValue(bindableProperty)
+        | ValueSome coll ->
+            let columnDefinitions = ColumnDefinitionCollection()
+
+            for c in coll do
+                let gridLength =
+                    match c with
+                    | Auto -> GridLength.Auto
+                    | Star -> GridLength.Star
+                    | Stars x -> GridLength(x, GridUnitType.Star)
+                    | Absolute x -> GridLength(x, GridUnitType.Absolute)
+
+                columnDefinitions.Add(ColumnDefinition(Width = gridLength))
+                
+            grid.SetValue(bindableProperty, columnDefinitions)
+
+    let updateRowDefinitions (newValueOpt: Dimension [] voption) (node: IViewNode) (bindableProperty: BindableProperty) =
+        let grid = node.Target :?> Grid
+
+        match newValueOpt with
+        | ValueNone -> grid.ClearValue(bindableProperty)
+        | ValueSome coll ->
+            let rowDefinitions = RowDefinitionCollection()
+
+            for c in coll do
+                let gridLength =
+                    match c with
+                    | Auto -> GridLength.Auto
+                    | Star -> GridLength.Star
+                    | Stars x -> GridLength(x, GridUnitType.Star)
+                    | Absolute x -> GridLength(x, GridUnitType.Absolute)
+
+                rowDefinitions.Add(RowDefinition(Height = gridLength))
+                
+            grid.SetValue(bindableProperty, rowDefinitions)
 
 module Grid =
     let WidgetKey = Widgets.register<Grid> ()
 
     let ColumnDefinitions =
-        Attributes.defineScalarWithConverter<seq<Dimension>, Dimension array, Dimension array>
+        Attributes.defineCustomScalar<seq<Dimension>, Dimension array, Dimension array, BindableProperty>
             "Grid_ColumnDefinitions"
+            Grid.ColumnDefinitionsProperty
             Array.ofSeq
             id
-            ScalarAttributeComparers.equalityCompare
-            ViewUpdaters.updateGridColumnDefinitions
+            (=)
+            GridUpdaters.updateColumnDefinitions
 
     let RowDefinitions =
-        Attributes.defineScalarWithConverter<seq<Dimension>, Dimension array, Dimension array>
+        Attributes.defineCustomScalar<seq<Dimension>, Dimension array, Dimension array, BindableProperty>
             "Grid_RowDefinitions"
+            Grid.RowDefinitionsProperty
             Array.ofSeq
             id
-            ScalarAttributeComparers.equalityCompare
-            ViewUpdaters.updateGridRowDefinitions
+            (=)
+            GridUpdaters.updateRowDefinitions
 
     let Column =
         Attributes.defineBindable<int> Grid.ColumnProperty

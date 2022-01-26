@@ -4,11 +4,6 @@ open System
 open System.Runtime.CompilerServices
 open Fabulous
 
-[<Struct; RequireQualifiedAccess>]
-type ScalarAttributeComparison =
-    | Identical
-    | Different
-
 [<Struct; IsByRefLike; RequireQualifiedAccess; NoComparison; NoEquality>]
 type EnumerationMode<'a> =
     | AllAddedOrRemoved of struct ('a [] * bool)
@@ -28,6 +23,11 @@ type ScalarChange =
     | Added of added: ScalarAttribute
     | Removed of removed: ScalarAttribute
     | Updated of updated: ScalarAttribute
+    
+type [<Struct; IsByRefLike; RequireQualifiedAccess>] EventChange =
+    | Added of added: EventAttribute
+    | Removed of removed: EventAttribute
+    | Updated of updated: EventAttribute
 
 and [<Struct; RequireQualifiedAccess>] WidgetChange =
     | Added of added: WidgetAttribute
@@ -48,92 +48,99 @@ and [<Struct; IsByRefLike; RequireQualifiedAccess>] WidgetCollectionItemChange =
 
 and [<Struct; NoComparison; NoEquality>] WidgetDiff =
     { ScalarChanges: ScalarChanges
+      EventChanges: EventChanges
       WidgetChanges: WidgetChanges
       WidgetCollectionChanges: WidgetCollectionChanges }
 
     static member inline create
         (
-            prevOpt: Widget voption,
-            next: Widget,
-            canReuseView: Widget -> Widget -> bool,
-            compareScalars: struct (AttributeKey * obj * obj) -> ScalarAttributeComparison
+            prevOpt: WidgetData voption,
+            next: WidgetData,
+            canReuseView: Widget -> Widget -> bool
         ) : WidgetDiff =
 
         let prevScalarAttributes =
             match prevOpt with
             | ValueNone -> ValueNone
-            | ValueSome widget -> widget.ScalarAttributes
+            | ValueSome widgetData -> widgetData.ScalarAttributes
+
+        let prevEventAttributes =
+            match prevOpt with
+            | ValueNone -> ValueNone
+            | ValueSome widgetData -> widgetData.EventAttributes
 
         let prevWidgetAttributes =
             match prevOpt with
             | ValueNone -> ValueNone
-            | ValueSome widget -> widget.WidgetAttributes
+            | ValueSome widgetData -> widgetData.WidgetAttributes
 
         let prevWidgetCollectionAttributes =
             match prevOpt with
             | ValueNone -> ValueNone
-            | ValueSome widget -> widget.WidgetCollectionAttributes
+            | ValueSome widgetData -> widgetData.WidgetCollectionAttributes
 
-        { ScalarChanges = ScalarChanges(prevScalarAttributes, next.ScalarAttributes, compareScalars)
-          WidgetChanges = WidgetChanges(prevWidgetAttributes, next.WidgetAttributes, canReuseView, compareScalars)
+        { ScalarChanges = ScalarChanges(prevScalarAttributes, next.ScalarAttributes)
+          EventChanges = EventChanges(prevEventAttributes, next.EventAttributes)
+          WidgetChanges = WidgetChanges(prevWidgetAttributes, next.WidgetAttributes, canReuseView)
           WidgetCollectionChanges =
               WidgetCollectionChanges(
                   prevWidgetCollectionAttributes,
                   next.WidgetCollectionAttributes,
-                  canReuseView,
-                  compareScalars
+                  canReuseView
               ) }
 
 and [<Struct; NoComparison; NoEquality>] ScalarChanges
     (
         prev: ScalarAttribute [] voption,
-        next: ScalarAttribute [] voption,
-        compareScalars: struct (AttributeKey * obj * obj) -> ScalarAttributeComparison
+        next: ScalarAttribute [] voption
     ) =
     member _.GetEnumerator() =
-        ScalarChangesEnumerator(EnumerationMode.fromOptions prev next, compareScalars)
+        ScalarChangesEnumerator(EnumerationMode.fromOptions prev next)
+        
+and [<Struct; NoComparison; NoEquality>] EventChanges
+    (
+        prev: EventAttribute [] voption,
+        next: EventAttribute [] voption
+    ) =
+    member _.GetEnumerator() =
+        EventChangesEnumerator(EnumerationMode.fromOptions prev next)
 
 and [<Struct; NoComparison; NoEquality>] WidgetChanges
     (
         prev: WidgetAttribute [] voption,
         next: WidgetAttribute [] voption,
-        canReuseView: Widget -> Widget -> bool,
-        compareScalars: struct (AttributeKey * obj * obj) -> ScalarAttributeComparison
+        canReuseView: Widget -> Widget -> bool
     ) =
     member _.GetEnumerator() =
-        WidgetChangesEnumerator(EnumerationMode.fromOptions prev next, canReuseView, compareScalars)
+        WidgetChangesEnumerator(EnumerationMode.fromOptions prev next, canReuseView)
 
 and [<Struct; NoComparison; NoEquality>] WidgetCollectionChanges
     (
         prev: WidgetCollectionAttribute [] voption,
         next: WidgetCollectionAttribute [] voption,
-        canReuseView: Widget -> Widget -> bool,
-        compareScalars: struct (AttributeKey * obj * obj) -> ScalarAttributeComparison
+        canReuseView: Widget -> Widget -> bool
     ) =
     member _.GetEnumerator() =
-        WidgetCollectionChangesEnumerator(EnumerationMode.fromOptions prev next, canReuseView, compareScalars)
+        WidgetCollectionChangesEnumerator(EnumerationMode.fromOptions prev next, canReuseView)
 
 
 and [<Struct; NoComparison; NoEquality>] WidgetCollectionItemChanges
     (
         prev: ArraySlice<Widget>,
         next: ArraySlice<Widget>,
-        canReuseView: Widget -> Widget -> bool,
-        compareScalars: struct (AttributeKey * obj * obj) -> ScalarAttributeComparison
+        canReuseView: Widget -> Widget -> bool
     ) =
     member _.GetEnumerator() =
         WidgetCollectionItemChangesEnumerator(
             ArraySlice.toSpan prev,
             ArraySlice.toSpan next,
-            canReuseView,
-            compareScalars
+            canReuseView
         )
 
 // enumerators
 and [<Struct; IsByRefLike>] ScalarChangesEnumerator
     (
-        mode: EnumerationMode<ScalarAttribute>,
-        compareScalars: struct (AttributeKey * obj * obj) -> ScalarAttributeComparison
+        mode: EnumerationMode<ScalarAttribute>
     ) =
 
     [<DefaultValue(false)>]
@@ -197,8 +204,8 @@ and [<Struct; IsByRefLike>] ScalarChangesEnumerator
                         let prevAttr = prev.[prevIndex]
                         let nextAttr = next.[nextIndex]
 
-                        let prevKey = prevAttr.Key
-                        let nextKey = nextAttr.Key
+                        let prevKey = prevAttr.Definition.Key
+                        let nextKey = nextAttr.Definition.Key
 
                         match prevKey.CompareTo nextKey with
                         | c when c < 0 ->
@@ -216,13 +223,117 @@ and [<Struct; IsByRefLike>] ScalarChangesEnumerator
                         | _ ->
                             // means that we are targeting the same attribute
 
-                            match compareScalars struct (prevKey, prevAttr.Value, nextAttr.Value) with
-                            // Previous and next values are identical, we don't need to do anything
-                            | ScalarAttributeComparison.Identical -> ()
-
-                            // New value completely replaces the old value
-                            | ScalarAttributeComparison.Different ->
+                            if nextAttr.Definition.CompareBoxed prevAttr.Value nextAttr.Value then
+                                // Previous and next values are identical, we don't need to do anything
+                                ()
+                            else
                                 e.current <- ScalarChange.Updated next.[nextIndex]
+                                res <- ValueSome true
+
+                            // move both pointers
+                            prevIndex <- prevIndex + 1
+                            nextIndex <- nextIndex + 1
+
+                else
+                    res <- ValueSome false
+
+            e.prevIndex <- prevIndex
+            e.nextIndex <- nextIndex
+
+            match res with
+            | ValueNone -> false
+            | ValueSome res -> res
+
+and [<Struct; IsByRefLike>] EventChangesEnumerator
+    (
+        mode: EnumerationMode<EventAttribute>
+    ) =
+
+    [<DefaultValue(false)>]
+    val mutable private current: EventChange
+
+    [<DefaultValue(false)>]
+    val mutable private prevIndex: int
+
+    [<DefaultValue(false)>]
+    val mutable private nextIndex: int
+
+    member e.Current = e.current
+
+    member e.MoveNext() =
+        match mode with
+        | EnumerationMode.Empty -> false
+        | EnumerationMode.AllAddedOrRemoved (attributes, added) ->
+            // use prevIndex regardless if it is for adding or removal
+            let i = e.prevIndex
+
+            if i < attributes.Length then
+                let attribute = attributes.[i]
+
+                e.current <-
+                    match added with
+                    | false -> EventChange.Removed attribute
+                    | true -> EventChange.Added attribute
+
+                e.prevIndex <- i + 1
+                true
+            else
+                false
+
+        | EnumerationMode.ActualDiff (prev, next) ->
+            let mutable prevIndex = e.prevIndex
+            let mutable nextIndex = e.nextIndex
+
+            let prevLength = prev.Length
+            let nextLength = next.Length
+
+            let mutable res: bool voption = ValueNone
+            // that needs to be in a loop until we have a change
+
+            while ValueOption.isNone res do
+
+                if not (prevIndex >= prevLength && nextIndex >= nextLength) then
+                    if prevIndex = prevLength then
+                        // that means we are done with the prev and only need to add next's tail to added
+                        e.current <- EventChange.Added next.[nextIndex]
+                        res <- ValueSome true
+                        nextIndex <- nextIndex + 1
+
+                    elif nextIndex = nextLength then
+                        // that means that we are done with new items and only need prev's tail to removed
+                        e.current <- EventChange.Removed prev.[prevIndex]
+                        res <- ValueSome true
+                        prevIndex <- prevIndex + 1
+
+                    else
+                        // we haven't reached either of the ends
+                        let prevAttr = prev.[prevIndex]
+                        let nextAttr = next.[nextIndex]
+
+                        let prevKey = prevAttr.Definition.Key
+                        let nextKey = nextAttr.Definition.Key
+
+                        match prevKey.CompareTo nextKey with
+                        | c when c < 0 ->
+                            // prev key is less than next -> remove prev key
+                            e.current <- EventChange.Removed prev.[prevIndex]
+                            res <- ValueSome true
+                            prevIndex <- prevIndex + 1
+
+                        | c when c > 0 ->
+                            // prev key is more than next -> add next item
+                            e.current <- EventChange.Added prev.[nextIndex]
+                            res <- ValueSome true
+                            nextIndex <- nextIndex + 1
+
+                        | _ ->
+                            // means that we are targeting the same attribute
+
+                            if nextAttr.Definition.CompareBoxed prevAttr.Value nextAttr.Value then
+                                // Previous and next values are identical, we don't need to do anything
+                                ()
+                            else
+                                e.current <- EventChange.Updated next.[nextIndex]
                                 res <- ValueSome true
 
                             // move both pointers
@@ -242,8 +353,7 @@ and [<Struct; IsByRefLike>] ScalarChangesEnumerator
 and [<Struct; IsByRefLike>] WidgetChangesEnumerator
     (
         mode: EnumerationMode<WidgetAttribute>,
-        canReuseView: Widget -> Widget -> bool,
-        compareScalars: struct (AttributeKey * obj * obj) -> ScalarAttributeComparison
+        canReuseView: Widget -> Widget -> bool
     ) =
 
     [<DefaultValue(false)>]
@@ -306,8 +416,8 @@ and [<Struct; IsByRefLike>] WidgetChangesEnumerator
                         let prevAttr = prev.[prevIndex]
                         let nextAttr = next.[nextIndex]
 
-                        let prevKey = prevAttr.Key
-                        let nextKey = nextAttr.Key
+                        let prevKey = prevAttr.Definition.Key
+                        let nextKey = nextAttr.Definition.Key
                         let prevWidget = prevAttr.Value
                         let nextWidget = nextAttr.Value
 
@@ -338,10 +448,9 @@ and [<Struct; IsByRefLike>] WidgetChangesEnumerator
                                     if canReuseView prevWidget nextWidget then
                                         let diff =
                                             WidgetDiff.create (
-                                                (ValueSome prevWidget),
-                                                nextWidget,
-                                                canReuseView,
-                                                compareScalars
+                                                (ValueSome prevWidget.Data),
+                                                nextWidget.Data,
+                                                canReuseView
                                             )
 
                                         WidgetChange.Updated(nextAttr, diff)
@@ -364,8 +473,7 @@ and [<Struct; IsByRefLike>] WidgetChangesEnumerator
 and [<Struct; IsByRefLike>] WidgetCollectionChangesEnumerator
     (
         mode: EnumerationMode<WidgetCollectionAttribute>,
-        canReuseView: Widget -> Widget -> bool,
-        compareScalars: struct (AttributeKey * obj * obj) -> ScalarAttributeComparison
+        canReuseView: Widget -> Widget -> bool
     ) =
 
     [<DefaultValue(false)>]
@@ -424,8 +532,8 @@ and [<Struct; IsByRefLike>] WidgetCollectionChangesEnumerator
                         let prevAttr = prev.[prevIndex]
                         let nextAttr = next.[nextIndex]
 
-                        let prevKey = prevAttr.Key
-                        let nextKey = nextAttr.Key
+                        let prevKey = prevAttr.Definition.Key
+                        let nextKey = nextAttr.Definition.Key
                         let prevWidgetColl = prevAttr.Value
                         let nextWidgetColl = nextAttr.Value
 
@@ -451,8 +559,7 @@ and [<Struct; IsByRefLike>] WidgetCollectionChangesEnumerator
                                 WidgetCollectionItemChanges(
                                     prevWidgetColl,
                                     nextWidgetColl,
-                                    canReuseView,
-                                    compareScalars
+                                    canReuseView
                                 )
 
                             e.current <- WidgetCollectionChange.Updated(nextAttr, diff)
@@ -470,8 +577,7 @@ and [<Struct; IsByRefLike>] WidgetCollectionItemChangesEnumerator
     (
         prev: Span<Widget>,
         next: Span<Widget>,
-        canReuseView: Widget -> Widget -> bool,
-        compareScalars: struct (AttributeKey * obj * obj) -> ScalarAttributeComparison
+        canReuseView: Widget -> Widget -> bool
     ) =
     [<DefaultValue(false)>]
     val mutable private current: WidgetCollectionItemChange
@@ -511,7 +617,7 @@ and [<Struct; IsByRefLike>] WidgetCollectionItemChangesEnumerator
             | ValueSome prevItem when canReuseView prevItem currItem ->
 
                 let diff =
-                    WidgetDiff.create (ValueSome prevItem, currItem, canReuseView, compareScalars)
+                    WidgetDiff.create (ValueSome prevItem.Data, currItem.Data, canReuseView)
 
                 e.current <- WidgetCollectionItemChange.Update(i, diff)
 
