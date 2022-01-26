@@ -52,7 +52,7 @@ module WidgetHelpers =
 
     let buildItems<'msg, 'marker, 'itemData, 'itemMarker>
         definition
-        (attrDef: ScalarAttributeDefinition<WidgetItems<'itemData>, WidgetItems<'itemData>, IEnumerable<Widget>>)
+        (attrDef: ScalarAttributeDefinition<WidgetItems<'itemData>, WidgetItems<'itemData>, IEnumerable<Widget>, Xamarin.Forms.BindableProperty>)
         (items: seq<'itemData>)
         (itemTemplate: 'itemData -> WidgetBuilder<'msg, 'itemMarker>)
         =
@@ -68,7 +68,7 @@ module WidgetHelpers =
 
     let buildGroupItems<'msg, 'marker, 'groupData, 'itemData, 'groupMarker, 'itemMarker when 'groupData :> seq<'itemData>>
         key
-        (attrDef: ScalarAttributeDefinition<GroupedWidgetItems<'groupData>, GroupedWidgetItems<'groupData>, IEnumerable<GroupItem>>)
+        (attrDef: ScalarAttributeDefinition<GroupedWidgetItems<'groupData>, GroupedWidgetItems<'groupData>, IEnumerable<GroupItem>, Xamarin.Forms.BindableProperty>)
         (items: seq<'groupData>)
         (groupHeaderTemplate: 'groupData -> WidgetBuilder<'msg, 'groupMarker>)
         (itemTemplate: 'itemData -> WidgetBuilder<'msg, 'itemMarker>)

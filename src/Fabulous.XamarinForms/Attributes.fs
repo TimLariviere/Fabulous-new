@@ -24,12 +24,13 @@ module Attributes =
         (convertValue: 'modelType -> 'valueType)
         (compare: 'modelType -> 'modelType -> bool)
         =
-        Attributes.defineCustomScalar<'inputType, 'modelType, 'valueType>
+        Attributes.defineCustomScalar<'inputType, 'modelType, 'valueType, BindableProperty>
             bindableProperty.PropertyName
+            bindableProperty
             convert
             convertValue
             compare
-            (fun newValueOpt node ->
+            (fun newValueOpt node bindableProperty ->
                 let target = node.Target :?> BindableObject
                 match newValueOpt with
                 | ValueNone -> target.ClearValue(bindableProperty)
@@ -39,12 +40,13 @@ module Attributes =
         defineBindableWithComparer<'T, 'T, 'T> bindableProperty id id (=)
 
     let inline defineAppThemeBindable<'T when 'T: equality> (bindableProperty: BindableProperty) =
-        Attributes.defineCustomScalar<AppThemeValues<'T>, AppThemeValues<'T>, AppThemeValues<'T>>
+        Attributes.defineCustomScalar<AppThemeValues<'T>, AppThemeValues<'T>, AppThemeValues<'T>, BindableProperty>
             bindableProperty.PropertyName
+            bindableProperty
             id
             id
             (=)
-            (fun newValueOpt node ->
+            (fun newValueOpt node bindableProperty ->
                 let target = node.Target :?> BindableObject
                 match newValueOpt with
                 | ValueNone -> target.ClearValue(bindableProperty)

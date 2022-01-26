@@ -40,7 +40,7 @@ module Memo =
         | true, true -> next.KeyComparer next.KeyData prev.KeyData
         | _ -> false
 
-    let private updateNode (data: MemoData voption) (node: IViewNode) : unit =
+    let private updateNode (data: MemoData voption) (node: IViewNode) _ : unit =
         match data with
         | ValueSome memoData ->
             let lazyNode = node :?> ILazyViewNode
@@ -59,6 +59,7 @@ module Memo =
 
     let internal MemoAttribute =
         { Key = "MemoAttribute"
+          AdditionalData = null
           Convert = id
           ConvertValue = id
           Compare = compareAttributes

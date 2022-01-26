@@ -8,13 +8,13 @@ type IGrid =
     inherit Fabulous.XamarinForms.ILayout
     
 module GridUpdaters =
-    let updateColumnDefinitions (newValueOpt: Dimension [] voption) (node: IViewNode) =
+    let updateColumnDefinitions (newValueOpt: Dimension [] voption) (node: IViewNode) (bindableProperty: BindableProperty) =
         let grid = node.Target :?> Grid
 
         match newValueOpt with
-        | ValueNone -> grid.ColumnDefinitions.Clear()
+        | ValueNone -> grid.ClearValue(bindableProperty)
         | ValueSome coll ->
-            grid.ColumnDefinitions.Clear()
+            let columnDefinitions = ColumnDefinitionCollection()
 
             for c in coll do
                 let gridLength =
@@ -24,15 +24,17 @@ module GridUpdaters =
                     | Stars x -> GridLength(x, GridUnitType.Star)
                     | Absolute x -> GridLength(x, GridUnitType.Absolute)
 
-                grid.ColumnDefinitions.Add(ColumnDefinition(Width = gridLength))
+                columnDefinitions.Add(ColumnDefinition(Width = gridLength))
+                
+            grid.SetValue(bindableProperty, columnDefinitions)
 
-    let updateRowDefinitions (newValueOpt: Dimension [] voption) (node: IViewNode) =
+    let updateRowDefinitions (newValueOpt: Dimension [] voption) (node: IViewNode) (bindableProperty: BindableProperty) =
         let grid = node.Target :?> Grid
 
         match newValueOpt with
-        | ValueNone -> grid.RowDefinitions.Clear()
+        | ValueNone -> grid.ClearValue(bindableProperty)
         | ValueSome coll ->
-            grid.RowDefinitions.Clear()
+            let rowDefinitions = RowDefinitionCollection()
 
             for c in coll do
                 let gridLength =
@@ -42,22 +44,26 @@ module GridUpdaters =
                     | Stars x -> GridLength(x, GridUnitType.Star)
                     | Absolute x -> GridLength(x, GridUnitType.Absolute)
 
-                grid.RowDefinitions.Add(RowDefinition(Height = gridLength))
+                rowDefinitions.Add(RowDefinition(Height = gridLength))
+                
+            grid.SetValue(bindableProperty, rowDefinitions)
 
 module Grid =
     let WidgetKey = Widgets.register<Grid> ()
 
     let ColumnDefinitions =
-        Attributes.defineCustomScalar<seq<Dimension>, Dimension array, Dimension array>
+        Attributes.defineCustomScalar<seq<Dimension>, Dimension array, Dimension array, BindableProperty>
             "Grid_ColumnDefinitions"
+            Grid.ColumnDefinitionsProperty
             Array.ofSeq
             id
             (=)
             GridUpdaters.updateColumnDefinitions
 
     let RowDefinitions =
-        Attributes.defineCustomScalar<seq<Dimension>, Dimension array, Dimension array>
+        Attributes.defineCustomScalar<seq<Dimension>, Dimension array, Dimension array, BindableProperty>
             "Grid_RowDefinitions"
+            Grid.RowDefinitionsProperty
             Array.ofSeq
             id
             (=)

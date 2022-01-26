@@ -11,12 +11,13 @@ type IScalarAttributeDefinition =
     abstract member CompareBoxed: a: obj -> b: obj -> bool
     abstract member UpdateNode: obj voption -> IViewNode -> unit
     
-type ScalarAttributeDefinition<'inputType, 'modelType, 'valueType> =
+type ScalarAttributeDefinition<'inputType, 'modelType, 'valueType, 'additionalData> =
     { Key: string
+      AdditionalData: 'additionalData
       Convert: 'inputType -> 'modelType
       ConvertValue: 'modelType -> 'valueType
       Compare: 'modelType -> 'modelType -> bool
-      UpdateNode: 'valueType voption -> IViewNode -> unit }
+      UpdateNode: 'valueType voption -> IViewNode -> 'additionalData -> unit }
 
     interface IScalarAttributeDefinition with
         member x.Key = x.Key
@@ -30,7 +31,7 @@ type ScalarAttributeDefinition<'inputType, 'modelType, 'valueType> =
                 | ValueNone -> ValueNone
                 | ValueSome v -> ValueSome(x.ConvertValue(unbox v))
 
-            x.UpdateNode newValueOpt node
+            x.UpdateNode newValueOpt node x.AdditionalData
 
 type IEventAttributeDefinition =
     abstract member Key: string
@@ -134,7 +135,7 @@ and IViewNodeWithContext =
         
 [<AutoOpen>]
 module WithValue =
-    type ScalarAttributeDefinition<'inputType, 'modelType, 'valueType> with
+    type ScalarAttributeDefinition<'inputType, 'modelType, 'valueType, 'additionalData> with
         member inline x.WithValue(value) : ScalarAttribute =
             { Definition = x
               Value = x.Convert(value) }

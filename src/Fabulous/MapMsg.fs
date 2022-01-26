@@ -6,12 +6,13 @@ type IMappedViewNode =
 
 module MapMsg =
     let MapMsg =
-        Attributes.defineCustomScalar<obj -> obj, _, _>
+        Attributes.defineCustomScalar<obj -> obj, _, _, obj>
             "Fabulous_MapMsg"
+            null
             id
             id
             (fun _ _ -> false)
-            (fun value node ->
+            (fun value node _ ->
                 let mappedNode = node :?> IMappedViewNode
                 match value with
                 | ValueNone -> mappedNode.MapMsg <- ValueNone

@@ -11,14 +11,16 @@ module Helpers =
 
 module Attributes =
     /// Define a custom attribute storing any value
-    let inline defineCustomScalar<'inputType, 'modelType, 'valueType>
+    let inline defineCustomScalar<'inputType, 'modelType, 'valueType, 'additionalData>
         key
+        (additionalData: 'additionalData)
         (convert: 'inputType -> 'modelType)
         (convertValue: 'modelType -> 'valueType)
         (compare: 'modelType -> 'modelType -> bool)
-        (updateNode: 'valueType voption -> IViewNode -> unit)
+        (updateNode: 'valueType voption -> IViewNode -> 'additionalData -> unit)
         =
         { Key = key
+          AdditionalData = additionalData
           Convert = convert
           ConvertValue = convertValue
           Compare = compare
@@ -96,7 +98,7 @@ module Attributes =
             updateNode
 
     let inline defineScalar<'targetType, 'T when 'T: equality> name updateTarget =
-        defineCustomScalar<'T, 'T, 'T> name id id (=) (fun newValueOpt node -> updateTarget newValueOpt (unbox<'targetType> node.Target))
+        defineCustomScalar<'T, 'T, 'T, obj> name null id id (=) (fun newValueOpt node _ -> updateTarget newValueOpt (unbox<'targetType> node.Target))
 
     let inline defineEventNoArg<'targetType> key (getEvent: 'targetType -> IEvent<EventHandler, EventArgs>) =
         defineCustomEvent<obj, EventArgs, EventHandler, 'targetType>
