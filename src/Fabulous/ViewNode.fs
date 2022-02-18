@@ -4,7 +4,7 @@ open Fabulous
 
 /// Define the logic to apply diffs and store event handlers of its target control
 [<Sealed>]
-type ViewNode(parentNode: IViewNode voption, treeContext: ViewTreeContext, targetRef: System.WeakReference) =
+type ViewNode(parentNode: IViewNode option, treeContext: ViewTreeContext, targetRef: System.WeakReference) =
 
     // TODO consider combine handlers mapMsg and property bag
     // also we can probably use just Dictionary instead of Map because
@@ -18,19 +18,19 @@ type ViewNode(parentNode: IViewNode voption, treeContext: ViewTreeContext, targe
                 let definition =
                     AttributeDefinitionStore.get added.Key :?> IScalarAttributeDefinition
 
-                definition.UpdateNode(ValueSome added.Value) this
+                definition.UpdateNode ValueNone (ValueSome added.Value) this
 
             | ScalarChange.Removed removed ->
                 let definition =
                     AttributeDefinitionStore.get removed.Key :?> IScalarAttributeDefinition
 
-                definition.UpdateNode ValueNone this
+                definition.UpdateNode (ValueSome removed.Value) ValueNone this
 
-            | ScalarChange.Updated newAttr ->
+            | ScalarChange.Updated (oldAttr, newAttr) ->
                 let definition =
                     AttributeDefinitionStore.get newAttr.Key :?> IScalarAttributeDefinition
 
-                definition.UpdateNode(ValueSome newAttr.Value) this
+                definition.UpdateNode (ValueSome oldAttr.Value) (ValueSome newAttr.Value) this
 
     member inline private this.ApplyWidgetDiffs(diffs: WidgetChanges inref) =
         for diff in diffs do
@@ -40,13 +40,13 @@ type ViewNode(parentNode: IViewNode voption, treeContext: ViewTreeContext, targe
                 let definition =
                     AttributeDefinitionStore.get newWidget.Key :?> WidgetAttributeDefinition
 
-                definition.UpdateNode(ValueSome newWidget.Value) (this :> IViewNode)
+                definition.UpdateNode ValueNone (ValueSome newWidget.Value) (this :> IViewNode)
 
             | WidgetChange.Removed removed ->
                 let definition =
                     AttributeDefinitionStore.get removed.Key :?> WidgetAttributeDefinition
 
-                definition.UpdateNode ValueNone (this :> IViewNode)
+                definition.UpdateNode (ValueSome removed.Value) ValueNone (this :> IViewNode)
 
             | WidgetChange.Updated struct (newAttr, diffs) ->
                 let definition =
@@ -61,13 +61,13 @@ type ViewNode(parentNode: IViewNode voption, treeContext: ViewTreeContext, targe
                 let definition =
                     AttributeDefinitionStore.get added.Key :?> WidgetCollectionAttributeDefinition
 
-                definition.UpdateNode(ValueSome added.Value) (this :> IViewNode)
+                definition.UpdateNode ValueNone (ValueSome added.Value) (this :> IViewNode)
 
             | WidgetCollectionChange.Removed removed ->
                 let definition =
                     AttributeDefinitionStore.get removed.Key :?> WidgetCollectionAttributeDefinition
 
-                definition.UpdateNode ValueNone (this :> IViewNode)
+                definition.UpdateNode (ValueSome removed.Value) ValueNone (this :> IViewNode)
 
             | WidgetCollectionChange.Updated struct (newAttr, diffs) ->
                 let definition =
@@ -79,24 +79,20 @@ type ViewNode(parentNode: IViewNode voption, treeContext: ViewTreeContext, targe
         member _.Target = targetRef.Target
         member _.TreeContext = treeContext
         member _.Parent = parentNode
-        member val MapMsg: (obj -> obj) voption = ValueNone with get, set
+        member val MapMsg: (obj -> obj) option = None with get, set
         member val MemoizedWidget: Widget option = None with get, set
 
         member _.TryGetHandler<'T>(key: AttributeKey) =
-            match Map.tryFind key _handlers with
-            | None -> ValueNone
-            | Some v -> ValueSome(unbox<'T> v)
+            Map.tryFind key _handlers
+            |> Option.map unbox<'T>
 
-        member _.SetHandler<'T>(key: AttributeKey, handlerOpt: 'T voption) =
+        member _.SetHandler<'T>(key: AttributeKey, handlerOpt: 'T option) =
+            let handler = handlerOpt |> Option.map box
             _handlers <-
                 _handlers
                 |> Map.change
                     key
-                    (fun _ ->
-                        match handlerOpt with
-                        | ValueNone -> None
-                        | ValueSome h -> Some(box h))
-
+                    (fun _ -> handler)
 
         member x.ApplyDiff(diff) =
             if not targetRef.IsAlive then

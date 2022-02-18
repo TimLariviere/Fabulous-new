@@ -1,5 +1,6 @@
 namespace Fabulous.XamarinForms
 
+open System
 open System.Runtime.CompilerServices
 open Fabulous
 open Fabulous.XamarinForms
@@ -35,7 +36,7 @@ module CarouselView =
     let CurrentItem =
         Attributes.define<obj>
             "CarouselView_CurrentItem"
-            (fun newValueOpt node ->
+            (fun _ newValueOpt node ->
                 let carouselView = node.Target :?> CarouselView
 
                 match newValueOpt with
@@ -49,6 +50,36 @@ module CarouselView =
 
     let Position =
         Attributes.defineBindable<int> CarouselView.PositionProperty
+        
+    let IndicatorView =
+        Attributes.defineScalarWithConverter<ViewRef<IndicatorView>, _, _>
+            "CarouselView_IndicatorView"
+            id
+            id
+            ScalarAttributeComparers.equalityCompare
+            (fun oldValueOpt newValueOpt node ->
+                let handler =
+                    match node.TryGetHandler<EventHandler<IndicatorView>>(ViewRef.ViewRef.Key) with
+                    | Some handler -> handler
+                    | None ->
+                        let newHandler =
+                            EventHandler<IndicatorView>(fun _ indicatorView ->
+                                (node.Target :?> CarouselView).IndicatorView <- indicatorView
+                            )
+                        newHandler
+                        
+                match struct (oldValueOpt, newValueOpt) with
+                | ValueNone, ValueNone -> ()
+                | ValueSome prev, ValueNone ->
+                    prev.Attached.RemoveHandler(handler)
+                    node.SetHandler(ViewRef.ViewRef.Key, None)
+                | ValueNone, ValueSome curr ->
+                    curr.Attached.AddHandler(handler)
+                    node.SetHandler(ViewRef.ViewRef.Key, Some handler)
+                | ValueSome prev, ValueSome curr ->
+                    prev.Attached.RemoveHandler(handler)
+                    curr.Attached.AddHandler(handler)
+            )
 
 [<AutoOpen>]
 module CarouselViewBuilders =
@@ -64,13 +95,11 @@ module CarouselViewBuilders =
         static member inline CarouselView<'msg, 'itemData, 'itemMarker when 'itemMarker :> IView>
             (
                 items: seq<'itemData>,
-                position: int,
-                positionChanged: int -> 'msg
+                viewRef: ViewRef<IndicatorView>
             ) =
             WidgetHelpers.buildItemsWithScalars<'msg, ICarouselView, 'itemData, 'itemMarker>
                 CarouselView.WidgetKey
-                (CarouselView.Position.WithValue(position))
-                (CarouselView.PositionChanged.WithValue(fun e -> positionChanged e.CurrentPosition |> box))
+                (CarouselView.IndicatorView.WithValue(viewRef))
                 ItemsView.ItemsSource
                 items
 

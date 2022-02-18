@@ -81,7 +81,6 @@ module WidgetHelpers =
     let buildItemsWithScalars<'msg, 'marker, 'itemData, 'itemMarker>
         key
         (scalarA: ScalarAttribute)
-        (scalarB: ScalarAttribute)
         (attrDef: ScalarAttributeDefinition<WidgetItems<'itemData>, WidgetItems<'itemData>, IEnumerable<Widget>>)
         (items: seq<'itemData>)
         (itemTemplate: 'itemData -> WidgetBuilder<'msg, 'itemMarker>)
@@ -94,7 +93,7 @@ module WidgetHelpers =
             { OriginalItems = items
               Template = template }
 
-        WidgetBuilder<'msg, 'marker>(key, scalarA, scalarB, attrDef.WithValue(data))
+        WidgetBuilder<'msg, 'marker>(key, scalarA, attrDef.WithValue(data))
 
     let buildGroupItems<'msg, 'marker, 'groupData, 'itemData, 'groupMarker, 'itemMarker when 'groupData :> seq<'itemData>>
         key

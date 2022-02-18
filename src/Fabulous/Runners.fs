@@ -113,7 +113,10 @@ module ViewAdapters =
 
         member private _.Dispatch(msg) =
             if _allowDispatch then
+                printfn $"Dispatching %A{msg}"
                 dispatch (unbox msg)
+            else
+                printfn $"Prevented dispatch of %A{msg}"
 
         member this.CreateView() =
             let state = unbox (StateStore.get stateKey)
@@ -128,14 +131,17 @@ module ViewAdapters =
             let definition = WidgetDefinitionStore.get widget.Key
 
             let struct (_node, root) =
-                definition.CreateView(widget, treeContext, ValueNone)
+                definition.CreateView(widget, treeContext, None)
 
             _root <- root
             _root
 
         member _.OnStateChanged(args) =
             if args.Key = stateKey then
+                printfn $"New state: %A{args.NewState}"
+                
                 _allowDispatch <- false
+                printfn "Allow dispatch = false"
                 let state = unbox args.NewState
 
                 let prevWidget = _widget
@@ -146,6 +152,7 @@ module ViewAdapters =
 
                 Reconciler.update canReuseView (ValueSome prevWidget) currentWidget node
                 _allowDispatch <- true
+                printfn "Allow dispatch = true"
 
         member _.Dispose() = _stateSubscription.Dispose()
 

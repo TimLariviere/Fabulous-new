@@ -10,7 +10,7 @@ type IIndicatorView =
 
 module IndicatorView =
     let WidgetKey =
-        Widgets.register<FabulousIndicatorView> ()
+        Widgets.register<IndicatorView> ()
 
     let ItemsSource<'T> =
         Attributes.defineBindableWithComparer<WidgetItems<'T>, WidgetItems<'T>, System.Collections.Generic.IEnumerable<Widget>>
@@ -41,26 +41,24 @@ module IndicatorView =
     let MaximumVisible =
         Attributes.defineBindable<int> IndicatorView.MaximumVisibleProperty
 
-    let Position =
-        Attributes.defineBindable<int> IndicatorView.PositionProperty
+//    let Position =
+//        Attributes.defineBindable<int> IndicatorView.PositionProperty
 
     let SelectedIndicatorColor =
         Attributes.defineAppThemeBindable<Color> IndicatorView.SelectedIndicatorColorProperty
 
-    let PositionChanged =
-        Attributes.defineEvent<Fabulous.XamarinForms.PositionChangedEventArgs>
-            "FabulousIndicatorView_PositionChanged"
-            (fun target -> (target :?> FabulousIndicatorView).PositionChanged)
+//    let PositionChanged =
+//        Attributes.defineEvent<Fabulous.XamarinForms.PositionChangedEventArgs>
+//            "FabulousIndicatorView_PositionChanged"
+//            (fun target -> (target :?> FabulousIndicatorView).PositionChanged)
 
 [<AutoOpen>]
 module IndicatorViewBuilders =
     type Fabulous.XamarinForms.View with
-        static member inline IndicatorView<'msg>(count: int, position: int, positionChanged: int -> 'msg) =
+        static member inline IndicatorView<'msg>(ref: ViewRef<IndicatorView>) =
             WidgetBuilder<'msg, IIndicatorView>(
                 IndicatorView.WidgetKey,
-                IndicatorView.Count.WithValue(count),
-                IndicatorView.Position.WithValue(position),
-                IndicatorView.PositionChanged.WithValue(fun args -> positionChanged args.CurrentPosition |> box)
+                ViewRef.ViewRef.WithValue(ref.Unbox)
             )
 
 [<Extension>]

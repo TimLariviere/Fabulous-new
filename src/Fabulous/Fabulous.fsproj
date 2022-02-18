@@ -25,6 +25,7 @@
         <Compile Include="Attributes.fs" />
         <Compile Include="Memo.fs" />
         <Compile Include="MapMsg.fs" />
+        <Compile Include="ViewRef.fs" />
         <Compile Include="View.fs" />
     </ItemGroup>
     <ItemGroup>

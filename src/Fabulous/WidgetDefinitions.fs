@@ -9,7 +9,7 @@ type WidgetDefinition =
     { Key: WidgetKey
       Name: string
       TargetType: Type
-      CreateView: Widget * ViewTreeContext * IViewNode voption -> struct (IViewNode * obj) }
+      CreateView: Widget * ViewTreeContext * IViewNode option -> struct (IViewNode * obj) }
 
 module WidgetDefinitionStore =
     let private _widgets =

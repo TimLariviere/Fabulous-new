@@ -10,7 +10,7 @@ module Helpers =
         let widgetDefinition = WidgetDefinitionStore.get widget.Key
 
         let struct (_node, view) =
-            widgetDefinition.CreateView(widget, parent.TreeContext, ValueSome parent)
+            widgetDefinition.CreateView(widget, parent.TreeContext, Some parent)
 
         view
 
@@ -30,7 +30,7 @@ module Attributes =
         (convert: 'inputType -> 'modelType)
         (convertValue: 'modelType -> 'valueType)
         (compare: 'modelType -> 'modelType -> ScalarAttributeComparison)
-        (updateNode: 'valueType voption -> IViewNode -> unit)
+        (updateNode: 'valueType voption -> 'valueType voption -> IViewNode -> unit)
         =
         let key = AttributeDefinitionStore.getNextKey ()
 
@@ -49,7 +49,7 @@ module Attributes =
     let defineWidgetWithConverter
         name
         (applyDiff: WidgetDiff -> IViewNode -> unit)
-        (updateNode: Widget voption -> IViewNode -> unit)
+        (updateNode: Widget voption -> Widget voption -> IViewNode -> unit)
         =
         let key = AttributeDefinitionStore.getNextKey ()
 
@@ -66,7 +66,7 @@ module Attributes =
     let defineWidgetCollectionWithConverter
         name
         (applyDiff: WidgetCollectionItemChanges -> IViewNode -> unit)
-        (updateNode: ArraySlice<Widget> voption -> IViewNode -> unit)
+        (updateNode: ArraySlice<Widget> voption -> ArraySlice<Widget> voption -> IViewNode -> unit)
         =
         let key = AttributeDefinitionStore.getNextKey ()
 
@@ -87,7 +87,7 @@ module Attributes =
             childNode.ApplyDiff(&diff)
 
 
-        let updateNode (newValueOpt: Widget voption) (node: IViewNode) =
+        let updateNode _ (newValueOpt: Widget voption) (node: IViewNode) =
             match newValueOpt with
             | ValueNone -> set node.Target null
             | ValueSome widget ->
@@ -126,7 +126,7 @@ module Attributes =
 
                 | _ -> ()
 
-        let updateNode (newValueOpt: ArraySlice<Widget> voption) (node: IViewNode) =
+        let updateNode _ (newValueOpt: ArraySlice<Widget> voption) (node: IViewNode) =
             let targetColl = getCollection node.Target
             targetColl.Clear()
 
@@ -147,8 +147,8 @@ module Attributes =
 
         let mutable mapMsg =
             match node.MapMsg with
-            | ValueNone -> id
-            | ValueSome fn -> fn
+            | None -> id
+            | Some fn -> fn
 
         while parentOpt.IsSome do
             let parent = parentOpt.Value
@@ -156,8 +156,8 @@ module Attributes =
 
             mapMsg <-
                 match parent.MapMsg with
-                | ValueNone -> mapMsg
-                | ValueSome fn -> mapMsg >> fn
+                | None -> mapMsg
+                | Some fn -> mapMsg >> fn
 
         let newMsg = mapMsg msg
         node.TreeContext.Dispatch(newMsg)
@@ -172,22 +172,22 @@ module Attributes =
               ConvertValue = id
               Compare = ScalarAttributeComparers.noCompare
               UpdateNode =
-                  fun newValueOpt node ->
+                  fun _ newValueOpt node ->
                       let event = getEvent node.Target
 
                       match node.TryGetHandler(key) with
-                      | ValueNone -> ()
-                      | ValueSome handler -> event.RemoveHandler handler
+                      | None -> ()
+                      | Some handler -> event.RemoveHandler handler
 
                       match newValueOpt with
-                      | ValueNone -> node.SetHandler(key, ValueNone)
+                      | ValueNone -> node.SetHandler(key, None)
 
                       | ValueSome msg ->
                           let handler =
                               EventHandler(fun _ _ -> dispatchMsgOnViewNode node msg)
 
                           event.AddHandler handler
-                          node.SetHandler(key, ValueSome handler) }
+                          node.SetHandler(key, Some handler) }
 
         AttributeDefinitionStore.set key definition
         definition
@@ -202,17 +202,17 @@ module Attributes =
               ConvertValue = id
               Compare = ScalarAttributeComparers.noCompare
               UpdateNode =
-                  fun (newValueOpt: ('args -> obj) voption) (node: IViewNode) ->
+                  fun _ (newValueOpt: ('args -> obj) voption) (node: IViewNode) ->
                       let event = getEvent node.Target
 
                       match node.TryGetHandler(key) with
-                      | ValueNone -> printfn $"No old handler for {name}"
-                      | ValueSome handler ->
+                      | None -> printfn $"No old handler for {name}"
+                      | Some handler ->
                           printfn $"Removed old handler for {name}"
                           event.RemoveHandler handler
 
                       match newValueOpt with
-                      | ValueNone -> node.SetHandler(key, ValueNone)
+                      | ValueNone -> node.SetHandler(key, None)
 
                       | ValueSome fn ->
                           let handler =
@@ -222,7 +222,7 @@ module Attributes =
                                       let r = fn args
                                       dispatchMsgOnViewNode node r)
 
-                          node.SetHandler(key, ValueSome handler)
+                          node.SetHandler(key, Some handler)
                           event.AddHandler handler
                           printfn $"Added new handler for {name}" }
 
