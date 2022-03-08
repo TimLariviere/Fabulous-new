@@ -20,6 +20,19 @@ module iOS =
 
                 page.On<iOS>().SetUseSafeArea(value) |> ignore)
 
+    let UpdateMode =
+        Attributes.define<UpdateMode>
+            "Picker_UpdateMode"
+            (fun newValueOpt node ->
+                let picker = node.Target :?> Xamarin.Forms.Picker
+
+                let value =
+                    match newValueOpt with
+                    | ValueNone -> UpdateMode.Immediately
+                    | ValueSome v -> v
+
+                picker.On<iOS>().SetUpdateMode(value) |> ignore)
+
 module Android =
     let ToolbarPlacement =
         Attributes.define<ToolbarPlacement>
@@ -42,6 +55,10 @@ type PlatformModifiers =
     [<Extension>]
     static member inline ignoreSafeArea(this: WidgetBuilder<'msg, #IPage>) =
         this.AddScalar(iOS.UseSafeArea.WithValue(false))
+
+    [<Extension>]
+    static member inline updateMode(this: WidgetBuilder<'msg, #IPicker>, mode: UpdateMode) =
+        this.AddScalar(iOS.UpdateMode.WithValue(mode))
 
     [<Extension>]
     static member inline androidToolbarPlacement(this: WidgetBuilder<'msg, #ITabbedPage>, value: ToolbarPlacement) =
