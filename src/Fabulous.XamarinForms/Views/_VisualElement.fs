@@ -85,6 +85,19 @@ module VisualElement =
     let Visual =
         Attributes.defineBindable<IVisual> VisualElement.VisualProperty
 
+    let SetFocus =
+        Attributes.define<bool>
+            "VisualElement_SetFocus"
+            (fun newValueOpt node ->
+                let view = node.Target :?> VisualElement
+
+                match newValueOpt with
+                | ValueNone -> ()
+                | ValueSome isFocused ->
+                    if isFocused then
+                        view.Focus() |> ignore
+                    else
+                        view.Unfocus())
 
     let Focused =
         Attributes.defineEvent<FocusEventArgs>
@@ -221,3 +234,7 @@ type VisualElementModifiers =
     [<Extension>]
     static member inline onUnfocused(this: WidgetBuilder<'msg, #IVisualElement>, onUnfocused: bool -> 'msg) =
         this.AddScalar(VisualElement.Unfocused.WithValue(fun args -> onUnfocused args.IsFocused |> box))
+
+    [<Extension>]
+    static member inline setFocus(this: WidgetBuilder<'msg, #IVisualElement>, value: bool) =
+        this.AddScalar(VisualElement.SetFocus.WithValue(value))
